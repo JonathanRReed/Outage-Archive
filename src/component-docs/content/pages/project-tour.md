@@ -142,7 +142,6 @@ Here's a quick map of where things live:
 | ----------------------- | --------------------------------------------------------------- |
 | `src/components/`       | All 40+ components (building blocks, page sections, navigation) |
 | `src/content/pages/`    | Your site's pages as Markdown with `pageSections` arrays        |
-| `src/content/blog/`     | Blog posts in MDX                                               |
 | `src/styles/variables/` | Design tokens: colors, fonts, spacing, widths                   |
 | `src/styles/themes/`    | Light and dark theme definitions                                |
 | `src/styles/base/`      | CSS reset, typography defaults, form styles                     |

@@ -2,6 +2,7 @@
   :where(:root) {
     html,
     body {
+      background-color: var(--color-bg);
       margin: 0;
       overflow-x: hidden;
       padding: 0;

@@ -99,19 +99,6 @@ pageSections:
 
 Or add it in CloudCannon by clicking "Add Page Section" and picking "Section Intro" from the list.
 
-## Build it with Component Builder
-
-Prefer visual composition over hand-writing files? Use the [Component Builder](/component-docs/component-builder/) to scaffold this faster:
-
-1. Open the Component Builder. Under the Custom Section, press the "Add to Content Sections" button. Select Heading, then repeat and select Text.
-2. Both Heading and Text expose a prop called `text`, which causes a validation error at the same level. To fix this, click the Heading component to open the props sidebar and change the Exposed Name from `text` to `heading`. Do the same for Text, changing it to `subtext`. You can also expose other props if you want editors to be able to configure them.
-3. Select Export Component in the top bar. Choose "Info Blocks" for the category and enter `section-intro` for the component name. Select "Download Zip".
-4. Unzip and move the exported files into `src/components/page-sections/info-blocks/section-intro/`.
-
-After that, add the section in CloudCannon from "Add Page Section" just like any hand-built component.
-
-This is a good way to scaffold a new component. From there, you can add your own HTML, styles, and scripts to customize it further.
-
 ## Choosing how much control editors get
 
 The SectionIntro above is a **structured component** — it has a fixed layout with specific props. That's one end of a spectrum. At the other end is giving editors complete freedom to compose their own layouts. Most real projects use a mix of both, and there's a useful middle ground too.

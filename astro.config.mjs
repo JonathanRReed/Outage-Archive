@@ -13,7 +13,9 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export default defineConfig({
   site:
     process.env.PUBLIC_SITE_URL ||
-    (process.env.NODE_ENV === "development" ? "http://localhost:4321" : "https://example.com"),
+    (process.env.NODE_ENV === "development"
+      ? "http://localhost:4321"
+      : "https://outage-archive.jonathanrreed.com"),
   build: {
     inlineStylesheets: "always",
   },

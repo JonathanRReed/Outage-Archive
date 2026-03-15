@@ -25,10 +25,6 @@ New here? Follow these guides in order to go from first clone to building your o
 
 5. **[Visually Edit Components](/component-docs/visually-edit-components/)**: Wire up editable regions so content editors can click, type, and drag directly on the live preview.
 
-## Component Builder
-
-Want to prototype a component without writing code first? The **[Component Builder](/component-docs/component-builder/)** lets you drag-and-drop building blocks into a sandbox, configure props, and export a complete component package with Astro code and CloudCannon config files included.
-
 ## Browse components
 
 All components are documented in the sidebar. Each page includes a description, live examples, and a full list of properties. Use them as reference when building pages or creating your own components.
