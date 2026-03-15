@@ -2,7 +2,6 @@
 import StructuredData from "@components/utils/StructuredData.astro";
 import seoData from "@data/seo.json";
 import "@styles/style.css";
-import { SEO } from "astro-seo";
 
 export interface Props {
   title: string;
@@ -15,7 +14,12 @@ export interface Props {
 const props = Astro.props;
 const formattedTitle = seoData.titleFormat.replace("{title}", props.title);
 const pageDescription = props.description || seoData.description;
-const pageImage = props.image || seoData.logoSource;
+const siteUrl = seoData.url || Astro.site?.toString() || "";
+const pageImage = props.image || seoData.defaultImage || seoData.logoSource;
+const pageImageUrl = siteUrl ? new URL(pageImage, siteUrl).toString() : pageImage;
+const canonicalUrl =
+  props.canonical || (siteUrl ? new URL(Astro.url.pathname, siteUrl).toString() : Astro.url.href);
+const keywords = props.keywords?.filter(Boolean).join(", ");
 ---
 
 <!doctype html>
@@ -33,6 +37,10 @@ const pageImage = props.image || seoData.logoSource;
       rel="icon"
       type="image/svg+xml"
       href="/favicon.svg"
+    />
+    <link
+      rel="apple-touch-icon"
+      href={pageImage}
     />
     <meta
       name="generator"
@@ -57,21 +65,71 @@ const pageImage = props.image || seoData.logoSource;
       }
     </script>
 
-    <SEO
-      title={formattedTitle}
-      description={pageDescription}
-      canonical={props.canonical || Astro.url.href}
-      openGraph={{
-        basic: {
-          title: formattedTitle,
-          type: "website",
-          image: pageImage,
-        },
-        optional: {
-          description: pageDescription,
-        },
-      }}
+    <title>{formattedTitle}</title>
+    <link
+      rel="canonical"
+      href={canonicalUrl}
     />
+    <meta
+      name="description"
+      content={pageDescription}
+    />
+    {
+      keywords ? (
+        <meta
+          name="keywords"
+          content={keywords}
+        />
+      ) : null
+    }
+    <meta
+      name="robots"
+      content="index, follow"
+    />
+    <meta
+      property="og:title"
+      content={formattedTitle}
+    />
+    <meta
+      property="og:type"
+      content="website"
+    />
+    <meta
+      property="og:image"
+      content={pageImageUrl}
+    />
+    <meta
+      property="og:url"
+      content={canonicalUrl}
+    />
+    <meta
+      property="og:description"
+      content={pageDescription}
+    />
+    <meta
+      name="twitter:card"
+      content="summary_large_image"
+    />
+    <meta
+      name="twitter:title"
+      content={formattedTitle}
+    />
+    <meta
+      name="twitter:description"
+      content={pageDescription}
+    />
+    <meta
+      name="twitter:image"
+      content={pageImageUrl}
+    />
+    {
+      seoData.twitterHandle ? (
+        <meta
+          name="twitter:site"
+          content={seoData.twitterHandle}
+        />
+      ) : null
+    }
 
     <StructuredData site={seoData} />
 
