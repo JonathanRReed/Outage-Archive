@@ -20,6 +20,22 @@ const pageImageUrl = siteUrl ? new URL(pageImage, siteUrl).toString() : pageImag
 const canonicalUrl =
   props.canonical || (siteUrl ? new URL(Astro.url.pathname, siteUrl).toString() : Astro.url.href);
 const keywords = props.keywords?.filter(Boolean).join(", ");
+const themeBootstrapScript = `(function () {
+  var theme = "light";
+  try {
+    var saved = localStorage.getItem("ioa-theme");
+    if (saved === "dark" || saved === "light") {
+      theme = saved;
+    } else if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+      theme = "dark";
+    }
+  } catch (e) {}
+
+  var html = document.documentElement;
+  html.setAttribute("data-theme", theme);
+  html.style.colorScheme = theme;
+  html.style.backgroundColor = theme === "dark" ? "#000" : "#fff";
+})();`;
 ---
 
 <!doctype html>
@@ -29,6 +45,10 @@ const keywords = props.keywords?.filter(Boolean).join(", ");
 >
   <head>
     <meta charset="UTF-8" />
+    <script
+      is:inline
+      set:html={themeBootstrapScript}
+    />
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0, viewport-fit=cover"
