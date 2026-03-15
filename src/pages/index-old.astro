@@ -1,0 +1,2076 @@
+---
+// Internet Outage Atlas — Archival Broadsheet
+// 1940s newspaper + Art Deco editorial hybrid
+// Light & Dark mode — parchment/ink + navy/gold
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+    <title>Internet Outage Atlas</title>
+    <meta
+      name="description"
+      content="The Internet Outage Atlas: a forensic editorial record of the failures that define modern digital infrastructure, in the typographic tradition of serious journalism."
+    />
+    <link
+      rel="preconnect"
+      href="https://fonts.googleapis.com"
+    />
+    <link
+      rel="preconnect"
+      href="https://fonts.gstatic.com"
+      crossorigin
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,700&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Source+Serif+4:wght@300;400;600&family=Cormorant+Garamond:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      /* Paper noise texture */
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+        pointer-events: none;
+        z-index: 9999;
+        mix-blend-mode: multiply;
+      }
+
+      /* ── LIGHT MODE (default) ── */
+      :root {
+        --parchment: #f5f0e6;
+        --parchment-dark: #ece5d6;
+        --ink: #1a1209;
+        --ink-mid: #3d2c1a;
+        --ink-muted: #7a6248;
+        --ink-faint: #b8a890;
+        --ink-lightest: #d4c8b0;
+        --red: #8b1a1a;
+        --red-bright: #c0392b;
+        --cyan-link: #2c6e8a;
+        --rule: #c8b898;
+        --surface: #fffdf5;
+        --accent-gold: #a08a3c;
+        --ornament-color: var(--ink-faint);
+        --deco-border: var(--ink);
+        --font-display: "Playfair Display", Georgia, serif;
+        --font-body: "Source Serif 4", Georgia, serif;
+      }
+
+      /* ── DARK MODE (navy & gold — Art Deco) ── */
+      :root[data-theme="dark"] {
+        --parchment: #0d1b2a;
+        --parchment-dark: #1b2d45;
+        --ink: #f5f0e8;
+        --ink-mid: #d8d0c2;
+        --ink-muted: #8a9ab0;
+        --ink-faint: #4a5a70;
+        --ink-lightest: #3a4a5e;
+        --red: #c45a5a;
+        --red-bright: #e07070;
+        --cyan-link: #d4af55;
+        --rule: rgba(212, 175, 85, 0.25);
+        --surface: #1b2d45;
+        --accent-gold: #d4af55;
+        --ornament-color: #d4af55;
+        --deco-border: #d4af55;
+        --font-display: "Playfair Display", Georgia, serif;
+        --font-body: "Source Serif 4", Georgia, serif;
+      }
+      :root[data-theme="dark"] body::before {
+        opacity: 0.02;
+        mix-blend-mode: screen;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        background: var(--parchment);
+        color: var(--ink);
+        font-family: var(--font-body);
+        font-size: 15px;
+        line-height: 1.75;
+        transition:
+          background 0.4s ease,
+          color 0.4s ease;
+      }
+
+      /* ── THEME TOGGLE ── */
+      .theme-toggle {
+        background: none;
+        border: 1px solid var(--rule);
+        color: var(--ink-muted);
+        cursor: pointer;
+        font-family: var(--font-body);
+        font-size: 10px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 0.3rem 0.7rem;
+        transition: all 0.25s;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+      }
+      .theme-toggle:hover {
+        color: var(--ink);
+        border-color: var(--ink-muted);
+      }
+      .theme-toggle__icon {
+        font-size: 13px;
+        line-height: 1;
+      }
+
+      /* ── ART DECO ORNAMENTS ── */
+      .deco-diamond {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        background: var(--ornament-color);
+        transform: rotate(45deg);
+        flex-shrink: 0;
+      }
+      .deco-line {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin: 1.5rem 0;
+      }
+      .deco-line__rule {
+        flex: 1;
+        height: 1px;
+        background: var(--rule);
+      }
+      .deco-chevron {
+        display: flex;
+        justify-content: center;
+        gap: 2px;
+        margin: 1rem 0;
+        color: var(--ornament-color);
+        font-size: 10px;
+        letter-spacing: 0.3em;
+      }
+
+      /* ── MASTHEAD ── */
+      .masthead-top {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: var(--parchment);
+        border-bottom: 1px solid var(--rule);
+        padding: 0.6rem 3rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-family: var(--font-body);
+        font-size: 11px;
+        font-weight: 300;
+        color: var(--ink-muted);
+        letter-spacing: 0.08em;
+        box-shadow: 0 1px 8px rgba(26, 18, 9, 0.06);
+      }
+      .masthead-dateline {
+        letter-spacing: 0.05em;
+      }
+      .masthead-nav {
+        display: flex;
+        gap: 1.5rem;
+        list-style: none;
+      }
+      .masthead-nav a {
+        color: var(--ink-muted);
+        text-decoration: none;
+        font-size: 11px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        transition: color 0.15s;
+      }
+      .masthead-nav a:hover {
+        color: var(--ink);
+      }
+
+      .masthead-main {
+        text-align: center;
+        padding: 2.5rem 3rem 1.5rem;
+        border-bottom: 3px double var(--deco-border);
+        position: relative;
+      }
+      .masthead-main::after {
+        content: "";
+        display: block;
+        margin: 1.25rem auto 0;
+        width: 200px;
+        height: 12px;
+        background: linear-gradient(
+            135deg,
+            transparent 33.33%,
+            var(--ornament-color) 33.33%,
+            var(--ornament-color) 66.66%,
+            transparent 66.66%
+          )
+          0 0 / 12px 12px repeat-x;
+        opacity: 0.5;
+      }
+      .masthead-kicker {
+        font-family: var(--font-body);
+        font-size: 11px;
+        letter-spacing: 0.35em;
+        text-transform: uppercase;
+        color: var(--ink-muted);
+        margin-bottom: 1rem;
+      }
+      .masthead-title {
+        font-family: var(--font-display);
+        font-size: clamp(3.5rem, 8vw, 7.5rem);
+        font-weight: 900;
+        line-height: 0.88;
+        letter-spacing: -0.02em;
+        color: var(--ink);
+        margin-bottom: 0.75rem;
+      }
+      .masthead-subtitle {
+        font-family: var(--font-display);
+        font-size: clamp(1rem, 2vw, 1.5rem);
+        font-weight: 400;
+        font-style: italic;
+        color: var(--ink-mid);
+        margin-bottom: 1rem;
+        letter-spacing: 0.01em;
+      }
+      .masthead-rule-row {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-top: 1.25rem;
+      }
+      .masthead-rule {
+        flex: 1;
+        height: 1px;
+        background: var(--rule);
+      }
+      .masthead-ornament {
+        font-size: 1.1rem;
+        color: var(--ornament-color);
+      }
+
+      /* Staggered reveal delays for archive cards */
+      .clipping-grid .clipping:nth-child(1) {
+        transition-delay: 0s;
+      }
+      .clipping-grid .clipping:nth-child(2) {
+        transition-delay: 0.1s;
+      }
+      .clipping-grid .clipping:nth-child(3) {
+        transition-delay: 0.2s;
+      }
+      .clipping-grid .clipping:nth-child(4) {
+        transition-delay: 0.3s;
+      }
+      .clipping-grid .clipping:nth-child(5) {
+        transition-delay: 0.4s;
+      }
+      .clipping-grid .clipping:nth-child(6) {
+        transition-delay: 0.5s;
+      }
+
+      /* ── HERO GRID ── */
+      .hero-grid {
+        display: grid;
+        grid-template-columns: 3fr 2px 2fr;
+        gap: 0;
+        padding: 0 3rem;
+        border-bottom: 2px solid var(--deco-border);
+      }
+      .hero-main {
+        padding: 3rem 3rem 3rem 0;
+        border-right: 1px solid var(--rule);
+      }
+      .hero-sidebar {
+        padding: 3rem 0 3rem 3rem;
+      }
+      .column-rule {
+        background: var(--rule);
+        width: 1px;
+      }
+
+      /* Drop cap */
+      .hero-body {
+      }
+      .hero-body p:first-of-type::first-letter {
+        font-family: var(--font-display);
+        font-size: 4.5rem;
+        font-weight: 900;
+        float: left;
+        line-height: 0.7;
+        margin: 0.1rem 0.15rem 0 0;
+        color: var(--ink);
+        padding-top: 0.1rem;
+      }
+
+      .byline {
+        font-size: 11px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--ink-muted);
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+      .byline::before,
+      .byline::after {
+        content: "";
+        flex: 0 0 20px;
+        height: 1px;
+        background: var(--rule);
+      }
+
+      .hero-headline {
+        font-family: var(--font-display);
+        font-size: clamp(2rem, 4vw, 3.2rem);
+        font-weight: 800;
+        line-height: 1.05;
+        color: var(--ink);
+        margin-bottom: 1.25rem;
+        letter-spacing: -0.02em;
+      }
+      .hero-subhead {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--ink-mid);
+        margin-bottom: 1.5rem;
+        line-height: 1.4;
+        font-style: italic;
+        border-left: 3px solid var(--ink);
+        padding-left: 1rem;
+      }
+      .hero-body p {
+        font-size: 14px;
+        color: var(--ink-mid);
+        line-height: 1.85;
+        margin-bottom: 1rem;
+        text-align: justify;
+      }
+      .cta-link {
+        display: inline;
+        color: var(--cyan-link);
+        text-decoration: underline;
+        text-decoration-color: var(--ink-lightest);
+        font-style: italic;
+        font-weight: 600;
+        transition: color 0.15s;
+      }
+      .cta-link:hover {
+        color: var(--red);
+      }
+
+      /* Sidebar facts box */
+      .sidebar-title {
+        font-family: var(--font-display);
+        font-size: 1rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--ink);
+        margin-bottom: 0.75rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid var(--deco-border);
+      }
+      .sidebar-fact {
+        border-bottom: 1px solid var(--rule);
+        padding: 1rem 0;
+      }
+      .sidebar-fact:last-child {
+        border-bottom: none;
+      }
+      .sf-number {
+        font-family: var(--font-display);
+        font-size: 2.5rem;
+        font-weight: 900;
+        color: var(--red);
+        line-height: 1;
+        margin-bottom: 0.2rem;
+      }
+      .sf-label {
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--ink-muted);
+      }
+      .sf-note {
+        font-size: 11px;
+        color: var(--ink-faint);
+        font-style: italic;
+      }
+
+      /* ── SECTION MASTHEAD ── */
+      .sec-masthead {
+        padding: 2.5rem 3rem 0;
+        margin-bottom: 0;
+        border-top: 2px solid var(--deco-border);
+      }
+      .sec-kicker {
+        font-family: var(--font-body);
+        font-size: 10px;
+        letter-spacing: 0.3em;
+        text-transform: uppercase;
+        color: var(--ink-muted);
+        margin-bottom: 0.4rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+      .sec-kicker::before {
+        content: "§";
+        color: var(--rule);
+      }
+      .sec-h {
+        font-family: var(--font-display);
+        font-size: clamp(2rem, 4vw, 3rem);
+        font-weight: 900;
+        letter-spacing: -0.02em;
+        color: var(--ink);
+        line-height: 1;
+        margin-bottom: 0.25rem;
+      }
+      .sec-intro-p {
+        font-size: 13px;
+        color: var(--ink-muted);
+        font-style: italic;
+        max-width: 600px;
+        margin: 0.5rem 0 2rem;
+        line-height: 1.7;
+      }
+      .double-rule {
+        border-top: 3px double var(--deco-border);
+        margin: 0 3rem;
+      }
+
+      /* ── TIMELINE ── */
+      .timeline-section {
+        padding: 0 3rem 4rem;
+      }
+      .tl-entry {
+        display: grid;
+        grid-template-columns: 90px 1fr;
+        gap: 0;
+        border-bottom: 1px solid var(--rule);
+        padding: 2.5rem 0;
+        transition:
+          background 0.3s,
+          border-color 0.3s;
+        margin: 0 -1rem;
+        padding-left: 1rem;
+        padding-right: 1rem;
+        border-left: 3px solid transparent;
+      }
+      .tl-entry:hover {
+        background: rgba(0, 0, 0, 0.025);
+        border-left-color: var(--accent-gold);
+      }
+      .tl-entry:hover .tl-year {
+        color: var(--red);
+      }
+      .tl-year-col {
+        padding-top: 0.2rem;
+      }
+      .tl-year {
+        font-family: var(--font-display);
+        font-size: 2rem;
+        font-weight: 900;
+        color: var(--ink-muted);
+        line-height: 1;
+        letter-spacing: -0.02em;
+        transition: color 0.25s;
+      }
+      .tl-content {
+        padding-left: 2rem;
+        border-left: 1px solid var(--rule);
+        position: relative;
+      }
+      .tl-content::before {
+        content: "◇";
+        position: absolute;
+        left: -0.45em;
+        top: 0.1em;
+        font-size: 10px;
+        color: var(--ornament-color);
+        line-height: 1;
+      }
+      .tl-hed {
+        font-family: var(--font-display);
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--ink);
+        line-height: 1.1;
+        margin-bottom: 0.3rem;
+        letter-spacing: -0.02em;
+      }
+      .tl-dek {
+        font-size: 12px;
+        font-style: italic;
+        color: var(--ink-muted);
+        margin-bottom: 0.75rem;
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .tl-tag {
+        font-style: normal;
+        font-size: 9px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        padding: 0.1rem 0.5rem;
+        border: 1px solid;
+      }
+      .tag-red {
+        color: var(--red);
+        border-color: var(--red);
+      }
+      .tag-ink {
+        color: var(--ink-muted);
+        border-color: var(--rule);
+      }
+      .tl-body {
+        font-size: 13px;
+        color: var(--ink-mid);
+        line-height: 1.75;
+        text-align: justify;
+      }
+      .tl-dur {
+        margin-top: 0.6rem;
+        font-size: 11px;
+        color: var(--ink-muted);
+        font-style: italic;
+      }
+
+      /* ── ARCHIVE — Clippings Style ── */
+      .archive-section {
+        padding: 0 3rem 5rem;
+      }
+      .clipping-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2rem;
+      }
+      .clipping {
+        background: var(--surface);
+        border: 1px solid var(--rule);
+        padding: 1.75rem;
+        position: relative;
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
+      }
+      .clipping:hover {
+        transform: translateY(-3px) rotate(-0.3deg);
+        box-shadow: 3px 6px 20px rgba(26, 18, 9, 0.1);
+        z-index: 1;
+      }
+      .clipping::before {
+        content: "";
+        position: absolute;
+        top: -6px;
+        left: 20%;
+        width: 60%;
+        height: 6px;
+        background: var(--parchment-dark);
+        clip-path: polygon(0 0, 100% 0, 95% 100%, 5% 100%);
+      }
+      .clp-date {
+        font-size: 10px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--ink-faint);
+        margin-bottom: 0.5rem;
+      }
+      .clp-hed {
+        font-family: var(--font-display);
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: var(--ink);
+        line-height: 1.15;
+        margin-bottom: 0.5rem;
+        letter-spacing: -0.01em;
+      }
+      .clp-cat {
+        font-size: 9px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--ink-muted);
+        border: 1px solid var(--rule);
+        padding: 0.1rem 0.4rem;
+        display: inline-block;
+        margin-bottom: 0.75rem;
+      }
+      .clp-rule {
+        height: 1px;
+        background: var(--rule);
+        margin: 0.75rem 0;
+      }
+      .clp-body {
+        font-size: 12px;
+        color: var(--ink-mid);
+        line-height: 1.7;
+      }
+      .clp-lesson {
+        margin-top: 0.75rem;
+        padding-top: 0.75rem;
+        border-top: 1px dotted var(--rule);
+        font-size: 11px;
+        color: var(--ink-muted);
+        font-style: italic;
+      }
+
+      /* ── TAXONOMY — Dictionary style ── */
+      .taxonomy-section {
+        padding: 0 3rem 5rem;
+      }
+      .taxon-list {
+      }
+      .txn-entry {
+        display: grid;
+        grid-template-columns: 200px 1fr;
+        gap: 0;
+        border-bottom: 1px solid var(--rule);
+        padding: 2rem 0;
+      }
+      .txn-term {
+        padding-right: 2rem;
+        border-right: 1px solid var(--rule);
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        gap: 0.4rem;
+      }
+      .txn-word {
+        font-family: var(--font-display);
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: var(--ink);
+        letter-spacing: -0.01em;
+        line-height: 1;
+      }
+      .txn-pos {
+        font-size: 11px;
+        color: var(--ink-muted);
+        font-style: italic;
+      }
+      .txn-n {
+        font-size: 11px;
+        color: var(--ink-faint);
+        letter-spacing: 0.05em;
+      }
+      .txn-def {
+        padding-left: 2rem;
+      }
+      .txn-def-text {
+        font-size: 14px;
+        color: var(--ink-mid);
+        line-height: 1.75;
+        margin-bottom: 0.5rem;
+        text-align: justify;
+      }
+      .txn-trigger {
+        font-size: 12px;
+        color: var(--ink-muted);
+        font-style: italic;
+        margin-bottom: 0.5rem;
+      }
+      .txn-trigger strong {
+        font-style: normal;
+        color: var(--ink-mid);
+      }
+      .txn-examples {
+        display: flex;
+        gap: 0.4rem;
+        flex-wrap: wrap;
+        margin-top: 0.5rem;
+      }
+      .txn-ex {
+        font-size: 10px;
+        padding: 0.1rem 0.4rem;
+        background: var(--parchment-dark);
+        color: var(--ink-muted);
+        border: 1px solid var(--rule);
+      }
+
+      /* ── BLAST RADIUS — Inset infographic style ── */
+      .blast-section {
+        padding: 0 3rem 5rem;
+      }
+      .blast-inset {
+        background: var(--surface);
+        border: 1px solid var(--rule);
+        padding: 3rem;
+      }
+      .blast-inset-title {
+        font-family: var(--font-display);
+        font-size: 1rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--ink);
+        text-align: center;
+        margin-bottom: 0.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid var(--deco-border);
+      }
+      .blast-inset-sub {
+        text-align: center;
+        font-size: 12px;
+        color: var(--ink-muted);
+        font-style: italic;
+        margin-bottom: 2.5rem;
+      }
+      .blast-row {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 2rem;
+      }
+      .blast-item {
+        text-align: center;
+      }
+      .blast-circle {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        margin: 0 auto 1rem;
+        border: 2px solid var(--ink);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+      }
+      .blast-circle.b1 {
+        border-width: 1px;
+        border-color: var(--rule);
+      }
+      .blast-circle.b2 {
+        box-shadow: 0 0 0 8px rgba(0, 0, 0, 0.04);
+      }
+      .blast-circle.b3 {
+        border-color: var(--red);
+        box-shadow:
+          0 0 0 8px rgba(139, 26, 26, 0.06),
+          0 0 0 16px rgba(139, 26, 26, 0.03);
+      }
+      .blast-circle.b4 {
+        border-color: var(--red);
+        border-width: 3px;
+        box-shadow:
+          0 0 0 8px rgba(139, 26, 26, 0.1),
+          0 0 0 16px rgba(139, 26, 26, 0.06),
+          0 0 0 24px rgba(139, 26, 26, 0.03);
+      }
+      .blast-num {
+        font-family: var(--font-display);
+        font-size: 1.5rem;
+        font-weight: 900;
+        color: var(--ink);
+      }
+      .blast-num.red {
+        color: var(--red);
+      }
+      .blast-label-title {
+        font-family: var(--font-display);
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--ink);
+        margin-bottom: 0.3rem;
+      }
+      .blast-label-desc {
+        font-size: 11px;
+        color: var(--ink-muted);
+        line-height: 1.6;
+        font-style: italic;
+      }
+
+      /* ── METHODOLOGY ── */
+      .method-section {
+        padding: 0 3rem 5rem;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4rem;
+      }
+      .method-col h4 {
+        font-family: var(--font-display);
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--ink);
+        margin-bottom: 0.6rem;
+        padding-bottom: 0.4rem;
+        border-bottom: 1px solid var(--rule);
+      }
+      .method-col p {
+        font-size: 13px;
+        color: var(--ink-mid);
+        line-height: 1.8;
+        margin-bottom: 0.75rem;
+        text-align: justify;
+      }
+      .method-col ul {
+        list-style: none;
+        font-size: 12px;
+        color: var(--ink-muted);
+        line-height: 1.9;
+        font-style: italic;
+      }
+      .method-col li::before {
+        content: "· ";
+        color: var(--ink-faint);
+        font-style: normal;
+      }
+
+      /* ── FOOTER MASTHEAD ── */
+      footer {
+        background: var(--ink);
+        color: var(--parchment);
+      }
+      :root[data-theme="dark"] footer {
+        background: #060e18;
+        color: #f5f0e8;
+      }
+      :root[data-theme="dark"] .f-col-head {
+        color: #4a5a70;
+        border-bottom-color: rgba(212, 175, 85, 0.15);
+      }
+      :root[data-theme="dark"] .footer-col-rule {
+        background: rgba(212, 175, 85, 0.15);
+      }
+      :root[data-theme="dark"] .f-detail {
+        color: #8a9ab0;
+      }
+      :root[data-theme="dark"] .f-detail strong {
+        color: #d4af55;
+      }
+      :root[data-theme="dark"] .f-tagline {
+        color: #8a9ab0;
+      }
+      :root[data-theme="dark"] .footer-colophon {
+        color: #4a5a70;
+        border-top-color: rgba(212, 175, 85, 0.1);
+      }
+      :root[data-theme="dark"] .f-meta {
+        color: #8a9ab0;
+      }
+
+      /* Dark mode Art Deco enhancements */
+      :root[data-theme="dark"] .masthead-top {
+        background: rgba(13, 27, 42, 0.95);
+        backdrop-filter: blur(8px);
+        box-shadow: 0 1px 8px rgba(0, 0, 0, 0.3);
+      }
+      :root[data-theme="dark"] .masthead-title {
+        letter-spacing: 0.06em;
+      }
+      :root[data-theme="dark"] .sf-number {
+        color: #d4af55;
+      }
+      :root[data-theme="dark"] .clipping {
+        background: #1b2d45;
+        border-color: rgba(212, 175, 85, 0.15);
+      }
+      :root[data-theme="dark"] .clipping:hover {
+        border-color: rgba(212, 175, 85, 0.4);
+        box-shadow: 3px 6px 20px rgba(0, 0, 0, 0.3);
+      }
+      :root[data-theme="dark"] .clipping::before {
+        background: #0d1b2a;
+      }
+      :root[data-theme="dark"] .tl-entry:hover {
+        background: rgba(212, 175, 85, 0.04);
+      }
+      :root[data-theme="dark"] .tl-entry:hover .tl-year {
+        color: #d4af55;
+      }
+      :root[data-theme="dark"] .tl-tag.tag-red {
+        color: #e07070;
+        border-color: #c45a5a;
+      }
+      :root[data-theme="dark"] .tl-tag.tag-ink {
+        color: #8a9ab0;
+        border-color: rgba(212, 175, 85, 0.25);
+      }
+      :root[data-theme="dark"] .tl-dur {
+        color: #4a5a70;
+        border-top-color: rgba(212, 175, 85, 0.12);
+      }
+      :root[data-theme="dark"] .tl-hed {
+        color: #f5f0e8;
+      }
+      :root[data-theme="dark"] .byline {
+        color: #8a9ab0;
+      }
+      :root[data-theme="dark"] .clp-cat {
+        background: rgba(212, 175, 85, 0.12);
+        color: #d4af55;
+      }
+      :root[data-theme="dark"] .clp-rule {
+        border-color: rgba(212, 175, 85, 0.15);
+      }
+      :root[data-theme="dark"] .clp-lesson {
+        color: #d4af55;
+      }
+      :root[data-theme="dark"] .txn-entry {
+        border-bottom-color: rgba(212, 175, 85, 0.15);
+      }
+      :root[data-theme="dark"] .txn-ex {
+        background: #1b2d45;
+        border-color: rgba(212, 175, 85, 0.2);
+        color: #8a9ab0;
+      }
+      :root[data-theme="dark"] .blast-inset {
+        background: #1b2d45;
+        border-color: rgba(212, 175, 85, 0.2);
+      }
+      :root[data-theme="dark"] .blast-circle {
+        border-color: #d4af55;
+      }
+      :root[data-theme="dark"] .blast-circle.b1 {
+        border-color: rgba(212, 175, 85, 0.4);
+      }
+      :root[data-theme="dark"] .blast-circle.b2 {
+        box-shadow: 0 0 0 8px rgba(212, 175, 85, 0.06);
+      }
+      :root[data-theme="dark"] .blast-circle.b3 {
+        border-color: #d4af55;
+        box-shadow:
+          0 0 0 8px rgba(212, 175, 85, 0.08),
+          0 0 0 16px rgba(212, 175, 85, 0.04);
+      }
+      :root[data-theme="dark"] .blast-circle.b4 {
+        border-color: #d4af55;
+        box-shadow:
+          0 0 0 8px rgba(212, 175, 85, 0.1),
+          0 0 0 16px rgba(212, 175, 85, 0.06),
+          0 0 0 24px rgba(212, 175, 85, 0.03);
+      }
+      :root[data-theme="dark"] .blast-num.red {
+        color: #d4af55;
+      }
+      :root[data-theme="dark"] .tag-red {
+        color: #c45a5a;
+        border-color: #c45a5a;
+      }
+      :root[data-theme="dark"] .hero-subhead {
+        border-left-color: #d4af55;
+      }
+      :root[data-theme="dark"] .method-col h4 {
+        border-bottom-color: rgba(212, 175, 85, 0.2);
+      }
+      :root[data-theme="dark"] .cta-link {
+        color: #d4af55;
+        text-decoration-color: rgba(212, 175, 85, 0.3);
+      }
+      :root[data-theme="dark"] .cta-link:hover {
+        color: #e8c96a;
+      }
+      .footer-top {
+        padding: 3rem;
+        display: grid;
+        grid-template-columns: 1fr 1px 1fr 1px 1fr;
+        gap: 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .footer-col {
+        padding: 0 2.5rem;
+      }
+      .footer-col:first-child {
+        padding-left: 0;
+      }
+      .footer-col-rule {
+        background: rgba(255, 255, 255, 0.08);
+      }
+      .f-col-head {
+        font-family: var(--font-body);
+        font-size: 9px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--ink-faint);
+        margin-bottom: 0.75rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .f-title {
+        font-family: var(--font-display);
+        font-size: 2rem;
+        font-weight: 900;
+        letter-spacing: -0.02em;
+        line-height: 1;
+        margin-bottom: 0.5rem;
+      }
+      .f-tagline {
+        font-size: 12px;
+        color: var(--ink-lightest);
+        font-style: italic;
+        line-height: 1.6;
+      }
+      .f-detail {
+        font-family: var(--font-body);
+        font-size: 12px;
+        color: var(--ink-lightest);
+        line-height: 1.9;
+      }
+      .f-detail strong {
+        font-size: 1.4rem;
+        font-family: var(--font-display);
+        color: var(--parchment);
+        font-weight: 700;
+        display: block;
+        line-height: 1;
+        margin-bottom: 0.1rem;
+      }
+      .footer-colophon {
+        padding: 1.25rem 3rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-family: var(--font-body);
+        font-size: 10px;
+        color: var(--ink-muted);
+        letter-spacing: 0.04em;
+      }
+      .f-meta {
+        font-size: 11px;
+        color: var(--ink-lightest);
+        letter-spacing: 0.05em;
+      }
+
+      /* ── SKIP LINK ── */
+      .skip-link {
+        position: absolute;
+        top: -100%;
+        left: 1rem;
+        z-index: 200;
+        background: var(--ink);
+        color: var(--parchment);
+        padding: 0.5rem 1rem;
+        font-family: var(--font-body);
+        font-size: 12px;
+        text-decoration: none;
+        border: 2px solid var(--deco-border);
+      }
+      .skip-link:focus {
+        top: 0.5rem;
+      }
+
+      /* ── FOCUS STATES ── */
+      a:focus-visible,
+      button:focus-visible {
+        outline: 2px solid var(--accent-gold);
+        outline-offset: 2px;
+      }
+
+      /* ── SCROLL REVEAL ── */
+      .reveal {
+        opacity: 0;
+        transform: translateY(20px);
+        transition:
+          opacity 0.6s ease,
+          transform 0.6s ease;
+      }
+      .reveal.revealed {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      /* ── BACK TO TOP ── */
+      .back-to-top {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        z-index: 90;
+        width: 40px;
+        height: 40px;
+        background: var(--ink);
+        color: var(--parchment);
+        border: 1px solid var(--rule);
+        cursor: pointer;
+        font-size: 18px;
+        line-height: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        pointer-events: none;
+        transition:
+          opacity 0.3s,
+          background 0.2s;
+      }
+      .back-to-top.visible {
+        opacity: 1;
+        pointer-events: auto;
+      }
+      .back-to-top:hover {
+        background: var(--red);
+      }
+      :root[data-theme="dark"] .back-to-top {
+        background: #1b2d45;
+        border-color: rgba(212, 175, 85, 0.25);
+        color: #d4af55;
+      }
+      :root[data-theme="dark"] .back-to-top:hover {
+        background: #d4af55;
+        color: #0d1b2a;
+      }
+
+      /* ── REDUCED MOTION ── */
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+        .reveal {
+          opacity: 1;
+          transform: none;
+        }
+        html {
+          scroll-behavior: auto;
+        }
+      }
+
+      @media (max-width: 900px) {
+        .masthead-top {
+          padding: 0.6rem 1.5rem;
+        }
+        .masthead-nav {
+          display: none;
+        }
+        .masthead-main {
+          padding: 2rem 1.5rem 1.5rem;
+        }
+        .hero-grid {
+          grid-template-columns: 1fr;
+          padding: 0 1.5rem;
+        }
+        .hero-main {
+          padding: 2rem 0;
+          border-right: none;
+          border-bottom: 1px solid var(--rule);
+        }
+        .column-rule {
+          display: none;
+        }
+        .hero-sidebar {
+          padding: 2rem 0 0;
+        }
+        .sec-masthead {
+          padding: 2rem 1.5rem 0;
+        }
+        .double-rule {
+          margin: 0 1.5rem;
+        }
+        .theme-toggle {
+          font-size: 9px;
+          padding: 0.2rem 0.5rem;
+        }
+        .timeline-section,
+        .archive-section,
+        .taxonomy-section,
+        .blast-section {
+          padding: 0 1.5rem 4rem;
+        }
+        .tl-entry {
+          margin: 0;
+          padding-left: 0;
+          padding-right: 0;
+        }
+        .clipping-grid {
+          grid-template-columns: 1fr;
+        }
+        .txn-entry {
+          grid-template-columns: 1fr;
+        }
+        .txn-term {
+          border-right: none;
+          border-bottom: 1px solid var(--rule);
+          padding-bottom: 0.75rem;
+          margin-bottom: 0.75rem;
+          padding-right: 0;
+        }
+        .txn-def {
+          padding-left: 0;
+        }
+        .blast-row {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .method-section {
+          grid-template-columns: 1fr;
+          padding: 0 1.5rem 4rem;
+          gap: 2rem;
+        }
+        .footer-top {
+          grid-template-columns: 1fr;
+          padding: 2rem 1.5rem;
+          gap: 1.5rem;
+        }
+        .footer-col {
+          padding: 0;
+        }
+        .footer-col-rule {
+          display: none;
+        }
+        .footer-colophon {
+          padding: 1rem 1.5rem;
+          flex-direction: column;
+          gap: 0.25rem;
+          text-align: center;
+        }
+        .back-to-top {
+          bottom: 1rem;
+          right: 1rem;
+          width: 36px;
+          height: 36px;
+          font-size: 16px;
+        }
+        .tl-entry {
+          border-left: 2px solid transparent;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <a
+      href="#main-content"
+      class="skip-link"
+      >Skip to main content</a
+    >
+
+    <!-- ── MASTHEAD ── -->
+    <header role="banner">
+      <div class="masthead-top">
+        <div class="masthead-dateline">
+          Vol. I — Issue 1 · Curated Edition 2026 · 52 Incidents Documented
+        </div>
+        <div style="display:flex;align-items:center;gap:1.5rem;">
+          <ul class="masthead-nav">
+            <li><a href="#timeline">Timeline</a></li>
+            <li><a href="#archive">Archive</a></li>
+            <li><a href="#taxonomy">Taxonomy</a></li>
+            <li><a href="#blast">Blast Radius</a></li>
+            <li><a href="#methodology">Methodology</a></li>
+          </ul>
+          <button
+            class="theme-toggle"
+            id="themeToggle"
+            aria-label="Toggle dark mode"
+          >
+            <span
+              class="theme-toggle__icon"
+              id="themeIcon"
+              >☀</span
+            >
+            <span id="themeLabel">Dark</span>
+          </button>
+        </div>
+      </div>
+      <div class="masthead-main">
+        <div class="masthead-kicker">
+          A Forensic Editorial Record · Infrastructure Failure Patterns
+        </div>
+        <h1 class="masthead-title">INTERNET<br />OUTAGE ATLAS</h1>
+        <p class="masthead-subtitle">
+          A comprehensive visual record of the failures that define modern digital infrastructure
+        </p>
+        <div class="masthead-rule-row">
+          <div class="masthead-rule"></div>
+          <span class="masthead-ornament">◆</span>
+          <div class="masthead-rule"></div>
+          <span class="masthead-ornament">◇</span>
+          <div class="masthead-rule"></div>
+          <span class="masthead-ornament">◆</span>
+          <div class="masthead-rule"></div>
+        </div>
+      </div>
+    </header>
+
+    <!-- ── HERO GRID ── -->
+    <main
+      id="main-content"
+      role="main"
+    >
+      <div class="hero-grid">
+        <div class="hero-main">
+          <div class="byline">By The Internet Outage Atlas Project · March 2026</div>
+          <h2 class="hero-headline">The Infrastructure Failures That Reshaped the Internet</h2>
+          <p class="hero-subhead">
+            "From a mistyped command that took down S3 to a security update that crashed 8.5 million
+            Windows machines simultaneously — the modern internet has failed in ways no one
+            anticipated."
+          </p>
+          <div class="hero-body">
+            <p>
+              The internet has never been more critical to daily life, commerce, and governance. It
+              has also never been more fragile. The same concentration of infrastructure that makes
+              the web efficient — a handful of cloud providers, a few CDN networks, the universal
+              adoption of BGP — creates the conditions for global-scale failures that cascade across
+              industries and borders in minutes.
+            </p>
+            <p>
+              This atlas documents fifty-two such incidents, from the 1997 AS7007 route leak that
+              briefly made the internet forget its own routes, to the 2024 CrowdStrike Falcon update
+              that simultaneously crashed 8.5 million Windows devices at hospitals, airlines, and
+              banks around the world. It traces not random accidents but <em>patterns</em> — the recurring
+              failure modes of an infrastructure that was never designed to bear this much of the world's
+              weight.
+            </p>
+            <p>
+              Read the <a
+                href="#timeline"
+                class="cta-link"
+                >Featured Timeline</a
+              >, review the <a
+                href="#archive"
+                class="cta-link"
+                >Incident Archive</a
+              >, and study the <a
+                href="#taxonomy"
+                class="cta-link"
+                >Failure Taxonomy</a
+              > to understand not just what happened — but why it will happen again.
+            </p>
+          </div>
+        </div>
+
+        <div class="column-rule"></div>
+
+        <div class="hero-sidebar">
+          <div class="sidebar-title">Key Figures</div>
+          <div class="sidebar-fact">
+            <div class="sf-number">52</div>
+            <div class="sf-label">Incidents Documented</div>
+            <div class="sf-note">Curated atlas, version 1</div>
+          </div>
+          <div class="sidebar-fact">
+            <div class="sf-number">8.5M</div>
+            <div class="sf-label">Devices in largest incident</div>
+            <div class="sf-note">CrowdStrike Falcon, July 2024</div>
+          </div>
+          <div class="sidebar-fact">
+            <div class="sf-number">$47B</div>
+            <div class="sf-label">Market cap lost in single outage</div>
+            <div class="sf-note">Facebook/Meta, October 2021</div>
+          </div>
+          <div class="sidebar-fact">
+            <div class="sf-number">26h</div>
+            <div class="sf-label">Longest telecom outage duration</div>
+            <div class="sf-note">Rogers Canada, July 2022</div>
+          </div>
+          <div class="sidebar-fact">
+            <div class="sf-number">BGP</div>
+            <div class="sf-label">Dominant failure class</div>
+            <div class="sf-note">Border Gateway Protocol misconfig</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── TIMELINE ── -->
+      <div class="double-rule"></div>
+      <div
+        class="sec-masthead reveal"
+        id="timeline"
+      >
+        <div class="sec-kicker">Chapter Three — Featured Timeline</div>
+        <h2 class="sec-h">Eight Defining Incidents</h2>
+        <p class="sec-intro-p">
+          The incidents engineers remember, reference, and build safeguards against — each exposing
+          a different class of catastrophic network failure.
+        </p>
+      </div>
+      <div class="timeline-section">
+        <div class="tl-entry reveal">
+          <div class="tl-year-col"><div class="tl-year">2016</div></div>
+          <div class="tl-content">
+            <div class="tl-hed">Dyn DNS DDoS Attack</div>
+            <div class="tl-dek">
+              <span>Dyn · Mirai Botnet · Eastern United States</span>
+              <span class="tl-tag tag-red">Critical</span>
+              <span class="tl-tag tag-ink">DNS / DDoS</span>
+            </div>
+            <p class="tl-body">
+              The Mirai botnet — assembled from hundreds of thousands of compromised IoT devices
+              including cameras, routers, and DVRs — overwhelmed Dyn's authoritative DNS servers
+              with an unprecedented volume of junk requests. Twitter, Spotify, GitHub, Reddit, and
+              dozens of other major platforms became unreachable to users across the Eastern United
+              States for the better part of a day. The attack exposed the fundamental systemic risk
+              created by concentrating critical DNS infrastructure among a small number of
+              providers.
+            </p>
+            <div class="tl-dur">Duration: approximately 8 hours · October 21, 2016</div>
+          </div>
+        </div>
+
+        <div class="tl-entry reveal">
+          <div class="tl-year-col"><div class="tl-year">2017</div></div>
+          <div class="tl-content">
+            <div class="tl-hed">AWS S3 US-East-1 Outage</div>
+            <div class="tl-dek">
+              <span>Amazon Web Services · Northern Virginia Region</span>
+              <span class="tl-tag tag-red">Critical</span>
+              <span class="tl-tag tag-ink">Cloud / Human Error</span>
+            </div>
+            <p class="tl-body">
+              A single mistyped command during routine debugging of the S3 billing system caused an
+              engineer to remove far more S3 subsystems than intended. The mistake took down
+              thousands of applications — including a significant portion of the internet's visible
+              infrastructure — for four hours. The incident permanently reshaped how the cloud
+              industry thinks about command execution safety, irreversible operations, and the
+              concentration of services in single cloud regions. It remains the industry's canonical
+              example of blast radius at cloud scale.
+            </p>
+            <div class="tl-dur">Duration: approximately 4 hours · February 28, 2017</div>
+          </div>
+        </div>
+
+        <div class="tl-entry reveal">
+          <div class="tl-year-col"><div class="tl-year">2020</div></div>
+          <div class="tl-content">
+            <div class="tl-hed">CenturyLink / Level 3 Backbone Outage</div>
+            <div class="tl-dek">
+              <span>CenturyLink · Lumen Technologies · Global Backbone</span>
+              <span class="tl-tag tag-ink">High Severity</span>
+              <span class="tl-tag tag-ink">BGP / ISP</span>
+            </div>
+            <p class="tl-body">
+              A faulty Flowspec rule, intended to block network abuse, instead blocked BGP itself
+              across one of the internet's largest backbone providers. Routers crashed, restarted,
+              received the same rule again, and crashed again in a continuous loop — dropping 3.5
+              percent of global internet traffic for nearly five hours. The bitter irony: the rule
+              meant to protect the network was the thing that destroyed it.
+            </p>
+            <div class="tl-dur">Duration: approximately 4.5 hours · August 30, 2020</div>
+          </div>
+        </div>
+
+        <div class="tl-entry reveal">
+          <div class="tl-year-col"><div class="tl-year">2021</div></div>
+          <div class="tl-content">
+            <div class="tl-hed">Fastly Global Content Delivery Outage</div>
+            <div class="tl-dek">
+              <span>Fastly · Global CDN Network</span>
+              <span class="tl-tag tag-red">Critical</span>
+              <span class="tl-tag tag-ink">CDN / Edge</span>
+            </div>
+            <p class="tl-body">
+              A software bug, deployed quietly on May 12 but never triggered, lay dormant in
+              Fastly's production network until a customer applied a routine configuration change on
+              June 8. Within seconds, 85 percent of Fastly's global network began returning errors.
+              The BBC, the New York Times, the Guardian, Shopify, and government websites
+              disappeared from the web. The incident illustrated the dangerous potential of latent
+              software defects in concentrated infrastructure: a single valid configuration change,
+              on a single customer's account, took down a significant fraction of the world's
+              websites.
+            </p>
+            <div class="tl-dur">Duration: approximately 1 hour · June 8, 2021</div>
+          </div>
+        </div>
+
+        <div class="tl-entry reveal">
+          <div class="tl-year-col"><div class="tl-year">2021</div></div>
+          <div class="tl-content">
+            <div class="tl-hed">Facebook Global Blackout</div>
+            <div class="tl-dek">
+              <span>Meta Platforms · Facebook, Instagram, WhatsApp, Messenger</span>
+              <span class="tl-tag tag-red">Critical</span>
+              <span class="tl-tag tag-ink">BGP / Platform</span>
+            </div>
+            <p class="tl-body">
+              During routine backbone maintenance, a configuration change was pushed that withdrew
+              all of Facebook's BGP route announcements. The company's DNS infrastructure — which
+              the outside world needed to reach Facebook's servers — became invisible to the global
+              routing table. Facebook, Instagram, WhatsApp, and Messenger vanished from the internet
+              simultaneously. Engineers who might have fixed the problem remotely found that the
+              same BGP withdrawal had made their internal tools inaccessible. Recovery required
+              physical entry into data centers and manual authentication without working remote
+              access systems. Approximately $47 billion in market capitalization evaporated over six
+              hours.
+            </p>
+            <div class="tl-dur">Duration: approximately 6 hours · October 4, 2021</div>
+          </div>
+        </div>
+
+        <div class="tl-entry reveal">
+          <div class="tl-year-col"><div class="tl-year">2024</div></div>
+          <div class="tl-content">
+            <div class="tl-hed">CrowdStrike Falcon Global Outage</div>
+            <div class="tl-dek">
+              <span>CrowdStrike · Microsoft Windows · Worldwide</span>
+              <span class="tl-tag tag-red">Critical</span>
+              <span class="tl-tag tag-ink">Software Supply Chain</span>
+            </div>
+            <p class="tl-body">
+              A faulty configuration file included in a routine CrowdStrike Falcon security sensor
+              update caused kernel-level crashes across an estimated 8.5 million Windows devices
+              worldwide. Airlines could not process passengers. Hospitals reverted to paper records.
+              Banks closed systems. Government agencies lost access to critical infrastructure.
+              Unlike a server outage — correctable from a control plane — each of the 8.5 million
+              machines required individual manual intervention to remove the defective file and
+              restore operation. Full recovery took ten days. The incident stands as the largest
+              software-induced mass systems failure in recorded history.
+            </p>
+            <div class="tl-dur">Duration: recovery spanning 10 days · July 19, 2024</div>
+          </div>
+        </div>
+
+        <div class="tl-entry reveal">
+          <div class="tl-year-col"><div class="tl-year">2025</div></div>
+          <div class="tl-content">
+            <div class="tl-hed">AWS DynamoDB DNS Failure — US-East-1</div>
+            <div class="tl-dek">
+              <span>Amazon Web Services · Northern Virginia Region</span>
+              <span class="tl-tag tag-red">Critical</span>
+              <span class="tl-tag tag-ink">Cloud / DNS</span>
+            </div>
+            <p class="tl-body">
+              DNS resolution for DynamoDB — the NoSQL database service that underpins thousands of
+              AWS-hosted applications — failed in the US-East-1 region, making it impossible for
+              applications to locate the database even though all the data stored within it remained
+              intact. Disney+, Delta Air Lines, Reddit, Robinhood, Roblox, and more than seventy
+              AWS-dependent services went dark for the better part of a business day. The incident
+              illustrated a bitter paradox: the data was fine; no one could reach it. A fifteen-hour
+              DNS failure defeated the resilience of the underlying storage layer entirely.
+            </p>
+            <div class="tl-dur">Duration: approximately 15 hours · October 20, 2025</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── ARCHIVE ── -->
+      <div class="double-rule"></div>
+      <div
+        class="sec-masthead reveal"
+        id="archive"
+      >
+        <div class="sec-kicker">Chapter Four — Incident Archive</div>
+        <h2 class="sec-h">The Broader Corpus</h2>
+        <p class="sec-intro-p">
+          Supporting incidents from the full 52-incident atlas — each clipped for the record,
+          annotated for the lesson.
+        </p>
+      </div>
+      <div class="archive-section">
+        <div class="clipping-grid">
+          <div class="clipping reveal">
+            <div class="clp-date">February 2008</div>
+            <div class="clp-cat">BGP Route Hijack</div>
+            <div class="clp-hed">Pakistan Telecom Blacks Out YouTube for the World</div>
+            <div class="clp-rule"></div>
+            <div class="clp-body">
+              An attempt by Pakistan Telecom to block YouTube domestically resulted in a BGP route
+              announcement that escaped containment, briefly making YouTube unreachable globally.
+              The incident demonstrated that BGP — the protocol linking all of the internet's
+              networks — has no inherent scope enforcement. A route meant for one country became a
+              route for everywhere.
+            </div>
+            <div class="clp-lesson">
+              The lesson: BGP propagates without judgment. Filters are not optional.
+            </div>
+          </div>
+
+          <div class="clipping reveal">
+            <div class="clp-date">April 2011</div>
+            <div class="clp-cat">Cloud Infrastructure</div>
+            <div class="clp-hed">AWS EC2 Failure Exposes Limits of Availability Zone Isolation</div>
+            <div class="clp-rule"></div>
+            <div class="clp-body">
+              A network upgrade misrouted Elastic Block Store traffic, causing EBS volumes to become
+              unavailable across the US-East-1 region. Reddit, Quora, Foursquare, and others
+              dependent on EC2 in a single availability zone went offline for hours or days. The
+              event established that AZ-level redundancy provides no protection against
+              control-plane cascade failures.
+            </div>
+            <div class="clp-lesson">
+              The lesson: Multi-region is not optional for critical workloads.
+            </div>
+          </div>
+
+          <div class="clipping reveal">
+            <div class="clp-date">June 2019</div>
+            <div class="clp-cat">BGP Route Leak</div>
+            <div class="clp-hed">
+              Verizon Route Leak Disrupts 15 Percent of Global Internet Traffic
+            </div>
+            <div class="clp-rule"></div>
+            <div class="clp-body">
+              An unfiltered route table from a small ISP using BGP Optimizer software was accepted
+              by Verizon and propagated widely, misdirecting enormous volumes of traffic.
+              Cloudflare, Facebook, and Google were all impacted. The incident demonstrated that
+              major carriers' willingness to accept unvalidated routes from small networks creates
+              systemic exposure.
+            </div>
+            <div class="clp-lesson">
+              The lesson: Transit filtering must be enforced upstream, not assumed.
+            </div>
+          </div>
+
+          <div class="clipping reveal">
+            <div class="clp-date">December 2020</div>
+            <div class="clp-cat">Authentication Failure</div>
+            <div class="clp-hed">Google Auth Outage Renders All Google Services Inaccessible</div>
+            <div class="clp-rule"></div>
+            <div class="clp-body">
+              A quota enforcement error during a migration of Google's authentication infrastructure
+              caused a 47-minute outage affecting Gmail, YouTube, Drive, and every other Google
+              service simultaneously. The underlying data was unaffected; users simply could not
+              authenticate to access it. A brief authentication failure produced a complete platform
+              blackout.
+            </div>
+            <div class="clp-lesson">
+              The lesson: Authentication is an all-or-nothing chokepoint.
+            </div>
+          </div>
+
+          <div class="clipping reveal">
+            <div class="clp-date">July 2021</div>
+            <div class="clp-cat">DNS / CDN</div>
+            <div class="clp-hed">Akamai DNS Outage Silences FedEx, Airlines, and Major Banks</div>
+            <div class="clp-rule"></div>
+            <div class="clp-body">
+              A configuration update triggered a software bug in Akamai's Edge DNS product, causing
+              a 83-minute outage affecting enterprises including FedEx, United Airlines, UPS, and
+              Capital One. The incident revealed that even institutions operating substantial
+              private infrastructure are exposed by DNS concentration at major CDN providers.
+            </div>
+            <div class="clp-lesson">
+              The lesson: DNS dependency extends further than most operators realize.
+            </div>
+          </div>
+
+          <div class="clipping reveal">
+            <div class="clp-date">July 2022</div>
+            <div class="clp-cat">Telecom Core Failure</div>
+            <div class="clp-hed">Rogers Canada: 12 Million Without Service, Including 911</div>
+            <div class="clp-rule"></div>
+            <div class="clp-body">
+              The removal of a critical control filter during Phase 6 of a network upgrade sent
+              misdirected traffic flooding into the Rogers core network. With no overload protection
+              in place, the entire core collapsed — leaving 12 million Canadians without mobile
+              service, internet access, and — most critically — 911 emergency service for 26 hours.
+              Engineers could not access remote systems to diagnose or remediate the problem.
+            </div>
+            <div class="clp-lesson">
+              The lesson: Core networks require overload protection by default, not as an
+              afterthought.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── TAXONOMY ── -->
+      <div class="double-rule"></div>
+      <div
+        class="sec-masthead reveal"
+        id="taxonomy"
+      >
+        <div class="sec-kicker">Chapter Five — Failure Taxonomy</div>
+        <h2 class="sec-h">How the Internet Fails</h2>
+        <p class="sec-intro-p">
+          Six recurring failure categories — each with its own trigger mechanisms, propagation
+          patterns, and characteristic blast radius.
+        </p>
+      </div>
+      <div class="taxonomy-section">
+        <div class="taxon-list">
+          <div class="txn-entry">
+            <div class="txn-term">
+              <div class="txn-word">DNS</div>
+              <div class="txn-pos">noun, failure class 01</div>
+              <div class="txn-n">Domain Name System</div>
+            </div>
+            <div class="txn-def">
+              <p class="txn-def-text">
+                The address book of the internet fails to resolve domain names to IP addresses.
+                Servers remain operational, but users cannot discover their locations. The failure
+                mode is total, invisible, and affects every user simultaneously — appearing, from
+                the outside, as if the service itself has vanished.
+              </p>
+              <p class="txn-trigger">
+                <strong>Common triggers:</strong> Volumetric DDoS attacks against resolvers, software
+                defects in DNS server applications activated by configuration changes, quota enforcement
+                errors in cloud DNS infrastructure.
+              </p>
+              <div class="txn-examples">
+                <span class="txn-ex">Dyn DDoS 2016</span><span class="txn-ex">Akamai DNS 2021</span
+                ><span class="txn-ex">AWS DynamoDB 2025</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="txn-entry">
+            <div class="txn-term">
+              <div class="txn-word">BGP / Routing</div>
+              <div class="txn-pos">noun, failure class 02</div>
+              <div class="txn-n">Border Gateway Protocol</div>
+            </div>
+            <div class="txn-def">
+              <p class="txn-def-text">
+                The routing protocol that connects the world's networks to each other is corrupted
+                by leaked or incorrect route announcements. Traffic is sent to incorrect
+                destinations, or routed into a black hole. The failure may be localized to a region
+                or global, depending on how widely the invalid route propagates.
+              </p>
+              <p class="txn-trigger">
+                <strong>Common triggers:</strong> Route leaks from small ISPs without proper filters,
+                BGP Optimizer software misbehavior, government-ordered route announcements that escape
+                containment, faulty Flowspec rules issued to routers.
+              </p>
+              <div class="txn-examples">
+                <span class="txn-ex">Pakistan YouTube 2008</span><span class="txn-ex"
+                  >Verizon 2019</span
+                ><span class="txn-ex">Facebook 2021</span><span class="txn-ex"
+                  >CenturyLink 2020</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <div class="txn-entry">
+            <div class="txn-term">
+              <div class="txn-word">CDN / Edge</div>
+              <div class="txn-pos">noun, failure class 03</div>
+              <div class="txn-n">Content Delivery Network</div>
+            </div>
+            <div class="txn-def">
+              <p class="txn-def-text">
+                Content delivery networks, which serve the majority of web traffic, fail
+                simultaneously across their distributed infrastructure. Thousands of websites go
+                dark even though their origin servers remain fully operational — the delivery layer,
+                not the content itself, has failed.
+              </p>
+              <p class="txn-trigger">
+                <strong>Common triggers:</strong> Latent software bugs activated by valid configuration
+                changes, errors in configuration update systems, DDoS mitigation systems that inadvertently
+                block legitimate traffic.
+              </p>
+              <div class="txn-examples">
+                <span class="txn-ex">Fastly 2021</span><span class="txn-ex">Akamai 2021</span><span
+                  class="txn-ex">Cloudflare 2025</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <div class="txn-entry">
+            <div class="txn-term">
+              <div class="txn-word">Cloud Control Plane</div>
+              <div class="txn-pos">noun, failure class 04</div>
+              <div class="txn-n">Cloud Management Layer</div>
+            </div>
+            <div class="txn-def">
+              <p class="txn-def-text">
+                The management infrastructure that orchestrates cloud services — launching
+                instances, allocating storage, routing between services — fails. All data stored
+                within the affected cloud remains intact, but no application can reach it, and no
+                new resources can be created. The outage is complete and total without any data
+                loss.
+              </p>
+              <p class="txn-trigger">
+                <strong>Common triggers:</strong> Configuration changes to foundational services, quota
+                enforcement system errors, authentication infrastructure failures during migration operations.
+              </p>
+              <div class="txn-examples">
+                <span class="txn-ex">AWS S3 2017</span><span class="txn-ex">Google Auth 2020</span
+                ><span class="txn-ex">Azure Storage 2014</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="txn-entry">
+            <div class="txn-term">
+              <div class="txn-word">Software Supply Chain</div>
+              <div class="txn-pos">noun, failure class 05</div>
+              <div class="txn-n">Dependency Propagation</div>
+            </div>
+            <div class="txn-def">
+              <p class="txn-def-text">
+                A software update, library change, or supply-chain component introduces a defect
+                that propagates automatically to every system that depends on it — simultaneously
+                and without any further action by the affected organizations. The key characteristic
+                is the combination of ubiquity, automaticity, and simultaneity of the failure.
+              </p>
+              <p class="txn-trigger">
+                <strong>Common triggers:</strong> Routine update deployments without adequate staged rollout,
+                kernel-level security software with privileged system access, certificate expiry in widely
+                distributed libraries, malicious modifications to widely used packages.
+              </p>
+              <div class="txn-examples">
+                <span class="txn-ex">NotPetya 2017</span><span class="txn-ex">CrowdStrike 2024</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <div class="txn-entry">
+            <div class="txn-term">
+              <div class="txn-word">Telecom Backbone</div>
+              <div class="txn-pos">noun, failure class 06</div>
+              <div class="txn-n">Tier-1 Infrastructure</div>
+            </div>
+            <div class="txn-def">
+              <p class="txn-def-text">
+                Tier-1 carriers and backbone ISPs that carry large fractions of global internet
+                traffic fail, affecting all of their downstream transit customers simultaneously. As
+                these providers form the substrate upon which the entire internet's routing is
+                built, their failures propagate widely and recover slowly.
+              </p>
+              <p class="txn-trigger">
+                <strong>Common triggers:</strong> Errors during scheduled maintenance windows, faulty
+                routing protocol configuration rules, physical fiber damage, core network overload cascading
+                through shared infrastructure without protective rate limits.
+              </p>
+              <div class="txn-examples">
+                <span class="txn-ex">CenturyLink 2020</span><span class="txn-ex">Rogers 2022</span
+                ><span class="txn-ex">CenturyLink 911 2018</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── BLAST RADIUS ── -->
+      <div class="double-rule"></div>
+      <div
+        class="sec-masthead reveal"
+        id="blast"
+      >
+        <div class="sec-kicker">Chapter Six — Blast Radius</div>
+        <h2 class="sec-h">How Failures Spread</h2>
+        <p class="sec-intro-p">
+          The scale of an internet outage is determined by concentration of shared dependencies.
+          Foundational failures produce cascading collapse.
+        </p>
+      </div>
+      <div class="blast-section">
+        <div class="blast-inset">
+          <div class="blast-inset-title">Failure Propagation Model — Illustrated</div>
+          <div class="blast-inset-sub">
+            From contained local failure to internet-scale cascading collapse — four levels of blast
+            radius.
+          </div>
+          <div class="blast-row">
+            <div class="blast-item">
+              <div class="blast-circle b1"><span class="blast-num">I</span></div>
+              <div class="blast-label-title">Local Failure</div>
+              <div class="blast-label-desc">
+                A single server or service fails. Only its direct users are affected. Recovery is
+                rapid and contained.
+              </div>
+            </div>
+            <div class="blast-item">
+              <div class="blast-circle b2"><span class="blast-num">II</span></div>
+              <div class="blast-label-title">Provider Failure</div>
+              <div class="blast-label-desc">
+                A cloud region or CDN fails. All dependent customers lose service simultaneously,
+                regardless of their own code quality.
+              </div>
+            </div>
+            <div class="blast-item">
+              <div class="blast-circle b3"><span class="blast-num red">III</span></div>
+              <div class="blast-label-title">Shared Dependency</div>
+              <div class="blast-label-desc">
+                DNS or BGP fails. Every service that depends on it — across all providers — fails
+                simultaneously and completely.
+              </div>
+            </div>
+            <div class="blast-item">
+              <div class="blast-circle b4"><span class="blast-num red">IV</span></div>
+              <div class="blast-label-title">Cascading Collapse</div>
+              <div class="blast-label-desc">
+                Failure in one system overloads adjacent systems. Retry storms and routing
+                instability compound into self-reinforcing collapse.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── METHODOLOGY ── -->
+      <div class="double-rule"></div>
+      <div
+        class="sec-masthead reveal"
+        id="methodology"
+      >
+        <div class="sec-kicker">Chapter Seven — Methodology and Sources</div>
+        <h2 class="sec-h">How This Atlas Was Built</h2>
+        <p class="sec-intro-p"></p>
+      </div>
+      <div class="method-section">
+        <div class="method-col">
+          <h4>Inclusion Criteria</h4>
+          <p>
+            Incidents are included if they meet one or more of the following criteria: significant
+            U.S. user impact, classification as a novel or landmark failure mode, or strong value as
+            a case study in infrastructure resilience. "Significant" is defined as disruption
+            lasting more than fifteen minutes affecting more than one major service or platform.
+          </p>
+          <p>
+            Excluded are: minor degradations, incidents verifiable only through social media
+            reports, and cases with insufficient primary-source documentation to verify key factual
+            claims.
+          </p>
+          <h4 style="margin-top:1.5rem;">Handling Disputed Details</h4>
+          <p>
+            Where authoritative sources conflict, this atlas uses the most conservative figure and
+            notes the dispute. Financial impact estimates are treated as rough orders of magnitude
+            only and are never presented as precise measurements. Attribution of malicious intent is
+            never stated without a clear official record as source.
+          </p>
+        </div>
+        <div class="method-col">
+          <h4>Source Hierarchy</h4>
+          <ul>
+            <li>Company postmortems and official incident reports</li>
+            <li>Regulatory filings (FCC, CRTC, and equivalent bodies)</li>
+            <li>
+              Technical analyses by BGP monitoring services (Cloudflare Radar, RIPE NCC, RouteViews)
+            </li>
+            <li>Investigative journalism with technical depth and primary sources cited</li>
+            <li>Peer-reviewed research and major conference proceedings (USENIX, SIGCOMM)</li>
+          </ul>
+          <h4 style="margin-top:1.5rem;">Scope and Coverage</h4>
+          <ul>
+            <li>52-incident curated atlas, version 1</li>
+            <li>13-incident canonical core for the featured timeline</li>
+            <li>56-incident watchlist for potential version 2 expansion</li>
+            <li>Temporal scope: year 2000 through March 2026</li>
+            <li>Geographic focus: incidents with significant U.S. user impact prioritized</li>
+            <li>No real-time monitoring component; this is a historical record</li>
+          </ul>
+        </div>
+      </div>
+    </main>
+
+    <footer role="contentinfo">
+      <div class="footer-top">
+        <div class="footer-col">
+          <div class="f-col-head">Publication</div>
+          <div class="f-title">INTERNET<br />OUTAGE<br />ATLAS</div>
+          <p class="f-tagline">
+            A forensic editorial record of the infrastructure failures that define digital life.
+          </p>
+        </div>
+        <div class="footer-col-rule"></div>
+        <div class="footer-col">
+          <div class="f-col-head">Key Figures</div>
+          <div class="f-detail"><strong>52</strong> Incidents documented, v1</div>
+          <div class="f-detail"><strong>8.5M</strong> Devices crashed — CrowdStrike 2024</div>
+          <div class="f-detail"><strong>$47B</strong> Market cap lost — Facebook 2021</div>
+          <div class="f-detail"><strong>26h</strong> Longest outage — Rogers 2022</div>
+        </div>
+        <div class="footer-col-rule"></div>
+        <div class="footer-col">
+          <div class="f-col-head">Edition</div>
+          <div class="f-detail">
+            Archival Broadsheet Edition<br />Vol. I · March 2026<br />CloudCannon Astro Challenge
+          </div>
+        </div>
+      </div>
+      <div class="footer-colophon">
+        <span>© 2026 Internet Outage Atlas Project. All content for educational purposes.</span>
+        <span>Typeset in Playfair Display &amp; Source Serif 4</span>
+      </div>
+    </footer>
+
+    <button
+      class="back-to-top"
+      id="backToTop"
+      aria-label="Back to top"
+      >↑</button
+    >
+
+    <script>
+      (function () {
+        var html = document.documentElement;
+        var toggle = document.getElementById("themeToggle");
+        var icon = document.getElementById("themeIcon");
+        var label = document.getElementById("themeLabel");
+        var btt = document.getElementById("backToTop");
+
+        // ── Theme toggle ──
+        function applyTheme(theme) {
+          html.setAttribute("data-theme", theme);
+          if (icon) icon.textContent = theme === "dark" ? "☾" : "☀";
+          if (label) label.textContent = theme === "dark" ? "Light" : "Dark";
+          try {
+            localStorage.setItem("ioa-theme", theme);
+          } catch (e) {}
+        }
+        var saved = null;
+        try {
+          saved = localStorage.getItem("ioa-theme");
+        } catch (e) {}
+        if (saved) {
+          applyTheme(saved);
+        } else if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+          applyTheme("dark");
+        }
+        if (toggle) {
+          toggle.addEventListener("click", function () {
+            var current = html.getAttribute("data-theme");
+            applyTheme(current === "dark" ? "light" : "dark");
+          });
+        }
+
+        // ── Scroll reveal (IntersectionObserver) ──
+        var reveals = document.querySelectorAll(".reveal");
+        if ("IntersectionObserver" in window) {
+          var observer = new IntersectionObserver(
+            function (entries) {
+              entries.forEach(function (entry) {
+                if (entry.isIntersecting) {
+                  entry.target.classList.add("revealed");
+                  observer.unobserve(entry.target);
+                }
+              });
+            },
+            { threshold: 0.08 }
+          );
+          reveals.forEach(function (el) {
+            observer.observe(el);
+          });
+        } else {
+          reveals.forEach(function (el) {
+            el.classList.add("revealed");
+          });
+        }
+
+        // ── Back to top ──
+        if (btt) {
+          window.addEventListener(
+            "scroll",
+            function () {
+              if (window.scrollY > 600) {
+                btt.classList.add("visible");
+              } else {
+                btt.classList.remove("visible");
+              }
+            },
+            { passive: true }
+          );
+          btt.addEventListener("click", function () {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          });
+        }
+      })();
+    </script>
+  </body>
+</html>

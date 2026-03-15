@@ -1,0 +1,749 @@
+---
+import Image from "@core-elements/image/Image.astro";
+
+type AboutProps = {
+  dateline?: string;
+  kicker?: string;
+  heading?: string;
+  subtitle?: string;
+  byline?: string;
+  introTitle?: string;
+  introBody?: string;
+  profileQuote?: string;
+  profileLabel?: string;
+  profileName?: string;
+  profileRole?: string;
+  profileBody?: string;
+  profileImage?: string;
+  profileImageAlt?: string;
+  focusTitle?: string;
+  focusItems?: string[];
+  structureTitle?: string;
+  structureItems?: string[];
+  principlesTitle?: string;
+  principlesItems?: string[];
+  websiteUrl?: string;
+  articleUrl?: string;
+  linkedinUrl?: string;
+  githubUrl?: string;
+};
+
+const {
+  dateline = "",
+  kicker = "",
+  heading = "",
+  subtitle = "",
+  byline = "",
+  introTitle = "",
+  introBody = "",
+  profileQuote = "",
+  profileLabel = "",
+  profileName = "",
+  profileRole = "",
+  profileBody = "",
+  profileImage = "",
+  profileImageAlt = "",
+  focusTitle = "",
+  focusItems = [] as string[],
+  structureTitle = "",
+  structureItems = [] as string[],
+  principlesTitle = "",
+  principlesItems = [] as string[],
+  websiteUrl = "",
+  articleUrl = "",
+  linkedinUrl = "",
+  githubUrl = "",
+  useDefaultEditableBinding: _useDefaultEditableBinding = false,
+  _component,
+  ...htmlAttributes
+} = Astro.props as AboutProps & Record<string, unknown>;
+---
+
+<div
+  class="atlas-page about-dossier"
+  {...htmlAttributes}
+>
+  <a
+    href="#about-main"
+    class="skip-link"
+    >Skip to main content</a
+  >
+
+  <header role="banner">
+    <div class="masthead-top">
+      <div
+        class="masthead-dateline"
+        data-prop="dateline"
+      >
+        {dateline}
+      </div>
+      <div class="masthead-right">
+        <ul class="masthead-nav">
+          <li><a href="/">Home Page</a></li>
+          <li><a href="/timeline/">Timeline</a></li>
+          <li><a href="/archives/">Archives</a></li>
+          <li>
+            <a
+              href="/about/"
+              aria-current="page"
+              >About</a
+            >
+          </li>
+        </ul>
+        <button
+          class="theme-toggle"
+          id="themeToggle"
+          aria-label="Toggle dark mode"
+        >
+          <span
+            class="theme-toggle__icon"
+            id="themeIcon"
+            >☀</span
+          >
+          <span id="themeLabel">Light</span>
+        </button>
+      </div>
+    </div>
+    <div class="masthead-main">
+      <div
+        class="masthead-kicker"
+        data-prop="kicker"
+      >
+        {kicker}
+      </div>
+      <h1
+        class="masthead-title"
+        data-prop="heading"
+        set:html={heading}
+      />
+      <p
+        class="masthead-subtitle"
+        data-prop="subtitle"
+      >
+        {subtitle}
+      </p>
+      <div class="masthead-rule-row">
+        <div class="masthead-rule"></div>
+        <span class="masthead-ornament">◆</span>
+        <div class="masthead-rule"></div>
+        <span class="masthead-ornament">◇</span>
+        <div class="masthead-rule"></div>
+      </div>
+    </div>
+  </header>
+
+  <section
+    class="about-hero"
+    id="about-main"
+  >
+    <div class="about-copy">
+      {
+        byline && (
+          <div
+            class="byline"
+            data-prop="byline"
+          >
+            {byline}
+          </div>
+        )
+      }
+      <h2
+        class="hero-headline"
+        data-prop="introTitle"
+      >
+        {introTitle}
+      </h2>
+      {
+        profileQuote && (
+          <p
+            class="hero-subhead"
+            data-prop="profileQuote"
+          >
+            {profileQuote}
+          </p>
+        )
+      }
+      <div
+        class="about-body"
+        data-prop="introBody"
+        set:html={introBody}
+      />
+      <div class="about-links">
+        {
+          websiteUrl && (
+            <a
+              href={websiteUrl}
+              class="about-link"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Website
+            </a>
+          )
+        }
+        {
+          articleUrl && (
+            <a
+              href={articleUrl}
+              class="about-link about-link--muted"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Original article
+            </a>
+          )
+        }
+        {
+          linkedinUrl && (
+            <a
+              href={linkedinUrl}
+              class="about-link about-link--muted"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              LinkedIn
+            </a>
+          )
+        }
+        {
+          githubUrl && (
+            <a
+              href={githubUrl}
+              class="about-link about-link--muted"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              GitHub
+            </a>
+          )
+        }
+      </div>
+    </div>
+    <div class="column-rule"></div>
+    <aside class="about-profile">
+      <div class="profile-frame">
+        <Image
+          source={profileImage}
+          alt={profileImageAlt}
+          aspectRatio="portrait"
+          priority={true}
+          class="profile-image"
+        />
+      </div>
+      <div class="profile-card">
+        <div
+          class="profile-label"
+          data-prop="profileLabel"
+        >
+          {profileLabel}
+        </div>
+        <h3
+          class="profile-name"
+          data-prop="profileName"
+        >
+          {profileName}
+        </h3>
+        <p
+          class="profile-role"
+          data-prop="profileRole"
+        >
+          {profileRole}
+        </p>
+        <p
+          class="profile-body"
+          data-prop="profileBody"
+        >
+          {profileBody}
+        </p>
+      </div>
+    </aside>
+  </section>
+
+  <div class="double-rule"></div>
+
+  <section class="about-ledger">
+    <article class="ledger-card reveal">
+      <div class="ledger-label">Scope</div>
+      <h3
+        class="ledger-title"
+        data-prop="focusTitle"
+      >
+        {focusTitle}
+      </h3>
+      <ul class="ledger-list">
+        {focusItems.map((item: string) => <li>{item}</li>)}
+      </ul>
+    </article>
+
+    <article class="ledger-card reveal">
+      <div class="ledger-label">Structure</div>
+      <h3
+        class="ledger-title"
+        data-prop="structureTitle"
+      >
+        {structureTitle}
+      </h3>
+      <ul class="ledger-list">
+        {structureItems.map((item: string) => <li>{item}</li>)}
+      </ul>
+    </article>
+
+    <article class="ledger-card reveal">
+      <div class="ledger-label">Editorial approach</div>
+      <h3
+        class="ledger-title"
+        data-prop="principlesTitle"
+      >
+        {principlesTitle}
+      </h3>
+      <ul class="ledger-list">
+        {principlesItems.map((item: string) => <li>{item}</li>)}
+      </ul>
+    </article>
+  </section>
+</div>
+
+<script is:inline>
+  (function () {
+    var html = document.documentElement;
+    var btn = document.getElementById("themeToggle");
+    var icon = document.getElementById("themeIcon");
+    var label = document.getElementById("themeLabel");
+    var prefersReducedMotion =
+      window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    function applyTheme(theme) {
+      html.setAttribute("data-theme", theme);
+      if (icon) icon.textContent = theme === "dark" ? "☾" : "☀";
+      if (label) label.textContent = theme === "dark" ? "Dark" : "Light";
+      if (btn) {
+        btn.setAttribute("aria-pressed", theme === "dark" ? "true" : "false");
+        btn.setAttribute(
+          "aria-label",
+          theme === "dark" ? "Switch to light mode" : "Switch to dark mode"
+        );
+      }
+      try {
+        localStorage.setItem("ioa-theme", theme);
+      } catch (e) {}
+    }
+
+    var saved = null;
+    try {
+      saved = localStorage.getItem("ioa-theme");
+    } catch (e) {}
+    if (saved === "dark" || saved === "light") {
+      applyTheme(saved);
+    } else if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+      applyTheme("dark");
+    }
+
+    if (btn) {
+      btn.addEventListener("click", function () {
+        var current = html.getAttribute("data-theme") || "light";
+        applyTheme(current === "dark" ? "light" : "dark");
+      });
+    }
+
+    function initAtlasInteractions() {
+      if (prefersReducedMotion) {
+        document.querySelectorAll(".reveal").forEach(function (el) {
+          el.classList.add("revealed");
+        });
+      } else if ("IntersectionObserver" in window) {
+        var observer = new IntersectionObserver(
+          function (entries) {
+            entries.forEach(function (entry) {
+              if (entry.isIntersecting) {
+                entry.target.classList.add("revealed");
+                observer.unobserve(entry.target);
+              }
+            });
+          },
+          { threshold: 0.01, rootMargin: "0px 0px -1% 0px" }
+        );
+        document.querySelectorAll(".reveal").forEach(function (el) {
+          observer.observe(el);
+        });
+      }
+
+      var btt = document.querySelector(".back-to-top");
+      if (btt) {
+        window.addEventListener(
+          "scroll",
+          function () {
+            if (window.scrollY > 600) {
+              btt.classList.add("visible");
+            } else {
+              btt.classList.remove("visible");
+            }
+          },
+          { passive: true }
+        );
+        btt.addEventListener("click", function () {
+          window.scrollTo({ top: 0, behavior: prefersReducedMotion ? "auto" : "smooth" });
+        });
+      }
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", initAtlasInteractions, { once: true });
+    } else {
+      initAtlasInteractions();
+    }
+  })();
+</script>
+
+<style>
+  @layer page-sections {
+    .masthead-top {
+      align-items: center;
+      background: var(--atlas-parchment);
+      border-bottom: 1px solid var(--atlas-rule);
+      display: grid;
+      font-family: var(--atlas-font-body);
+      gap: 1rem;
+      grid-template-columns: minmax(30rem, 1fr) auto;
+      min-height: 3.5rem;
+      padding: 0.5rem 3rem;
+      position: sticky;
+      top: 0;
+      transition: background 0.4s ease;
+      z-index: 100;
+    }
+    .masthead-dateline {
+      color: var(--atlas-ink-muted);
+      display: block;
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      line-height: 1.3;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .masthead-right {
+      align-items: center;
+      display: flex;
+      gap: 1rem;
+      justify-self: end;
+    }
+    .masthead-nav {
+      display: flex;
+      gap: 1.2rem;
+      list-style: none;
+    }
+    .masthead-nav a {
+      color: var(--atlas-ink-muted);
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-decoration: none;
+      text-transform: uppercase;
+      transition: color 0.15s ease;
+    }
+    .masthead-nav a:hover,
+    .masthead-nav a[aria-current="page"] {
+      color: var(--atlas-ink);
+    }
+    .masthead-main {
+      border-bottom: 3px double var(--atlas-deco-border);
+      padding: 2.35rem 3rem 1.6rem;
+      position: relative;
+      text-align: center;
+    }
+    .masthead-main::after {
+      background: linear-gradient(
+          135deg,
+          transparent 33.33%,
+          var(--atlas-ornament) 33.33%,
+          var(--atlas-ornament) 66.66%,
+          transparent 66.66%
+        )
+        0 0 / 12px 12px repeat-x;
+      content: "";
+      display: block;
+      height: 12px;
+      margin: 1.15rem auto 0;
+      opacity: 0.5;
+      width: 180px;
+    }
+    .masthead-kicker {
+      color: var(--atlas-ink-muted);
+      font-size: 11px;
+      letter-spacing: 0.35em;
+      margin-bottom: 0.9rem;
+      text-transform: uppercase;
+    }
+    .masthead-title {
+      color: var(--atlas-ink);
+      font-family: var(--atlas-font-display);
+      font-size: clamp(3rem, 7vw, 6rem);
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      line-height: 0.9;
+      margin-bottom: 0.65rem;
+    }
+    .masthead-subtitle {
+      color: var(--atlas-ink-mid);
+      font-family: var(--atlas-font-display);
+      font-size: clamp(1rem, 2vw, 1.35rem);
+      font-style: italic;
+      margin: 0 auto 0.9rem;
+      max-width: 40rem;
+    }
+    .masthead-rule-row {
+      align-items: center;
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.2rem;
+    }
+    .masthead-rule {
+      background: var(--atlas-rule);
+      flex: 1;
+      height: 1px;
+    }
+    .masthead-ornament {
+      color: var(--atlas-ornament);
+      font-size: 1rem;
+    }
+    .about-hero {
+      display: grid;
+      gap: 0;
+      grid-template-columns: minmax(0, 3fr) 1px minmax(320px, 2fr);
+      padding: 0 3rem 3rem;
+    }
+    .about-copy {
+      padding: 3rem 3rem 0 0;
+    }
+    .column-rule {
+      background: var(--atlas-rule);
+    }
+    .byline {
+      border-left: 2px solid var(--atlas-gold);
+      color: var(--atlas-ink-muted);
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      margin-bottom: 1.4rem;
+      padding-left: 1rem;
+      text-transform: uppercase;
+    }
+    .hero-headline {
+      color: var(--atlas-ink);
+      font-family: var(--atlas-font-display);
+      font-size: clamp(2rem, 3.6vw, 3rem);
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      line-height: 1.05;
+      margin-bottom: 0.9rem;
+    }
+    .hero-subhead {
+      border-left: 3px solid var(--atlas-gold);
+      color: var(--atlas-ink-mid);
+      font-family: var(--atlas-font-display);
+      font-size: 15px;
+      font-style: italic;
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+      padding-left: 1rem;
+    }
+    .about-body :global(p) {
+      font-size: 14px;
+      line-height: 1.9;
+      margin-bottom: 1rem;
+      text-align: start;
+    }
+    .about-body :global(p:last-child) {
+      margin-bottom: 0;
+    }
+    .about-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-top: 1.5rem;
+    }
+    .about-link {
+      background: color-mix(in srgb, var(--atlas-surface) 92%, transparent);
+      border: 1px solid var(--atlas-deco-border);
+      color: var(--atlas-ink);
+      display: inline-flex;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      padding: 0.65rem 0.95rem;
+      text-decoration: none;
+      text-transform: uppercase;
+      transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        border-color 0.2s ease;
+    }
+    .about-link:hover {
+      background: var(--atlas-ink);
+      color: var(--atlas-parchment);
+    }
+    .about-link--muted {
+      border-color: color-mix(in srgb, var(--atlas-rule) 90%, transparent);
+      color: var(--atlas-ink-muted);
+    }
+    .about-link--muted:hover {
+      color: var(--atlas-parchment);
+    }
+    .about-profile {
+      padding: 3rem 0 0 3rem;
+    }
+    .profile-frame {
+      background: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--atlas-surface) 70%, transparent),
+        transparent 100%
+      );
+      border: 1px solid color-mix(in srgb, var(--atlas-rule) 75%, transparent);
+      box-shadow: 0 24px 60px -48px rgba(13, 27, 42, 0.5);
+      padding: 0.85rem;
+    }
+    .profile-image {
+      margin-top: 0;
+    }
+    .profile-card {
+      border-top: 1px solid color-mix(in srgb, var(--atlas-rule) 70%, transparent);
+      margin-top: 1.2rem;
+      padding-top: 1rem;
+    }
+    .profile-label {
+      color: var(--atlas-ink-muted);
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      margin-bottom: 0.45rem;
+      text-transform: uppercase;
+    }
+    .profile-name {
+      color: var(--atlas-ink);
+      font-family: var(--atlas-font-display);
+      font-size: 1.8rem;
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 0.35rem;
+    }
+    .profile-role {
+      color: var(--atlas-gold);
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      margin-bottom: 0.8rem;
+      text-transform: uppercase;
+    }
+    .profile-body {
+      color: var(--atlas-ink-mid);
+      font-size: 13px;
+      line-height: 1.75;
+    }
+    .about-ledger {
+      display: grid;
+      gap: 1.2rem;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      padding: 2rem 3rem 4rem;
+    }
+    .ledger-card {
+      background: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--atlas-surface) 94%, transparent),
+        transparent 100%
+      );
+      border: 1px solid color-mix(in srgb, var(--atlas-rule) 75%, transparent);
+      box-shadow: 0 20px 60px -50px rgba(13, 27, 42, 0.4);
+      padding: 1.2rem 1rem 1rem;
+    }
+    .ledger-label {
+      color: var(--atlas-ink-muted);
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      margin-bottom: 0.55rem;
+      text-transform: uppercase;
+    }
+    .ledger-title {
+      color: var(--atlas-ink);
+      font-family: var(--atlas-font-display);
+      font-size: 1.2rem;
+      font-weight: 700;
+      line-height: 1.15;
+      margin-bottom: 0.8rem;
+    }
+    .ledger-list {
+      display: grid;
+      gap: 0.6rem;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .ledger-list li {
+      color: var(--atlas-ink-mid);
+      font-size: 13px;
+      line-height: 1.7;
+      padding-left: 1rem;
+      position: relative;
+    }
+    .ledger-list li::before {
+      background: var(--atlas-gold);
+      border-radius: 50%;
+      content: "";
+      height: 5px;
+      left: 0;
+      position: absolute;
+      top: 0.72em;
+      width: 5px;
+    }
+
+    :root[data-theme="dark"] .profile-frame,
+    :root[data-theme="dark"] .ledger-card {
+      background: linear-gradient(180deg, rgba(10, 23, 38, 0.28), rgba(10, 23, 38, 0.12));
+      border-color: rgba(212, 175, 85, 0.14);
+      box-shadow: 0 24px 60px -48px rgba(0, 0, 0, 0.45);
+    }
+    :root[data-theme="dark"] .about-link {
+      background: color-mix(in srgb, var(--atlas-surface) 82%, transparent);
+      border-color: rgba(212, 175, 85, 0.4);
+    }
+    :root[data-theme="dark"] .about-link:hover {
+      background: var(--atlas-gold);
+      color: #09111b;
+    }
+    :root[data-theme="dark"] .about-link--muted {
+      color: var(--atlas-ink-muted);
+    }
+
+    @media (max-width: 1080px) {
+      .masthead-top {
+        gap: 1rem;
+        grid-template-columns: minmax(0, 1fr) auto;
+        min-height: auto;
+        padding: 0.5rem 1.5rem;
+      }
+      .masthead-nav {
+        gap: 0.9rem;
+      }
+      .about-hero {
+        grid-template-columns: 1fr;
+        padding: 0 1.5rem 2rem;
+      }
+      .about-copy {
+        padding: 2rem 0 1.5rem;
+      }
+      .column-rule {
+        display: none;
+      }
+      .about-profile {
+        padding: 0;
+      }
+      .about-ledger {
+        grid-template-columns: 1fr;
+        padding: 1.5rem 1.5rem 4rem;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .masthead-nav {
+        display: none;
+      }
+      .masthead-main {
+        padding: 2rem 1.5rem 1.4rem;
+      }
+    }
+  }
+</style>

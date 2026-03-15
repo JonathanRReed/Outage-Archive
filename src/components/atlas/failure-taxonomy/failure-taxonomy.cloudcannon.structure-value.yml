@@ -1,0 +1,12 @@
+label: Failure Taxonomy
+icon: category
+description: Dictionary-style taxonomy of internet failure classes
+tags:
+  - Atlas
+  - Taxonomy
+value:
+  _component: atlas/failure-taxonomy
+  kicker: "Chapter Five — Failure Taxonomy"
+  heading: "How the Internet Fails"
+  intro: ""
+  entries: []

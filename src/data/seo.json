@@ -1,0 +1,8 @@
+{
+  "name": "Internet Outage Atlas",
+  "url": "",
+  "description": "A one-page editorial atlas documenting major internet outages through a broadsheet-inspired visual narrative built for the CloudCannon Astro Challenge.",
+  "logoSource": "/images/logo.svg",
+  "titleFormat": "{title} | Internet Outage Atlas",
+  "twitterHandle": ""
+}

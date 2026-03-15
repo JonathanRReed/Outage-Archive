@@ -1,0 +1,815 @@
+---
+import {
+  atlasNarrativeSourceLabel,
+  atlasPrimarySourceLabel,
+  getIncidentSecondaryDetail,
+  getIncidentSourceLabels,
+  type AtlasIncident,
+  type AtlasIncidentArchiveGroup,
+} from "@data/atlasIncidents";
+
+const {
+  groups = [] as AtlasIncidentArchiveGroup[],
+  useDefaultEditableBinding: _useDefaultEditableBinding = false,
+  _component,
+  ...htmlAttributes
+} = Astro.props;
+
+const allIncidents = groups.flatMap((group: AtlasIncidentArchiveGroup) => group.items);
+const yearOptions = (
+  Array.from(new Set(allIncidents.map((incident: AtlasIncident) => incident.year))) as string[]
+).sort((left, right) => Number(right) - Number(left));
+const severityOptions = Array.from(
+  new Set(allIncidents.map((incident: AtlasIncident) => incident.severity))
+) as string[];
+
+function getIncidentLead(incident: AtlasIncident): string {
+  const [lead] = incident.summary.split(/(?<=\.)\s+/);
+
+  return lead?.trim() || incident.summary;
+}
+---
+
+<section
+  class="archive-ledger"
+  data-archive-total={String(allIncidents.length)}
+  {...htmlAttributes}
+>
+  <section
+    class="archive-ledger-toolbar reveal"
+    aria-label="Archive filters and source basis"
+  >
+    <div class="archive-ledger-toolbar-copy">
+      <div class="archive-ledger-toolbar-label">Filter the archive</div>
+      <p class="archive-ledger-toolbar-text">
+        Narrow the ledger by year, failure type, severity, or title. Source notes cite the research
+        report and the narrative feature where that incident is covered there as well.
+      </p>
+    </div>
+    <div class="archive-ledger-toolbar-grid">
+      <label class="archive-filter-field">
+        <span>Year</span>
+        <select data-archive-filter="year">
+          <option value="">All years</option>
+          {yearOptions.map((year) => <option value={year}>{year}</option>)}
+        </select>
+      </label>
+      <label class="archive-filter-field">
+        <span>Failure type</span>
+        <select data-archive-filter="group">
+          <option value="">All types</option>
+          {
+            groups.map((group: AtlasIncidentArchiveGroup) => (
+              <option value={group.key}>{group.label}</option>
+            ))
+          }
+        </select>
+      </label>
+      <label class="archive-filter-field">
+        <span>Severity</span>
+        <select data-archive-filter="severity">
+          <option value="">All severities</option>
+          {severityOptions.map((severity) => <option value={severity}>{severity}</option>)}
+        </select>
+      </label>
+      <label class="archive-filter-field">
+        <span>Sort</span>
+        <select data-archive-filter="sort">
+          <option value="newest">Recent to past</option>
+          <option value="oldest">Past to recent</option>
+          <option value="category-asc">Category A–Z</option>
+          <option value="category-desc">Category Z–A</option>
+          <option value="title-asc">Title A–Z</option>
+          <option value="severity-desc">Severity first</option>
+        </select>
+      </label>
+      <label class="archive-filter-field archive-filter-field--search">
+        <span>Search</span>
+        <input
+          type="search"
+          placeholder="Find an incident"
+          data-archive-filter="search"
+        />
+      </label>
+    </div>
+    <div class="archive-ledger-toolbar-foot">
+      <div
+        class="archive-ledger-toolbar-count"
+        data-archive-count
+      >
+        {allIncidents.length} incidents shown
+      </div>
+      <div class="archive-ledger-toolbar-sources">
+        <span>{atlasPrimarySourceLabel}</span>
+        <span>{atlasNarrativeSourceLabel}</span>
+      </div>
+      <button
+        type="button"
+        class="archive-filter-reset"
+        data-archive-reset
+      >
+        Reset filters
+      </button>
+    </div>
+  </section>
+
+  <div
+    class="archive-ledger-empty"
+    data-archive-empty
+    hidden
+  >
+    No incidents match the current filter set.
+  </div>
+
+  {
+    groups.map((group: AtlasIncidentArchiveGroup) => (
+      <div
+        class="archive-ledger-cluster reveal"
+        data-archive-group={group.key}
+      >
+        <div class="double-rule" />
+        <section class="archive-ledger-group">
+          <div class="archive-ledger-head">
+            <div class="archive-ledger-label">{group.label}</div>
+            <h2 class="archive-ledger-title">{group.heading}</h2>
+            <p class="archive-ledger-intro">{group.intro}</p>
+          </div>
+          <div class="archive-ledger-grid">
+            {group.items.map((incident: AtlasIncident) => {
+              const lead = getIncidentLead(incident);
+              const secondaryDetail = getIncidentSecondaryDetail(incident);
+              const sourceLabels = getIncidentSourceLabels(incident);
+
+              return (
+                <details
+                  class="archive-record"
+                  id={incident.slug}
+                  data-incident-slug={incident.slug}
+                  data-year={incident.year}
+                  data-group={group.key}
+                  data-severity={incident.severity.toLowerCase()}
+                  data-sort-date={incident.sortDate}
+                  data-title={incident.title.toLowerCase()}
+                  data-category={incident.category.toLowerCase()}
+                  data-summary={incident.summary.toLowerCase()}
+                >
+                  <summary class="archive-record-summary">
+                    <div class="archive-record-meta">
+                      <span>{incident.dateLabel}</span>
+                      <span>{incident.category}</span>
+                    </div>
+                    <h3 class="archive-record-title">{incident.title}</h3>
+                    <div class="archive-record-foot">
+                      <span
+                        class:list={[
+                          "archive-record-severity",
+                          incident.severity === "Critical" && "is-critical",
+                        ]}
+                      >
+                        {incident.severity}
+                      </span>
+                      <span class="archive-record-hint">Open record</span>
+                    </div>
+                  </summary>
+                  <div class="archive-record-detail">
+                    <p class="archive-record-summary-copy">{lead}</p>
+                    {secondaryDetail && (
+                      <div class="archive-record-detail-block">
+                        <div class="archive-record-detail-label">Why it spread</div>
+                        <p class="archive-record-detail-copy">{secondaryDetail}</p>
+                      </div>
+                    )}
+                    <div class="archive-record-detail-block">
+                      <div class="archive-record-detail-label">Failure type</div>
+                      <p class="archive-record-detail-copy">
+                        {group.label} · {incident.category}
+                      </p>
+                    </div>
+                    {incident.duration && (
+                      <div class="archive-record-duration">{incident.duration}</div>
+                    )}
+                    <div class="archive-record-detail-block">
+                      <div class="archive-record-detail-label">Sources</div>
+                      <ul class="archive-record-source-list">
+                        {sourceLabels.map((label) => (
+                          <li>{label}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </details>
+              );
+            })}
+          </div>
+        </section>
+      </div>
+    ))
+  }
+</section>
+
+<script is:inline>
+  (function () {
+    function initArchiveFilters() {
+      var ledger = document.querySelector(".archive-ledger");
+      if (!(ledger instanceof HTMLElement)) return;
+
+      var emptyState = ledger.querySelector("[data-archive-empty]");
+      var countNode = ledger.querySelector("[data-archive-count]");
+      var resetButton = ledger.querySelector("[data-archive-reset]");
+      var filterNodes = Array.from(ledger.querySelectorAll("[data-archive-filter]"));
+      var clusters = Array.from(ledger.querySelectorAll(".archive-ledger-cluster"));
+
+      function normalize(value) {
+        return String(value || "")
+          .toLowerCase()
+          .trim();
+      }
+
+      function readFilter(name) {
+        var field = ledger.querySelector('[data-archive-filter="' + name + '"]');
+        if (field instanceof HTMLInputElement || field instanceof HTMLSelectElement) {
+          return normalize(field.value);
+        }
+
+        return "";
+      }
+
+      function applyFilters() {
+        var year = readFilter("year");
+        var group = readFilter("group");
+        var severity = readFilter("severity");
+        var sort = readFilter("sort") || "newest";
+        var search = readFilter("search");
+        var totalCount = Number(ledger.dataset.archiveTotal || "0");
+        var visibleCount = 0;
+
+        clusters.forEach(function (cluster) {
+          if (!(cluster instanceof HTMLElement)) return;
+
+          var visibleInCluster = 0;
+          var records = Array.from(cluster.querySelectorAll(".archive-record"));
+
+          records.forEach(function (record) {
+            if (!(record instanceof HTMLElement)) return;
+
+            var matches =
+              (!year || normalize(record.dataset.year) === year) &&
+              (!group || normalize(record.dataset.group) === group) &&
+              (!severity || normalize(record.dataset.severity) === severity) &&
+              (!search ||
+                normalize(record.dataset.title).includes(search) ||
+                normalize(record.dataset.category).includes(search) ||
+                normalize(record.dataset.summary).includes(search));
+
+            record.hidden = !matches;
+
+            if (!matches && record instanceof HTMLDetailsElement) {
+              record.open = false;
+            }
+
+            if (matches) {
+              visibleInCluster += 1;
+              visibleCount += 1;
+            }
+          });
+
+          records
+            .filter(function (record) {
+              return record instanceof HTMLElement && !record.hidden;
+            })
+            .sort(function (left, right) {
+              if (!(left instanceof HTMLElement) || !(right instanceof HTMLElement)) return 0;
+
+              var leftDate = left.dataset.sortDate || "";
+              var rightDate = right.dataset.sortDate || "";
+              var leftCategory = left.dataset.category || "";
+              var rightCategory = right.dataset.category || "";
+              var leftTitle = left.dataset.title || "";
+              var rightTitle = right.dataset.title || "";
+              var severityRank = {
+                critical: 3,
+                "high severity": 2,
+                "medium severity": 1,
+                "low severity": 0,
+              };
+              var leftSeverity = severityRank[normalize(left.dataset.severity)] || 0;
+              var rightSeverity = severityRank[normalize(right.dataset.severity)] || 0;
+
+              if (sort === "oldest") return leftDate.localeCompare(rightDate);
+              if (sort === "category-asc") {
+                return (
+                  leftCategory.localeCompare(rightCategory) || rightDate.localeCompare(leftDate)
+                );
+              }
+              if (sort === "category-desc") {
+                return (
+                  rightCategory.localeCompare(leftCategory) || rightDate.localeCompare(leftDate)
+                );
+              }
+              if (sort === "title-asc") return leftTitle.localeCompare(rightTitle);
+              if (sort === "severity-desc") {
+                return rightSeverity - leftSeverity || rightDate.localeCompare(leftDate);
+              }
+
+              return rightDate.localeCompare(leftDate);
+            })
+            .forEach(function (record) {
+              cluster.querySelector(".archive-ledger-grid")?.appendChild(record);
+            });
+
+          cluster.hidden = visibleInCluster === 0;
+        });
+
+        if (countNode instanceof HTMLElement) {
+          countNode.textContent =
+            visibleCount === totalCount
+              ? visibleCount + " incidents shown"
+              : visibleCount + " incidents match the current filters";
+        }
+
+        if (emptyState instanceof HTMLElement) {
+          emptyState.hidden = visibleCount !== 0;
+        }
+      }
+
+      filterNodes.forEach(function (node) {
+        if (node instanceof HTMLInputElement) {
+          node.addEventListener("input", applyFilters);
+        } else if (node instanceof HTMLSelectElement) {
+          node.addEventListener("change", applyFilters);
+        }
+      });
+
+      if (resetButton instanceof HTMLButtonElement) {
+        resetButton.addEventListener("click", function () {
+          filterNodes.forEach(function (node) {
+            if (node instanceof HTMLInputElement || node instanceof HTMLSelectElement) {
+              node.value = "";
+            }
+          });
+
+          applyFilters();
+        });
+      }
+
+      applyFilters();
+    }
+
+    function focusTargetFromHash(shouldScroll) {
+      var hash = window.location.hash;
+      if (!hash) return;
+
+      var id = hash.replace(/^#/, "");
+      var target = document.querySelector('[data-incident-slug="' + id + '"]');
+      if (!(target instanceof HTMLDetailsElement)) return;
+      var shouldAnimateArrival = false;
+
+      try {
+        shouldAnimateArrival = sessionStorage.getItem("ioa-archive-target") === id;
+        if (shouldAnimateArrival) {
+          sessionStorage.removeItem("ioa-archive-target");
+        }
+      } catch (e) {}
+
+      document.querySelectorAll(".archive-record.is-targeted").forEach(function (record) {
+        record.classList.remove("is-targeted");
+        record.classList.remove("is-arriving");
+      });
+
+      target.open = true;
+      target.classList.add("is-targeted");
+      if (shouldAnimateArrival) {
+        target.classList.add("is-arriving");
+        window.setTimeout(function () {
+          target.classList.remove("is-arriving");
+        }, 900);
+      }
+
+      if (shouldScroll) {
+        window.requestAnimationFrame(function () {
+          target.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        });
+      }
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener(
+        "DOMContentLoaded",
+        function () {
+          initArchiveFilters();
+          focusTargetFromHash(false);
+        },
+        { once: true }
+      );
+    } else {
+      initArchiveFilters();
+      focusTargetFromHash(false);
+    }
+
+    window.addEventListener("hashchange", function () {
+      focusTargetFromHash(true);
+    });
+  })();
+</script>
+
+<style>
+  @layer page-sections {
+    .archive-ledger {
+      padding-bottom: 4rem;
+    }
+    .archive-ledger-toolbar {
+      display: grid;
+      gap: 1.1rem;
+      padding: 0 3rem 2rem;
+    }
+    .archive-ledger-toolbar-copy {
+      display: grid;
+      gap: 0.45rem;
+      max-width: 54rem;
+    }
+    .archive-ledger-toolbar-label {
+      color: var(--atlas-ink-muted);
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+    .archive-ledger-toolbar-text {
+      color: var(--atlas-ink-mid);
+      font-size: 13px;
+      line-height: 1.8;
+      margin: 0;
+      max-width: 64ch;
+    }
+    .archive-ledger-toolbar-grid {
+      align-items: end;
+      display: grid;
+      gap: 0.85rem;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+    .archive-filter-field {
+      display: grid;
+      gap: 0.35rem;
+    }
+    .archive-filter-field span {
+      color: var(--atlas-ink-muted);
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+    .archive-filter-field select,
+    .archive-filter-field input {
+      appearance: none;
+      background: color-mix(in srgb, var(--atlas-surface) 95%, transparent);
+      border: 1px solid color-mix(in srgb, var(--atlas-rule) 75%, transparent);
+      border-radius: 0;
+      color: var(--atlas-ink);
+      font-family: var(--atlas-font-body);
+      font-size: 13px;
+      min-height: 2.65rem;
+      padding: 0.65rem 0.8rem;
+    }
+    .archive-filter-field input::placeholder {
+      color: var(--atlas-ink-muted);
+    }
+    .archive-ledger-toolbar-foot {
+      align-items: center;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.9rem 1.2rem;
+      justify-content: space-between;
+    }
+    .archive-ledger-toolbar-count {
+      color: var(--atlas-ink);
+      font-family: var(--atlas-font-display);
+      font-size: 1rem;
+      font-weight: 700;
+    }
+    .archive-ledger-toolbar-sources {
+      color: var(--atlas-ink-muted);
+      display: flex;
+      flex-wrap: wrap;
+      font-size: 10px;
+      gap: 0.55rem 1rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .archive-ledger-toolbar-sources span {
+      border-left: 1px solid color-mix(in srgb, var(--atlas-rule) 70%, transparent);
+      padding-left: 0.75rem;
+    }
+    .archive-ledger-toolbar-sources span:first-child {
+      border-left: 0;
+      padding-left: 0;
+    }
+    .archive-filter-reset {
+      background: transparent;
+      border: 1px solid color-mix(in srgb, var(--atlas-rule) 75%, transparent);
+      color: var(--atlas-ink);
+      cursor: pointer;
+      font-family: var(--atlas-font-body);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      min-height: 2.4rem;
+      padding: 0.5rem 0.9rem;
+      text-transform: uppercase;
+      transition:
+        border-color 0.2s ease,
+        color 0.2s ease,
+        background 0.2s ease;
+    }
+    .archive-filter-reset:hover {
+      background: color-mix(in srgb, var(--atlas-gold) 8%, transparent);
+      border-color: var(--atlas-gold);
+    }
+    .archive-ledger-empty {
+      border: 1px dashed color-mix(in srgb, var(--atlas-rule) 75%, transparent);
+      color: var(--atlas-ink-muted);
+      font-family: var(--atlas-font-display);
+      font-size: 1rem;
+      margin: 0 3rem 2rem;
+      padding: 1rem 1.25rem;
+      text-align: center;
+    }
+    .archive-ledger-cluster[hidden] {
+      display: none;
+    }
+    .archive-ledger-group {
+      padding: 2.2rem 3rem 3.6rem;
+    }
+    .archive-ledger-head {
+      margin-bottom: 1.5rem;
+      max-width: 48rem;
+    }
+    .archive-ledger-label {
+      color: var(--atlas-ink-muted);
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      margin-bottom: 0.45rem;
+      text-transform: uppercase;
+    }
+    .archive-ledger-title {
+      color: var(--atlas-ink);
+      font-family: var(--atlas-font-display);
+      font-size: clamp(1.8rem, 3vw, 2.4rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.03;
+      margin-bottom: 0.55rem;
+    }
+    .archive-ledger-intro {
+      color: var(--atlas-ink-muted);
+      font-family: var(--atlas-font-display);
+      font-size: 13px;
+      font-style: italic;
+      line-height: 1.7;
+      margin: 0;
+      max-width: 60ch;
+    }
+    .archive-ledger-grid {
+      align-items: start;
+      display: grid;
+      gap: 1rem;
+      grid-auto-rows: max-content;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .archive-record {
+      align-self: start;
+      background: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--atlas-surface) 94%, transparent),
+        transparent 100%
+      );
+      border: 1px solid color-mix(in srgb, var(--atlas-rule) 75%, transparent);
+      box-shadow: 0 20px 60px -50px rgba(13, 27, 42, 0.4);
+      scroll-margin-top: 1.5rem;
+      transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.2s ease;
+    }
+    .archive-record[open],
+    .archive-record.is-targeted {
+      border-color: var(--atlas-gold);
+      box-shadow: 0 28px 65px -48px rgba(13, 27, 42, 0.45);
+      transform: translateY(-2px);
+    }
+    .archive-record:hover {
+      border-color: color-mix(in srgb, var(--atlas-gold) 72%, var(--atlas-rule));
+      box-shadow: 0 24px 58px -50px rgba(13, 27, 42, 0.34);
+      transform: translateY(-1px);
+    }
+    .archive-record.is-targeted {
+      outline: 1px solid color-mix(in srgb, var(--atlas-gold) 55%, transparent);
+      outline-offset: 3px;
+    }
+    .archive-record.is-arriving {
+      animation: archive-arrival 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .archive-record-summary {
+      cursor: pointer;
+      list-style: none;
+      padding: 1rem 1rem 0.95rem;
+      user-select: none;
+    }
+    .archive-record-summary::-webkit-details-marker {
+      display: none;
+    }
+    .archive-record-summary::marker {
+      content: "";
+      display: none;
+    }
+    .archive-record-meta {
+      color: var(--atlas-ink-muted);
+      display: flex;
+      font-size: 10px;
+      gap: 0.75rem;
+      justify-content: space-between;
+      letter-spacing: 0.13em;
+      margin-bottom: 0.75rem;
+      text-transform: uppercase;
+    }
+    .archive-record-title {
+      color: var(--atlas-ink);
+      font-family: var(--atlas-font-display);
+      font-size: 1.16rem;
+      font-weight: 700;
+      line-height: 1.12;
+      margin-bottom: 0.8rem;
+    }
+    .archive-record-foot {
+      align-items: center;
+      display: flex;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+    .archive-record-severity {
+      border: 1px solid var(--atlas-rule);
+      color: var(--atlas-gold);
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      padding: 0.16rem 0.5rem;
+      text-transform: uppercase;
+    }
+    .archive-record-severity.is-critical {
+      color: var(--atlas-red);
+    }
+    .archive-record-hint {
+      color: var(--atlas-ink-muted);
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .archive-record-detail {
+      border-top: 1px solid color-mix(in srgb, var(--atlas-rule) 60%, transparent);
+      display: grid;
+      gap: 0.8rem;
+      padding: 0 1rem 1rem;
+    }
+    .archive-record-summary-copy {
+      color: var(--atlas-ink-mid);
+      font-size: 13px;
+      line-height: 1.8;
+      margin: 0;
+    }
+    .archive-record-detail-block {
+      display: grid;
+      gap: 0.35rem;
+    }
+    .archive-record-detail-label {
+      color: var(--atlas-ink-muted);
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+    .archive-record-detail-copy {
+      color: var(--atlas-ink-mid);
+      font-size: 12.5px;
+      line-height: 1.75;
+      margin: 0;
+    }
+    .archive-record-duration {
+      color: var(--atlas-ink-muted);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .archive-record-source-list {
+      display: grid;
+      gap: 0.35rem;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .archive-record-source-list li {
+      color: var(--atlas-ink-mid);
+      font-size: 12px;
+      line-height: 1.65;
+      padding-left: 0.9rem;
+      position: relative;
+    }
+    .archive-record-source-list li::before {
+      background: var(--atlas-gold);
+      border-radius: 50%;
+      content: "";
+      height: 4px;
+      left: 0;
+      position: absolute;
+      top: 0.72em;
+      width: 4px;
+    }
+    :root[data-theme="dark"] .archive-record {
+      background: linear-gradient(180deg, rgba(10, 23, 38, 0.28), rgba(10, 23, 38, 0.12));
+      border-color: rgba(212, 175, 85, 0.14);
+      box-shadow: 0 24px 60px -48px rgba(0, 0, 0, 0.45);
+    }
+    :root[data-theme="dark"] .archive-record[open],
+    :root[data-theme="dark"] .archive-record.is-targeted {
+      border-color: #d4af55;
+      box-shadow: 0 28px 65px -48px rgba(0, 0, 0, 0.55);
+    }
+    :root[data-theme="dark"] .archive-record:hover {
+      border-color: rgba(212, 175, 85, 0.78);
+      box-shadow: 0 24px 58px -50px rgba(0, 0, 0, 0.48);
+    }
+    :root[data-theme="dark"] .archive-record-severity {
+      border-color: rgba(212, 175, 85, 0.18);
+      color: #d4af55;
+    }
+    :root[data-theme="dark"] .archive-record-severity.is-critical {
+      color: #f1d98d;
+    }
+    :root[data-theme="dark"] .archive-filter-field select,
+    :root[data-theme="dark"] .archive-filter-field input {
+      background: rgba(10, 23, 38, 0.22);
+      border-color: rgba(212, 175, 85, 0.14);
+      color: #f5f0e8;
+    }
+    :root[data-theme="dark"] .archive-filter-field input::placeholder {
+      color: #8a9ab0;
+    }
+    :root[data-theme="dark"] .archive-filter-reset {
+      border-color: rgba(212, 175, 85, 0.16);
+      color: #f5f0e8;
+    }
+    :root[data-theme="dark"] .archive-filter-reset:hover {
+      background: rgba(212, 175, 85, 0.08);
+      border-color: #d4af55;
+    }
+    :root[data-theme="dark"] .archive-ledger-empty {
+      border-color: rgba(212, 175, 85, 0.2);
+      color: #8a9ab0;
+    }
+
+    @keyframes archive-arrival {
+      0% {
+        box-shadow: 0 0 0 0 color-mix(in srgb, var(--atlas-gold) 0%, transparent);
+        transform: translateY(0);
+      }
+      35% {
+        box-shadow: 0 0 0 8px color-mix(in srgb, var(--atlas-gold) 12%, transparent);
+        transform: translateY(-1px);
+      }
+      100% {
+        box-shadow: 0 0 0 0 color-mix(in srgb, var(--atlas-gold) 0%, transparent);
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 1080px) {
+      .archive-ledger-toolbar {
+        padding: 0 1.5rem 1.75rem;
+      }
+      .archive-ledger-toolbar-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+      .archive-ledger-empty {
+        margin: 0 1.5rem 1.75rem;
+      }
+      .archive-ledger-group {
+        padding: 2rem 1.5rem 3rem;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .archive-ledger-toolbar-foot {
+        align-items: start;
+        flex-direction: column;
+      }
+      .archive-ledger-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .archive-ledger-toolbar-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 520px) {
+      .archive-ledger-toolbar-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  }
+</style>

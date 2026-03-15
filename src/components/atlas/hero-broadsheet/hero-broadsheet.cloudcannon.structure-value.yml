@@ -1,0 +1,17 @@
+label: Hero Broadsheet
+icon: article
+description: Archival broadsheet masthead with hero article and key figures sidebar
+tags:
+  - Atlas
+  - Hero
+value:
+  _component: atlas/hero-broadsheet
+  dateline: "Vol. I — Issue 1 · Curated Edition 2026 · 52 Incidents Documented"
+  kicker: "A Forensic Editorial Record · Infrastructure Failure Patterns"
+  heading: "INTERNET<br>OUTAGE ATLAS"
+  subtitle: "A comprehensive visual record of the failures that define modern digital infrastructure"
+  byline: "By The Internet Outage Atlas Project · March 2026"
+  heroHeading: "The Infrastructure Failures That Reshaped the Internet"
+  heroQuote: ""
+  heroBody: ""
+  statFigures: []

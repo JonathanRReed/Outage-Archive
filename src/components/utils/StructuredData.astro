@@ -1,0 +1,33 @@
+---
+export interface Props {
+  site: {
+    name: string;
+    url?: string;
+    logoSource?: string;
+    description: string;
+  };
+}
+
+const { site } = Astro.props;
+
+const structuredData: Record<string, string> = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: site.name,
+  description: site.description,
+};
+
+if (site.url) {
+  structuredData.url = site.url;
+}
+
+if (site.url && site.logoSource) {
+  structuredData.logo = new URL(site.logoSource, site.url).toString();
+}
+---
+
+<script
+  is:inline
+  type="application/ld+json"
+  set:html={JSON.stringify(structuredData)}
+/>

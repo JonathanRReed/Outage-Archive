@@ -1,0 +1,28 @@
+_inputs:
+  publicationTitle:
+    type: html
+    label: Publication Title
+  tagline:
+    type: text
+    label: Tagline
+  figures:
+    type: array
+    label: Key Figures
+  figures[*]:
+    type: object
+    label: Figure
+  figures[*].bold:
+    type: text
+    label: Bold Value
+  figures[*].text:
+    type: text
+    label: Description
+  editionText:
+    type: html
+    label: Edition Text
+  copyrightText:
+    type: text
+    label: Copyright Text
+  typesetText:
+    type: text
+    label: Typeset Credit

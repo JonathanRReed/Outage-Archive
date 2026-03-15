@@ -1,0 +1,231 @@
+---
+const {
+  kicker = "",
+  heading = "",
+  leftTitle = "",
+  leftBody = "",
+  leftTitle2 = "",
+  leftBody2 = "",
+  rightTitle = "",
+  rightItems = [] as string[],
+  rightTitle2 = "",
+  rightItems2 = [] as string[],
+  showSectionMasthead = true,
+  useDefaultEditableBinding: _useDefaultEditableBinding = false,
+  _component,
+  ...htmlAttributes
+} = Astro.props;
+---
+
+{
+  showSectionMasthead && (
+    <>
+      <div class="double-rule" />
+      <div
+        class="sec-masthead reveal"
+        id="methodology"
+        {...htmlAttributes}
+      >
+        <div
+          class="sec-kicker"
+          data-prop="kicker"
+        >
+          {kicker}
+        </div>
+        <h2
+          class="sec-h"
+          data-prop="heading"
+        >
+          {heading}
+        </h2>
+      </div>
+    </>
+  )
+}
+<div class="method-section">
+  <div class="method-col reveal">
+    <section class="method-block">
+      <h4>{leftTitle}</h4>
+      <div
+        data-prop="leftBody"
+        set:html={leftBody}
+      />
+    </section>
+    {
+      leftTitle2 && (
+        <section class="method-block">
+          <h4 class="method-subhead">{leftTitle2}</h4>
+          {leftBody2 && (
+            <div
+              data-prop="leftBody2"
+              set:html={leftBody2}
+            />
+          )}
+        </section>
+      )
+    }
+  </div>
+  <div class="method-col reveal">
+    <section class="method-block">
+      <h4>{rightTitle}</h4>
+      <ul>
+        {rightItems.map((item: string) => <li>{item}</li>)}
+      </ul>
+    </section>
+    {
+      rightTitle2 && (
+        <section class="method-block">
+          <h4 class="method-subhead">{rightTitle2}</h4>
+          {rightItems2.length > 0 && (
+            <ul>
+              {rightItems2.map((item: string) => (
+                <li>{item}</li>
+              ))}
+            </ul>
+          )}
+        </section>
+      )
+    }
+  </div>
+</div>
+
+<style>
+  @layer page-sections {
+    #methodology {
+      padding-bottom: 1.1rem;
+    }
+    #methodology .sec-h {
+      background: transparent;
+      display: block;
+      line-height: 0.96;
+      margin-bottom: 0;
+      max-width: 11ch;
+      text-wrap: balance;
+    }
+    .method-section {
+      align-items: start;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.75rem;
+      padding: 0 3rem 4.5rem;
+    }
+    .method-col {
+      background: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--atlas-surface) 92%, transparent),
+        transparent 100%
+      );
+      border: 1px solid color-mix(in srgb, var(--atlas-rule) 75%, transparent);
+      box-shadow: 0 24px 60px -48px rgba(13, 27, 42, 0.5);
+      overflow: hidden;
+      padding: 1rem;
+      position: relative;
+    }
+    .method-col::before {
+      background: linear-gradient(90deg, var(--atlas-deco-border), transparent 65%);
+      content: "";
+      height: 1px;
+      left: 1rem;
+      position: absolute;
+      right: 1rem;
+      top: 1rem;
+    }
+    .method-block {
+      background: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--atlas-parchment) 12%, transparent),
+        transparent 100%
+      );
+      border: 1px solid color-mix(in srgb, var(--atlas-rule) 45%, transparent);
+      padding: 1.1rem 1rem 0.95rem;
+    }
+    .method-block + .method-block {
+      margin-top: 1rem;
+    }
+    .method-col h4 {
+      border-bottom: 1px solid color-mix(in srgb, var(--atlas-rule) 70%, transparent);
+      font-family: var(--atlas-font-display);
+      color: var(--atlas-ink);
+      font-size: 1.08rem;
+      font-weight: 700;
+      margin: 0 0 0.75rem;
+      padding-bottom: 0.55rem;
+    }
+    .method-subhead {
+      margin-top: 0;
+    }
+    .method-col :global(p) {
+      color: var(--atlas-ink-mid);
+      font-size: 14px;
+      line-height: 1.78;
+      margin-bottom: 0.75rem;
+      max-width: 62ch;
+      text-align: start;
+    }
+    .method-col :global(p:last-child) {
+      margin-bottom: 0;
+    }
+    .method-col ul {
+      color: var(--atlas-ink);
+      display: grid;
+      font-size: 13px;
+      font-style: normal;
+      gap: 0.55rem;
+      line-height: 1.7;
+      list-style: none;
+      margin: 0;
+      padding-left: 0;
+    }
+    .method-col li::before {
+      background: var(--atlas-gold);
+      border-radius: 50%;
+      content: "";
+      height: 5px;
+      left: 0;
+      position: absolute;
+      top: 0.72em;
+      width: 5px;
+    }
+    .method-col li {
+      margin-bottom: 0;
+      padding-left: 1rem;
+      position: relative;
+    }
+
+    :root[data-theme="dark"] .method-col {
+      border-color: rgba(212, 175, 85, 0.16);
+      box-shadow: 0 24px 60px -48px rgba(0, 0, 0, 0.5);
+    }
+    :root[data-theme="dark"] .method-col::before {
+      background: linear-gradient(90deg, rgba(212, 175, 85, 0.75), transparent 65%);
+    }
+    :root[data-theme="dark"] .method-block {
+      background: linear-gradient(180deg, rgba(10, 23, 38, 0.26), rgba(10, 23, 38, 0.1));
+      border-color: rgba(212, 175, 85, 0.12);
+    }
+    :root[data-theme="dark"] .method-col h4 {
+      border-bottom-color: rgba(212, 175, 85, 0.18);
+      color: #f5f0e8;
+    }
+    :root[data-theme="dark"] .method-col :global(p) {
+      color: #c2cbd8;
+    }
+    :root[data-theme="dark"] .method-col ul {
+      color: #c2cbd8;
+    }
+
+    @media (max-width: 900px) {
+      #methodology .sec-h {
+        max-width: 12ch;
+      }
+      .method-section {
+        grid-template-columns: 1fr;
+        padding: 0 1.5rem 4rem;
+        gap: 1.1rem;
+      }
+      .method-col {
+        padding: 0.85rem;
+      }
+    }
+  }
+</style>

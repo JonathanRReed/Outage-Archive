@@ -1,0 +1,18 @@
+label: Methodology Section
+icon: science
+description: Two-column methodology and sources section
+tags:
+  - Atlas
+  - Methodology
+value:
+  _component: atlas/methodology-section
+  kicker: "Chapter Seven — Methodology and Sources"
+  heading: "How This Atlas Was Built"
+  leftTitle: "Inclusion Criteria"
+  leftBody: ""
+  leftTitle2: ""
+  leftBody2: ""
+  rightTitle: "Source Hierarchy"
+  rightItems: []
+  rightTitle2: ""
+  rightItems2: []

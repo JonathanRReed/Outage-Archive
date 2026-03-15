@@ -1,0 +1,52 @@
+_inputs:
+  dateline:
+    type: text
+    label: Dateline
+    comment: Top-left masthead line (e.g. "Vol. I — Issue 1 · Curated Edition 2026")
+  kicker:
+    type: text
+    label: Kicker
+    comment: Small text above the title
+  heading:
+    type: html
+    label: Heading
+    comment: Main masthead title (supports <br> for line breaks)
+  subtitle:
+    type: text
+    label: Subtitle
+    comment: Italic subtitle below the title
+  byline:
+    type: text
+    label: Byline
+    comment: Author attribution line
+  heroHeading:
+    type: text
+    label: Hero Heading
+    comment: Main article headline
+  heroQuote:
+    type: text
+    label: Hero Quote
+    comment: Pull quote below the headline
+  heroBody:
+    type: html
+    label: Hero Body
+    comment: Main article body text (supports paragraphs and links)
+  statFigures:
+    type: array
+    label: Key Figures
+    comment: Sidebar statistics
+  statFigures[*]:
+    type: object
+    label: Stat Figure
+  statFigures[*].number:
+    type: text
+    label: Number
+    comment: Large display number (e.g. "52", "$47B")
+  statFigures[*].label:
+    type: text
+    label: Label
+    comment: Description of the stat
+  statFigures[*].note:
+    type: text
+    label: Note
+    comment: Source or context note

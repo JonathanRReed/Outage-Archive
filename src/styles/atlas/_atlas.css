@@ -1,0 +1,368 @@
+/* ══════════════════════════════════════════════════════
+   Internet Outage Atlas — Global Theme
+   Archival Broadsheet + Art Deco · Light & Dark
+   ══════════════════════════════════════════════════════ */
+
+/* Fonts loaded via <link> in BaseLayout.astro — lightningcss cannot fetch remote URLs */
+
+/* ── Atlas CSS Custom Properties ── */
+:root {
+  --atlas-parchment: #f5f0e6;
+  --atlas-parchment-dark: #ece5d6;
+  --atlas-ink: #1a1209;
+  --atlas-ink-mid: #3d2c1a;
+  --atlas-ink-muted: #7a6248;
+  --atlas-ink-faint: #b8a890;
+  --atlas-ink-lightest: #d4c8b0;
+  --atlas-red: #8b1a1a;
+  --atlas-red-bright: #c0392b;
+  --atlas-rule: #c8b898;
+  --atlas-surface: #fffdf5;
+  --atlas-gold: #a08a3c;
+  --atlas-ornament: var(--atlas-ink-faint);
+  --atlas-deco-border: var(--atlas-ink);
+  --atlas-font-display: "Playfair Display", georgia, serif;
+  --atlas-font-body: "Source Serif 4", georgia, serif;
+}
+
+:root[data-theme="dark"] {
+  --atlas-parchment: #0d1b2a;
+  --atlas-parchment-dark: #1b2d45;
+  --atlas-ink: #f5f0e8;
+  --atlas-ink-mid: #d8d0c2;
+  --atlas-ink-muted: #8a9ab0;
+  --atlas-ink-faint: #4a5a70;
+  --atlas-ink-lightest: #3a4a5e;
+  --atlas-red: #c45a5a;
+  --atlas-red-bright: #e07070;
+  --atlas-rule: rgba(212, 175, 85, 0.25);
+  --atlas-surface: #1b2d45;
+  --atlas-gold: #d4af55;
+  --atlas-ornament: #d4af55;
+  --atlas-deco-border: #d4af55;
+}
+
+html {
+  scrollbar-gutter: stable;
+}
+
+html:has(.atlas-page),
+html:has(.atlas-page-surface),
+body:has(.atlas-page),
+body:has(.atlas-page-surface) {
+  background: var(--atlas-ink);
+  overscroll-behavior-y: none;
+}
+
+body:has(.atlas-page),
+body:has(.atlas-page-surface) {
+  min-height: 100vh;
+}
+
+body:has(.atlas-page) > div,
+body:has(.atlas-page-surface) > div {
+  min-height: 100vh;
+}
+
+/* ── Atlas Page Wrapper ── */
+.atlas-page {
+  background: var(--atlas-parchment);
+  color: var(--atlas-ink);
+  font-family: var(--atlas-font-body);
+  font-size: 15px;
+  line-height: 1.75;
+  min-height: 100vh;
+  text-rendering: optimizelegibility;
+  transition:
+    background 0.4s ease,
+    color 0.4s ease;
+}
+
+.atlas-page-surface {
+  background: var(--atlas-parchment);
+  color: var(--atlas-ink);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+body:has(.atlas-page-surface) {
+  color: var(--atlas-ink);
+}
+
+.atlas-page-surface > [data-editable="component"] {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.atlas-shell {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+#atlas-main {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+}
+
+body:has(.atlas-footer) {
+  background: var(--atlas-ink);
+}
+
+/* Paper noise texture */
+.atlas-page::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+  content: "";
+  inset: 0;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+  position: fixed;
+  z-index: 9999;
+}
+
+:root[data-theme="dark"] .atlas-page::before {
+  mix-blend-mode: screen;
+  opacity: 0.02;
+}
+
+/* ── Art Deco Shared Ornaments ── */
+.deco-diamond {
+  background: var(--atlas-ornament);
+  display: inline-block;
+  flex-shrink: 0;
+  height: 8px;
+  transform: rotate(45deg);
+  width: 8px;
+}
+
+.deco-line {
+  align-items: center;
+  display: flex;
+  gap: 0.75rem;
+  margin: 1.5rem 0;
+}
+
+.deco-line__rule {
+  background: var(--atlas-rule);
+  flex: 1;
+  height: 1px;
+}
+
+.deco-chevron {
+  color: var(--atlas-ornament);
+  display: flex;
+  font-size: 10px;
+  gap: 2px;
+  justify-content: center;
+  letter-spacing: 0.3em;
+  margin: 1rem 0;
+}
+
+.double-rule {
+  border-top: 3px double var(--atlas-deco-border);
+  height: 0;
+  margin: 0 3rem;
+}
+
+/* ── Section Masthead ── */
+.sec-masthead {
+  border-top: 1px solid color-mix(in srgb, var(--atlas-rule) 70%, transparent);
+  padding: 2.5rem 3rem 1.5rem;
+  position: relative;
+}
+
+.sec-kicker {
+  color: var(--atlas-ink-muted);
+  display: flex;
+  font-family: var(--atlas-font-body);
+  font-size: 10px;
+  gap: 0.75rem;
+  letter-spacing: 0.3em;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+}
+
+.sec-kicker::before {
+  color: var(--atlas-rule);
+  content: "§";
+}
+
+.sec-h {
+  color: var(--atlas-ink);
+  font-family: var(--atlas-font-display);
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+
+.sec-intro-p {
+  color: var(--atlas-ink-muted);
+  font-family: var(--atlas-font-display);
+  font-size: 13px;
+  font-style: italic;
+  line-height: 1.7;
+  margin: 0.5rem 0 2rem;
+  max-width: 60ch;
+}
+
+/* ── Theme Toggle ── */
+.theme-toggle {
+  align-items: center;
+  background: none;
+  border: 1px solid var(--atlas-rule);
+  color: var(--atlas-ink-muted);
+  cursor: pointer;
+  display: flex;
+  font-family: var(--atlas-font-body);
+  font-size: 10px;
+  gap: 0.4rem;
+  justify-content: center;
+  letter-spacing: 0.1em;
+  min-width: 9.5rem;
+  padding: 0.45rem 0.9rem;
+  text-transform: uppercase;
+  transition: all 0.25s;
+}
+
+.theme-toggle:hover {
+  border-color: var(--atlas-ink-muted);
+  color: var(--atlas-ink);
+}
+
+.theme-toggle:focus-visible {
+  background: color-mix(in srgb, var(--atlas-surface) 82%, transparent);
+}
+
+.theme-toggle__icon {
+  font-size: 13px;
+  line-height: 1;
+  width: 1em;
+}
+
+/* ── Scroll Reveal ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(6px);
+  transition:
+    opacity 0.12s ease-out,
+    transform 0.14s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.reveal.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Skip Link ── */
+.skip-link {
+  background: var(--atlas-ink);
+  border: 2px solid var(--atlas-deco-border);
+  border-radius: 0 0 4px 4px;
+  color: var(--atlas-parchment);
+  font-size: 13px;
+  left: 1rem;
+  padding: 0.5rem 1.25rem;
+  position: absolute;
+  text-decoration: none;
+  top: -100%;
+  z-index: 10000;
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+/* ── Focus States ── */
+*:focus-visible {
+  outline: 2px solid var(--atlas-gold);
+  outline-offset: 2px;
+}
+
+/* ── Back to Top ── */
+.back-to-top {
+  align-items: center;
+  background: var(--atlas-parchment);
+  border: 1px solid var(--atlas-rule);
+  border-radius: 50%;
+  bottom: 2rem;
+  color: var(--atlas-ink-muted);
+  cursor: pointer;
+  display: flex;
+  font-size: 18px;
+  height: 40px;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  position: fixed;
+  right: 2rem;
+  transform: translateY(10px);
+  transition:
+    opacity 0.3s,
+    transform 0.3s,
+    background 0.2s,
+    color 0.2s,
+    border-color 0.2s;
+  width: 40px;
+  z-index: 100;
+}
+
+.back-to-top.visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.back-to-top:hover {
+  background: var(--atlas-red);
+  color: var(--atlas-parchment);
+}
+
+:root[data-theme="dark"] .back-to-top {
+  background: #1b2d45;
+  border-color: rgba(212, 175, 85, 0.3);
+  color: #d4af55;
+}
+
+:root[data-theme="dark"] .back-to-top:hover {
+  background: #d4af55;
+  color: #0d1b2a;
+}
+
+/* ── Reduced Motion ── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .sec-masthead {
+    padding: 2rem 1.5rem 1rem;
+  }
+  .double-rule {
+    margin: 0 1.5rem;
+  }
+  .back-to-top {
+    bottom: 1rem;
+    font-size: 16px;
+    height: 36px;
+    right: 1rem;
+    width: 36px;
+  }
+}

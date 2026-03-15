@@ -1,0 +1,31 @@
+_inputs:
+  kicker:
+    type: text
+    label: Kicker
+  heading:
+    type: text
+    label: Heading
+  intro:
+    type: textarea
+    label: Introduction
+  clippings:
+    type: array
+    label: Incident Clippings
+  clippings[*]:
+    type: object
+    label: Clipping
+  clippings[*].date:
+    type: text
+    label: Date
+  clippings[*].category:
+    type: text
+    label: Category
+  clippings[*].headline:
+    type: text
+    label: Headline
+  clippings[*].body:
+    type: textarea
+    label: Body
+  clippings[*].lesson:
+    type: text
+    label: Lesson

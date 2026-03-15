@@ -1,0 +1,34 @@
+_inputs:
+  kicker:
+    type: text
+    label: Kicker
+  heading:
+    type: text
+    label: Heading
+  intro:
+    type: textarea
+    label: Introduction
+  insetTitle:
+    type: text
+    label: Inset Title
+  insetSub:
+    type: text
+    label: Inset Subtitle
+  levels:
+    type: array
+    label: Blast Levels
+  levels[*]:
+    type: object
+    label: Blast Level
+  levels[*].numeral:
+    type: text
+    label: Roman Numeral
+  levels[*].title:
+    type: text
+    label: Title
+  levels[*].description:
+    type: textarea
+    label: Description
+  levels[*].isRed:
+    type: boolean
+    label: Red Severity

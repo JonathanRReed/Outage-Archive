@@ -1,0 +1,37 @@
+_inputs:
+  kicker:
+    type: text
+    label: Kicker
+  heading:
+    type: text
+    label: Heading
+  intro:
+    type: textarea
+    label: Introduction
+  entries:
+    type: array
+    label: Taxonomy Entries
+  entries[*]:
+    type: object
+    label: Taxonomy Entry
+  entries[*].word:
+    type: text
+    label: Term
+  entries[*].position:
+    type: text
+    label: Position Label
+  entries[*].fullName:
+    type: text
+    label: Full Name
+  entries[*].definition:
+    type: textarea
+    label: Definition
+  entries[*].triggers:
+    type: html
+    label: Common Triggers
+  entries[*].examples:
+    type: array
+    label: Example Incidents
+  entries[*].examples[*]:
+    type: text
+    label: Example

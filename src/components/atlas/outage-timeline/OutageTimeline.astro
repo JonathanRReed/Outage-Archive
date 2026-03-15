@@ -1,0 +1,372 @@
+---
+type TimelineEntry = {
+  year: string;
+  title: string;
+  dek: string;
+  severity: string;
+  category: string;
+  body: string;
+  duration: string;
+};
+
+const {
+  kicker = "",
+  heading = "",
+  intro = "",
+  entries = [] as TimelineEntry[],
+  useDefaultEditableBinding: _useDefaultEditableBinding = false,
+  _component,
+  ...htmlAttributes
+} = Astro.props;
+---
+
+<div class="double-rule"></div>
+<div
+  class="sec-masthead reveal"
+  id="timeline"
+  {...htmlAttributes}
+>
+  <div
+    class="sec-kicker"
+    data-prop="kicker"
+  >
+    {kicker}
+  </div>
+  <h2
+    class="sec-h"
+    data-prop="heading"
+  >
+    {heading}
+  </h2>
+  <p
+    class="sec-intro-p"
+    data-prop="intro"
+  >
+    {intro}
+  </p>
+</div>
+<div class="timeline-section">
+  {
+    entries.map((entry: TimelineEntry) => (
+      <details
+        class="tl-entry reveal"
+        data-severity={entry.severity}
+      >
+        <summary class="tl-summary">
+          <div class="tl-year-col">
+            <div class="tl-case-label">Case File</div>
+            <div class="tl-year">{entry.year}</div>
+          </div>
+          <div class="tl-content">
+            <div class="tl-summary-head">
+              <div class="tl-hed">{entry.title}</div>
+              <span
+                class="tl-expand-indicator"
+                aria-hidden="true"
+              />
+            </div>
+            <div class="tl-dek">
+              <span>{entry.dek}</span>
+              <span class:list={["tl-tag", entry.severity === "Critical" ? "tag-red" : "tag-ink"]}>
+                {entry.severity}
+              </span>
+              <span class="tl-tag tag-ink">{entry.category}</span>
+            </div>
+            <div class="tl-expand-hint">Open incident record</div>
+          </div>
+        </summary>
+        <div class="tl-detail">
+          <div class="tl-detail-card">
+            <p class="tl-body">{entry.body}</p>
+            <div class="tl-dur">{entry.duration}</div>
+          </div>
+        </div>
+      </details>
+    ))
+  }
+</div>
+
+<style>
+  @layer page-sections {
+    .timeline-section {
+      padding: 0 3rem 4.5rem;
+    }
+
+    .tl-entry {
+      border-bottom: 1px solid var(--atlas-rule);
+      margin: 0 -1rem;
+      border-left: 3px solid transparent;
+      position: relative;
+      transition:
+        background 0.3s,
+        border-color 0.3s,
+        box-shadow 0.3s;
+    }
+    .tl-entry:hover,
+    .tl-entry[open] {
+      background: linear-gradient(
+        90deg,
+        color-mix(in srgb, var(--atlas-gold) 6%, transparent),
+        transparent 18%
+      );
+      border-left-color: var(--atlas-gold);
+      box-shadow: inset 0 1px 0 color-mix(in srgb, var(--atlas-rule) 40%, transparent);
+    }
+    .tl-entry:hover .tl-year,
+    .tl-entry[open] .tl-year {
+      color: var(--atlas-red);
+    }
+
+    .tl-summary {
+      display: grid;
+      grid-template-columns: 90px 1fr;
+      gap: 0;
+      padding: 2.5rem 1rem;
+      cursor: pointer;
+      list-style: none;
+      user-select: none;
+    }
+    .tl-summary::-webkit-details-marker {
+      display: none;
+    }
+    .tl-summary::marker {
+      display: none;
+      content: "";
+    }
+
+    .tl-year-col {
+      padding-top: 0.2rem;
+    }
+    .tl-case-label {
+      color: var(--atlas-ink-faint);
+      font-size: 9px;
+      letter-spacing: 0.18em;
+      margin-bottom: 0.45rem;
+      text-transform: uppercase;
+    }
+    .tl-year {
+      font-family: var(--atlas-font-display);
+      font-size: 2rem;
+      font-weight: 900;
+      color: var(--atlas-ink-muted);
+      line-height: 1;
+      letter-spacing: -0.02em;
+      transition: color 0.25s;
+    }
+    .tl-content {
+      padding-left: 2rem;
+      border-left: 1px solid var(--atlas-rule);
+      position: relative;
+    }
+    .tl-content::before {
+      content: "◇";
+      position: absolute;
+      left: -0.45em;
+      top: 0.1em;
+      font-size: 10px;
+      color: var(--atlas-ornament);
+      line-height: 1;
+    }
+    .tl-summary-head {
+      align-items: flex-start;
+      display: flex;
+      gap: 1rem;
+      justify-content: space-between;
+    }
+    .tl-hed {
+      font-family: var(--atlas-font-display);
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--atlas-ink);
+      line-height: 1.1;
+      margin-bottom: 0.3rem;
+      letter-spacing: -0.02em;
+    }
+    .tl-expand-indicator {
+      border: 1px solid var(--atlas-rule);
+      border-radius: 999px;
+      display: block;
+      flex-shrink: 0;
+      height: 1.85rem;
+      margin-top: 0.1rem;
+      position: relative;
+      transition:
+        border-color 0.2s,
+        transform 0.2s;
+      width: 1.85rem;
+    }
+    .tl-expand-indicator::before,
+    .tl-expand-indicator::after {
+      background: var(--atlas-ink-muted);
+      content: "";
+      left: 50%;
+      position: absolute;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      transition:
+        background 0.2s,
+        opacity 0.2s;
+    }
+    .tl-expand-indicator::before {
+      height: 1px;
+      width: 0.8rem;
+    }
+    .tl-expand-indicator::after {
+      height: 0.8rem;
+      width: 1px;
+    }
+    .tl-entry[open] .tl-expand-indicator {
+      border-color: var(--atlas-gold);
+      transform: rotate(180deg);
+    }
+    .tl-entry[open] .tl-expand-indicator::before,
+    .tl-entry[open] .tl-expand-indicator::after,
+    .tl-entry:hover .tl-expand-indicator::before,
+    .tl-entry:hover .tl-expand-indicator::after {
+      background: var(--atlas-gold);
+    }
+    .tl-entry[open] .tl-expand-indicator::after {
+      opacity: 0;
+    }
+    .tl-dek {
+      font-size: 12px;
+      font-style: italic;
+      color: var(--atlas-ink-muted);
+      margin-bottom: 0;
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .tl-expand-hint {
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--atlas-gold);
+      margin-top: 0.75rem;
+      transition: opacity 0.2s;
+    }
+    .tl-entry[open] .tl-expand-hint {
+      display: none;
+    }
+
+    .tl-tag {
+      font-style: normal;
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 0.1rem 0.5rem;
+      border: 1px solid;
+    }
+    .tag-red {
+      color: var(--atlas-red);
+      border-color: var(--atlas-red);
+    }
+    .tag-ink {
+      color: var(--atlas-ink-muted);
+      border-color: var(--atlas-rule);
+    }
+
+    .tl-detail {
+      padding: 0 1rem 2rem calc(90px + 2rem + 1rem);
+      animation: tl-slide-in 0.3s ease;
+    }
+    .tl-detail-card {
+      border-top: 1px solid var(--atlas-rule);
+      max-width: 52rem;
+      padding-top: 1rem;
+    }
+    @keyframes tl-slide-in {
+      from {
+        opacity: 0;
+        transform: translateY(-8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .tl-body {
+      font-size: 13px;
+      color: var(--atlas-ink-mid);
+      line-height: 1.75;
+      text-align: justify;
+    }
+    .tl-dur {
+      align-items: center;
+      color: var(--atlas-ink-faint);
+      display: inline-flex;
+      font-size: 11px;
+      font-style: italic;
+      gap: 0.5rem;
+      color: var(--atlas-ink-faint);
+      margin-top: 0.75rem;
+      padding: 0.45rem 0.8rem;
+      border: 1px solid var(--atlas-rule);
+      border-radius: 999px;
+    }
+
+    /* Dark mode */
+    :root[data-theme="dark"] .tl-entry:hover,
+    :root[data-theme="dark"] .tl-entry[open] {
+      background: linear-gradient(
+        90deg,
+        rgba(212, 175, 85, 0.08),
+        rgba(212, 175, 85, 0.01) 18%,
+        transparent 42%
+      );
+    }
+    :root[data-theme="dark"] .tl-entry:hover .tl-year,
+    :root[data-theme="dark"] .tl-entry[open] .tl-year {
+      color: #d4af55;
+    }
+    :root[data-theme="dark"] .tl-tag.tag-red {
+      color: #e07070;
+      border-color: #c45a5a;
+    }
+    :root[data-theme="dark"] .tl-tag.tag-ink {
+      color: #8a9ab0;
+      border-color: rgba(212, 175, 85, 0.25);
+    }
+    :root[data-theme="dark"] .tl-dur {
+      color: #4a5a70;
+      border-color: rgba(212, 175, 85, 0.16);
+    }
+    :root[data-theme="dark"] .tl-hed {
+      color: #f5f0e8;
+    }
+    :root[data-theme="dark"] .tl-detail-card {
+      border-top-color: rgba(212, 175, 85, 0.15);
+    }
+    :root[data-theme="dark"] .tl-expand-indicator {
+      border-color: rgba(212, 175, 85, 0.2);
+    }
+    :root[data-theme="dark"] .tl-expand-indicator::before,
+    :root[data-theme="dark"] .tl-expand-indicator::after {
+      background: #8a9ab0;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .timeline-section {
+        padding: 0 1.5rem 3rem;
+      }
+      .tl-entry {
+        border-left: 2px solid transparent;
+      }
+      .tl-detail {
+        padding-left: 1rem;
+      }
+      .tl-summary {
+        grid-template-columns: 70px 1fr;
+      }
+      .tl-summary-head {
+        gap: 0.75rem;
+      }
+      .tl-expand-indicator {
+        height: 1.65rem;
+        width: 1.65rem;
+      }
+    }
+  }
+</style>

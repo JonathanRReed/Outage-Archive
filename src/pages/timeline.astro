@@ -1,0 +1,157 @@
+---
+import AtlasFooter from "@components/atlas/atlas-footer/AtlasFooter.astro";
+import AtlasPageShell from "@components/atlas/shared/AtlasPageShell.astro";
+import TimelineLedger from "@components/atlas/timeline-ledger/TimelineLedger.astro";
+import { getAllTimelineIncidents } from "@data/atlasIncidents";
+import Layout from "@layouts/BaseLayout.astro";
+
+const incidents = getAllTimelineIncidents();
+---
+
+<Layout
+  title="Timeline"
+  description="The full Internet Outage Atlas timeline, linking each incident to its canonical archive record."
+>
+  <div class="atlas-page-surface">
+    <AtlasPageShell
+      currentPage="timeline"
+      dateline={`Vol. I · Complete Timeline · ${incidents.length} incidents indexed`}
+      kicker="Internet Outage Atlas · Timeline"
+      heading="FULL<br>TIMELINE"
+      subtitle="A date-ordered view of the atlas, with every entry linked to its archive record"
+    >
+      <section class="timeline-page-lede">
+        <div class="timeline-page-copy">
+          <div class="timeline-page-byline">Timeline view</div>
+          <h2 class="timeline-page-title">Incidents over time</h2>
+          <p>
+            This page orders the atlas by date so you can scan how outage patterns changed over time
+            and which dependencies kept failing.
+          </p>
+          <p>Open any incident to jump straight to its full archive record.</p>
+        </div>
+        <aside class="timeline-page-side">
+          <div class="timeline-page-card">
+            <div class="timeline-page-card-label">Reading note</div>
+            <ul>
+              <li>Ordered chronologically across the atlas corpus</li>
+              <li>Designed for fast scanning before deeper archive reading</li>
+              <li>Each incident routes directly into the archive record</li>
+              <li>Homepage incidents remain included here, not separated out</li>
+            </ul>
+          </div>
+        </aside>
+      </section>
+
+      <TimelineLedger incidents={incidents} />
+
+      <AtlasFooter
+        publicationTitle="Internet<br>Outage Atlas"
+        tagline="Chronological index of the atlas corpus with direct links into the archive record"
+        figures={[
+          { bold: String(incidents.length), text: "Incidents indexed in the timeline" },
+          { bold: "1", text: "Canonical archive destination for each incident" },
+          { bold: "Mode", text: "Timeline view for sequence, archive view for detail" },
+        ]}
+        editionText="Timeline Edition<br />Chronological record"
+        copyrightText="© 2026 Jonathan R Reed"
+        typesetText="Sequenced and curated for Internet Outage Atlas"
+        websiteUrl="https://JonathanRReed.com"
+        articleUrl="https://JonathanRReed.com/blog/days-the-internet-dies/"
+      />
+    </AtlasPageShell>
+  </div>
+</Layout>
+
+<style>
+  @layer page-sections {
+    .timeline-page-lede {
+      display: grid;
+      gap: 1.5rem;
+      grid-template-columns: minmax(0, 3fr) minmax(280px, 1.4fr);
+      padding: 2.2rem 3rem 2rem;
+    }
+    .timeline-page-byline {
+      border-left: 2px solid var(--atlas-gold);
+      color: var(--atlas-ink-muted);
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      margin-bottom: 1.1rem;
+      padding-left: 1rem;
+      text-transform: uppercase;
+    }
+    .timeline-page-title {
+      color: var(--atlas-ink);
+      font-family: var(--atlas-font-display);
+      font-size: clamp(2rem, 3.4vw, 2.8rem);
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      line-height: 1.02;
+      margin-bottom: 0.8rem;
+    }
+    .timeline-page-copy p {
+      color: var(--atlas-ink-mid);
+      font-size: 14px;
+      line-height: 1.9;
+      margin-bottom: 1rem;
+      max-width: 64ch;
+    }
+    .timeline-page-copy p:last-child {
+      margin-bottom: 0;
+    }
+    .timeline-page-card {
+      background: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--atlas-surface) 94%, transparent),
+        transparent 100%
+      );
+      border: 1px solid color-mix(in srgb, var(--atlas-rule) 75%, transparent);
+      box-shadow: 0 24px 60px -48px rgba(13, 27, 42, 0.5);
+      padding: 1.1rem 1rem 1rem;
+    }
+    .timeline-page-card-label {
+      color: var(--atlas-ink-muted);
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+    }
+    .timeline-page-card ul {
+      display: grid;
+      gap: 0.55rem;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .timeline-page-card li {
+      color: var(--atlas-ink-mid);
+      font-size: 13px;
+      line-height: 1.7;
+      padding-left: 1rem;
+      position: relative;
+    }
+    .timeline-page-card li::before {
+      background: var(--atlas-gold);
+      border-radius: 50%;
+      content: "";
+      height: 5px;
+      left: 0;
+      position: absolute;
+      top: 0.72em;
+      width: 5px;
+    }
+
+    :root[data-theme="dark"] .timeline-page-card {
+      background: linear-gradient(180deg, rgba(10, 23, 38, 0.28), rgba(10, 23, 38, 0.12));
+      border-color: rgba(212, 175, 85, 0.14);
+      box-shadow: 0 24px 60px -48px rgba(0, 0, 0, 0.45);
+    }
+
+    @media (max-width: 1080px) {
+      .timeline-page-lede {
+        grid-template-columns: 1fr;
+        padding: 2rem 1.5rem 1.5rem;
+      }
+    }
+  }
+</style>
