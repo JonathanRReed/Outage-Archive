@@ -1,0 +1,628 @@
+---
+type ArchiveItem = {
+  date: string;
+  category: string;
+  title: string;
+  summary: string;
+  lesson: string;
+};
+
+type ArchiveGroup = {
+  label: string;
+  heading: string;
+  intro: string;
+  items: ArchiveItem[];
+};
+
+type ArchiveProps = {
+  dateline?: string;
+  kicker?: string;
+  heading?: string;
+  subtitle?: string;
+  byline?: string;
+  introTitle?: string;
+  introBody?: string;
+  scopeTitle?: string;
+  scopeItems?: string[];
+  groups?: ArchiveGroup[];
+};
+
+const {
+  dateline = "",
+  kicker = "",
+  heading = "",
+  subtitle = "",
+  byline = "",
+  introTitle = "",
+  introBody = "",
+  scopeTitle = "",
+  scopeItems = [] as string[],
+  groups = [] as ArchiveGroup[],
+  useDefaultEditableBinding: _useDefaultEditableBinding = false,
+  _component,
+  ...htmlAttributes
+} = Astro.props as ArchiveProps & Record<string, unknown>;
+---
+
+<div
+  class="atlas-page archives-register"
+  {...htmlAttributes}
+>
+  <a
+    href="#archives-main"
+    class="skip-link"
+    >Skip to main content</a
+  >
+
+  <header role="banner">
+    <div class="masthead-top">
+      <a
+        href="/"
+        class="masthead-home"
+        data-prop="dateline"
+      >
+        {dateline}
+      </a>
+      <div class="masthead-right">
+        <ul class="masthead-nav">
+          <li><a href="/about/">About</a></li>
+          <li>
+            <a
+              href="/archives/"
+              aria-current="page"
+              >Archives</a
+            >
+          </li>
+          <li><a href="/#timeline">Timeline</a></li>
+          <li><a href="/#methodology">Methodology</a></li>
+        </ul>
+        <button
+          class="theme-toggle"
+          id="themeToggle"
+          aria-label="Toggle dark mode"
+        >
+          <span
+            class="theme-toggle__icon"
+            id="themeIcon"
+            >☀</span
+          >
+          <span id="themeLabel">Light</span>
+        </button>
+      </div>
+    </div>
+    <div class="masthead-main">
+      <div
+        class="masthead-kicker"
+        data-prop="kicker"
+      >
+        {kicker}
+      </div>
+      <h1
+        class="masthead-title"
+        data-prop="heading"
+        set:html={heading}
+      />
+      <p
+        class="masthead-subtitle"
+        data-prop="subtitle"
+      >
+        {subtitle}
+      </p>
+      <div class="masthead-rule-row">
+        <div class="masthead-rule"></div>
+        <span class="masthead-ornament">◆</span>
+        <div class="masthead-rule"></div>
+        <span class="masthead-ornament">◇</span>
+        <div class="masthead-rule"></div>
+      </div>
+    </div>
+  </header>
+
+  <section
+    class="archives-lede reveal"
+    id="archives-main"
+  >
+    <div class="archives-main-copy">
+      <div
+        class="byline"
+        data-prop="byline"
+      >
+        {byline}
+      </div>
+      <h2
+        class="hero-headline"
+        data-prop="introTitle"
+      >
+        {introTitle}
+      </h2>
+      <div
+        class="archives-body"
+        data-prop="introBody"
+        set:html={introBody}
+      />
+    </div>
+    <div class="column-rule"></div>
+    <aside class="archives-sidebar">
+      <div class="sidebar-card">
+        <div class="sidebar-label">Scope</div>
+        <h3
+          class="sidebar-title"
+          data-prop="scopeTitle"
+        >
+          {scopeTitle}
+        </h3>
+        <ul class="sidebar-list">
+          {scopeItems.map((item: string) => <li>{item}</li>)}
+        </ul>
+      </div>
+    </aside>
+  </section>
+
+  {
+    groups.map((group: ArchiveGroup) => (
+      <Fragment>
+        <div class="double-rule" />
+        <section class="archive-group reveal">
+          <div class="archive-group-head">
+            <div class="archive-group-label">{group.label}</div>
+            <h2 class="archive-group-title">{group.heading}</h2>
+            <p class="archive-group-intro">{group.intro}</p>
+          </div>
+          <div class="archive-card-grid">
+            {group.items.map((item: ArchiveItem) => (
+              <article class="archive-card">
+                <div class="archive-meta">
+                  <span>{item.date}</span>
+                  <span>{item.category}</span>
+                </div>
+                <h3 class="archive-card-title">{item.title}</h3>
+                <p class="archive-card-summary">{item.summary}</p>
+                <p class="archive-card-lesson">{item.lesson}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+      </Fragment>
+    ))
+  }
+</div>
+
+<script is:inline>
+  (function () {
+    var html = document.documentElement;
+    var btn = document.getElementById("themeToggle");
+    var icon = document.getElementById("themeIcon");
+    var label = document.getElementById("themeLabel");
+    var prefersReducedMotion =
+      window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    function applyTheme(theme) {
+      html.setAttribute("data-theme", theme);
+      if (icon) icon.textContent = theme === "dark" ? "☾" : "☀";
+      if (label) label.textContent = theme === "dark" ? "Light" : "Dark";
+      if (btn) {
+        btn.setAttribute("aria-pressed", theme === "dark" ? "true" : "false");
+        btn.setAttribute(
+          "aria-label",
+          theme === "dark" ? "Switch to light mode" : "Switch to dark mode"
+        );
+      }
+      try {
+        localStorage.setItem("ioa-theme", theme);
+      } catch (e) {}
+    }
+
+    var saved = null;
+    try {
+      saved = localStorage.getItem("ioa-theme");
+    } catch (e) {}
+    if (saved === "dark" || saved === "light") {
+      applyTheme(saved);
+    } else if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+      applyTheme("dark");
+    }
+
+    if (btn) {
+      btn.addEventListener("click", function () {
+        var current = html.getAttribute("data-theme") || "light";
+        applyTheme(current === "dark" ? "light" : "dark");
+      });
+    }
+
+    function initAtlasInteractions() {
+      if (prefersReducedMotion) {
+        document.querySelectorAll(".reveal").forEach(function (el) {
+          el.classList.add("revealed");
+        });
+      } else if ("IntersectionObserver" in window) {
+        var observer = new IntersectionObserver(
+          function (entries) {
+            entries.forEach(function (entry) {
+              if (entry.isIntersecting) {
+                entry.target.classList.add("revealed");
+                observer.unobserve(entry.target);
+              }
+            });
+          },
+          { threshold: 0.02, rootMargin: "0px 0px -6% 0px" }
+        );
+        document.querySelectorAll(".reveal").forEach(function (el) {
+          observer.observe(el);
+        });
+      }
+
+      var btt = document.querySelector(".back-to-top");
+      if (btt) {
+        window.addEventListener(
+          "scroll",
+          function () {
+            if (window.scrollY > 600) {
+              btt.classList.add("visible");
+            } else {
+              btt.classList.remove("visible");
+            }
+          },
+          { passive: true }
+        );
+        btt.addEventListener("click", function () {
+          window.scrollTo({ top: 0, behavior: prefersReducedMotion ? "auto" : "smooth" });
+        });
+      }
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", initAtlasInteractions, { once: true });
+    } else {
+      initAtlasInteractions();
+    }
+  })();
+</script>
+
+<style>
+  @layer page-sections {
+    .masthead-top {
+      align-items: center;
+      background: var(--atlas-parchment);
+      border-bottom: 1px solid var(--atlas-rule);
+      display: grid;
+      font-family: var(--atlas-font-body);
+      gap: 1rem;
+      grid-template-columns: minmax(30rem, 1fr) auto;
+      min-height: 3.5rem;
+      padding: 0.5rem 3rem;
+      position: sticky;
+      top: 0;
+      transition: background 0.4s ease;
+      z-index: 100;
+    }
+    .masthead-home {
+      color: var(--atlas-ink-muted);
+      display: block;
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      line-height: 1.3;
+      text-decoration: none;
+      text-transform: uppercase;
+      transition: color 0.15s ease;
+      white-space: nowrap;
+    }
+    .masthead-home:hover {
+      color: var(--atlas-ink);
+    }
+    .masthead-right {
+      align-items: center;
+      display: flex;
+      gap: 1rem;
+      justify-self: end;
+    }
+    .masthead-nav {
+      display: flex;
+      gap: 1.2rem;
+      list-style: none;
+    }
+    .masthead-nav a {
+      color: var(--atlas-ink-muted);
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-decoration: none;
+      text-transform: uppercase;
+      transition: color 0.15s ease;
+    }
+    .masthead-nav a:hover,
+    .masthead-nav a[aria-current="page"] {
+      color: var(--atlas-ink);
+    }
+    .masthead-main {
+      border-bottom: 3px double var(--atlas-deco-border);
+      padding: 2.35rem 3rem 1.6rem;
+      position: relative;
+      text-align: center;
+    }
+    .masthead-main::after {
+      background: linear-gradient(
+          135deg,
+          transparent 33.33%,
+          var(--atlas-ornament) 33.33%,
+          var(--atlas-ornament) 66.66%,
+          transparent 66.66%
+        )
+        0 0 / 12px 12px repeat-x;
+      content: "";
+      display: block;
+      height: 12px;
+      margin: 1.15rem auto 0;
+      opacity: 0.5;
+      width: 180px;
+    }
+    .masthead-kicker {
+      color: var(--atlas-ink-muted);
+      font-size: 11px;
+      letter-spacing: 0.35em;
+      margin-bottom: 0.9rem;
+      text-transform: uppercase;
+    }
+    .masthead-title {
+      color: var(--atlas-ink);
+      font-family: var(--atlas-font-display);
+      font-size: clamp(3rem, 7vw, 6rem);
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      line-height: 0.9;
+      margin-bottom: 0.65rem;
+    }
+    .masthead-subtitle {
+      color: var(--atlas-ink-mid);
+      font-family: var(--atlas-font-display);
+      font-size: clamp(1rem, 2vw, 1.35rem);
+      font-style: italic;
+      margin: 0 auto 0.9rem;
+      max-width: 44rem;
+    }
+    .masthead-rule-row {
+      align-items: center;
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.2rem;
+    }
+    .masthead-rule {
+      background: var(--atlas-rule);
+      flex: 1;
+      height: 1px;
+    }
+    .masthead-ornament {
+      color: var(--atlas-ornament);
+      font-size: 1rem;
+    }
+    .archives-lede {
+      display: grid;
+      gap: 0;
+      grid-template-columns: minmax(0, 3fr) 1px minmax(320px, 2fr);
+      padding: 0 3rem 3rem;
+    }
+    .archives-main-copy {
+      padding: 3rem 3rem 0 0;
+    }
+    .column-rule {
+      background: var(--atlas-rule);
+    }
+    .byline {
+      border-left: 2px solid var(--atlas-gold);
+      color: var(--atlas-ink-muted);
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      margin-bottom: 1.4rem;
+      padding-left: 1rem;
+      text-transform: uppercase;
+    }
+    .hero-headline {
+      color: var(--atlas-ink);
+      font-family: var(--atlas-font-display);
+      font-size: clamp(2rem, 3.6vw, 3rem);
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      line-height: 1.05;
+      margin-bottom: 0.9rem;
+    }
+    .archives-body :global(p) {
+      font-size: 14px;
+      line-height: 1.9;
+      margin-bottom: 1rem;
+      text-align: start;
+    }
+    .archives-body :global(p:last-child) {
+      margin-bottom: 0;
+    }
+    .archives-sidebar {
+      padding: 3rem 0 0 3rem;
+    }
+    .sidebar-card {
+      background: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--atlas-surface) 94%, transparent),
+        transparent 100%
+      );
+      border: 1px solid color-mix(in srgb, var(--atlas-rule) 75%, transparent);
+      box-shadow: 0 24px 60px -48px rgba(13, 27, 42, 0.5);
+      padding: 1.1rem 1rem 1rem;
+    }
+    .sidebar-label {
+      color: var(--atlas-ink-muted);
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+    }
+    .sidebar-title {
+      color: var(--atlas-ink);
+      font-family: var(--atlas-font-display);
+      font-size: 1.35rem;
+      font-weight: 700;
+      line-height: 1.1;
+      margin-bottom: 0.8rem;
+    }
+    .sidebar-list {
+      display: grid;
+      gap: 0.55rem;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .sidebar-list li {
+      color: var(--atlas-ink-mid);
+      font-size: 13px;
+      line-height: 1.7;
+      padding-left: 1rem;
+      position: relative;
+    }
+    .sidebar-list li::before {
+      background: var(--atlas-gold);
+      border-radius: 50%;
+      content: "";
+      height: 5px;
+      left: 0;
+      position: absolute;
+      top: 0.72em;
+      width: 5px;
+    }
+    .archive-group {
+      padding: 2.2rem 3rem 3.6rem;
+    }
+    .archive-group-head {
+      margin-bottom: 1.4rem;
+      max-width: 46rem;
+    }
+    .archive-group-label {
+      color: var(--atlas-ink-muted);
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      margin-bottom: 0.4rem;
+      text-transform: uppercase;
+    }
+    .archive-group-title {
+      color: var(--atlas-ink);
+      font-family: var(--atlas-font-display);
+      font-size: clamp(1.8rem, 3vw, 2.4rem);
+      font-weight: 800;
+      line-height: 1.03;
+      margin-bottom: 0.55rem;
+    }
+    .archive-group-intro {
+      color: var(--atlas-ink-muted);
+      font-family: var(--atlas-font-display);
+      font-size: 13px;
+      font-style: italic;
+      line-height: 1.7;
+      margin: 0;
+      max-width: 60ch;
+    }
+    .archive-card-grid {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .archive-card {
+      background: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--atlas-surface) 94%, transparent),
+        transparent 100%
+      );
+      border: 1px solid color-mix(in srgb, var(--atlas-rule) 75%, transparent);
+      box-shadow: 0 20px 60px -50px rgba(13, 27, 42, 0.4);
+      display: flex;
+      flex-direction: column;
+      min-height: 100%;
+      padding: 1rem 0.95rem 0.95rem;
+    }
+    .archive-meta {
+      color: var(--atlas-ink-muted);
+      display: flex;
+      font-size: 10px;
+      gap: 0.75rem;
+      justify-content: space-between;
+      letter-spacing: 0.13em;
+      margin-bottom: 0.75rem;
+      text-transform: uppercase;
+    }
+    .archive-card-title {
+      color: var(--atlas-ink);
+      font-family: var(--atlas-font-display);
+      font-size: 1.12rem;
+      font-weight: 700;
+      line-height: 1.12;
+      margin-bottom: 0.6rem;
+    }
+    .archive-card-summary {
+      color: var(--atlas-ink-mid);
+      font-size: 13px;
+      line-height: 1.75;
+      margin-bottom: 0.8rem;
+    }
+    .archive-card-lesson {
+      border-top: 1px solid color-mix(in srgb, var(--atlas-rule) 60%, transparent);
+      color: var(--atlas-ink-muted);
+      font-family: var(--atlas-font-display);
+      font-size: 12px;
+      font-style: italic;
+      line-height: 1.65;
+      margin-top: auto;
+      padding-top: 0.7rem;
+    }
+
+    :root[data-theme="dark"] .sidebar-card,
+    :root[data-theme="dark"] .archive-card {
+      background: linear-gradient(180deg, rgba(10, 23, 38, 0.28), rgba(10, 23, 38, 0.12));
+      border-color: rgba(212, 175, 85, 0.14);
+      box-shadow: 0 24px 60px -48px rgba(0, 0, 0, 0.45);
+    }
+
+    @media (max-width: 1080px) {
+      .masthead-top {
+        gap: 1rem;
+        grid-template-columns: minmax(0, 1fr) auto;
+        min-height: auto;
+        padding: 0.5rem 1.5rem;
+      }
+      .masthead-nav {
+        gap: 0.9rem;
+      }
+      .archives-lede {
+        grid-template-columns: 1fr;
+        padding: 0 1.5rem 2rem;
+      }
+      .archives-main-copy {
+        padding: 2rem 0 1.5rem;
+      }
+      .column-rule {
+        display: none;
+      }
+      .archives-sidebar {
+        padding: 0;
+      }
+      .archive-group {
+        padding: 2rem 1.5rem 3rem;
+      }
+      .archive-card-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 900px) {
+      .masthead-nav {
+        display: none;
+      }
+      .masthead-main {
+        padding: 2rem 1.5rem 1.4rem;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .archive-card-grid {
+        grid-template-columns: 1fr;
+      }
+      .archive-meta {
+        flex-direction: column;
+        gap: 0.3rem;
+      }
+    }
+  }
+</style>

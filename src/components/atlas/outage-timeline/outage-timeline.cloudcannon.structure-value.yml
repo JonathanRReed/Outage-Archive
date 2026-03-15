@@ -1,0 +1,12 @@
+label: Outage Timeline
+icon: timeline
+description: Featured timeline of defining internet outage incidents
+tags:
+  - Atlas
+  - Timeline
+value:
+  _component: atlas/outage-timeline
+  kicker: "Chapter Three — Featured Timeline"
+  heading: "Eight Defining Incidents"
+  intro: ""
+  entries: []

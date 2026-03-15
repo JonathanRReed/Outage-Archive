@@ -1,0 +1,330 @@
+---
+import type { AtlasIncident } from "@data/atlasIncidents";
+
+const {
+  incidents = [] as AtlasIncident[],
+  useDefaultEditableBinding: _useDefaultEditableBinding = false,
+  _component,
+  ...htmlAttributes
+} = Astro.props;
+---
+
+<section
+  class="timeline-ledger"
+  {...htmlAttributes}
+>
+  <div class="timeline-ledger-intro reveal">
+    <div class="timeline-ledger-label">Full incident index</div>
+    <p class="timeline-ledger-copy">
+      Every incident below links directly into the canonical archive record. The timeline is the
+      navigation layer. The archive is the record.
+    </p>
+  </div>
+
+  <ol class="timeline-ledger-list">
+    {
+      incidents.map((incident: AtlasIncident, index: number) => (
+        <li
+          class="timeline-ledger-item reveal"
+          style={`--timeline-reveal-delay: ${Math.min(index * 0.007, 0.06)}s`}
+        >
+          <a
+            href={`/archives/#${incident.slug}`}
+            class="timeline-ledger-link"
+            data-archive-link={incident.slug}
+          >
+            <div class="timeline-ledger-date-col">
+              <div class="timeline-ledger-date-label">Case file</div>
+              <div class="timeline-ledger-year">{incident.year}</div>
+              <div class="timeline-ledger-date">{incident.dateLabel}</div>
+            </div>
+            <div class="timeline-ledger-body">
+              <div class="timeline-ledger-topline">
+                <span class="timeline-ledger-category">{incident.category}</span>
+                <span
+                  class:list={[
+                    "timeline-ledger-severity",
+                    incident.severity === "Critical" && "is-critical",
+                  ]}
+                >
+                  {incident.severity}
+                </span>
+              </div>
+              <h2 class="timeline-ledger-title">{incident.title}</h2>
+              <p class="timeline-ledger-summary">{incident.summary}</p>
+              <div class="timeline-ledger-foot">
+                <span class="timeline-ledger-hint">Open in archives</span>
+                <span
+                  class="timeline-ledger-arrow"
+                  aria-hidden="true"
+                >
+                  ↗
+                </span>
+              </div>
+            </div>
+          </a>
+        </li>
+      ))
+    }
+  </ol>
+</section>
+
+<script is:inline>
+  (function () {
+    function initTimelineArchiveLinks() {
+      document.querySelectorAll("[data-archive-link]").forEach(function (link) {
+        if (!(link instanceof HTMLAnchorElement)) return;
+
+        link.addEventListener("click", function () {
+          var slug = link.getAttribute("data-archive-link");
+          if (!slug) return;
+
+          try {
+            sessionStorage.setItem("ioa-archive-target", slug);
+          } catch (e) {}
+        });
+      });
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", initTimelineArchiveLinks, { once: true });
+    } else {
+      initTimelineArchiveLinks();
+    }
+  })();
+</script>
+
+<style>
+  @layer page-sections {
+    .timeline-ledger {
+      padding: 0 3rem 4rem;
+    }
+    .timeline-ledger-intro {
+      display: grid;
+      gap: 0.6rem;
+      margin: 0 auto 1.8rem;
+      max-width: 44rem;
+      text-align: center;
+    }
+    .timeline-ledger-label {
+      color: var(--atlas-ink-muted);
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+    .timeline-ledger-copy {
+      color: var(--atlas-ink-mid);
+      font-family: var(--atlas-font-display);
+      font-size: 14px;
+      font-style: italic;
+      line-height: 1.8;
+      margin: 0;
+    }
+    .timeline-ledger-list {
+      display: grid;
+      gap: 0;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .timeline-ledger-intro.reveal,
+    .timeline-ledger-item.reveal {
+      filter: blur(1.25px);
+      transform: translateY(6px) scale(0.996);
+      transition:
+        opacity 0.11s ease-out,
+        transform 0.13s cubic-bezier(0.22, 1, 0.36, 1),
+        filter 0.13s ease-out;
+    }
+    .timeline-ledger-item.reveal {
+      transition-delay: var(--timeline-reveal-delay, 0s);
+    }
+    .timeline-ledger-intro.revealed,
+    .timeline-ledger-item.revealed {
+      filter: blur(0);
+      transform: translateY(0) scale(1);
+    }
+    .timeline-ledger-item {
+      border-bottom: 1px solid var(--atlas-rule);
+    }
+    .timeline-ledger-item:first-child {
+      border-top: 1px solid var(--atlas-rule);
+    }
+    .timeline-ledger-link {
+      color: inherit;
+      display: grid;
+      gap: 0;
+      grid-template-columns: 108px minmax(0, 1fr);
+      overflow: clip;
+      padding: 2rem 0;
+      position: relative;
+      text-decoration: none;
+      transition:
+        background 0.18s ease,
+        box-shadow 0.18s ease;
+    }
+    .timeline-ledger-link:hover {
+      background:
+        linear-gradient(
+          90deg,
+          color-mix(in srgb, var(--atlas-gold) 8%, transparent),
+          color-mix(in srgb, var(--atlas-gold) 2%, transparent) 38%,
+          transparent 72%
+        ),
+        linear-gradient(
+          180deg,
+          color-mix(in srgb, var(--atlas-surface) 84%, transparent),
+          color-mix(in srgb, var(--atlas-surface) 96%, transparent)
+        );
+      box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--atlas-gold) 18%, transparent);
+    }
+    .timeline-ledger-date-col {
+      padding: 0.1rem 1.1rem 0 0;
+    }
+    .timeline-ledger-date-label {
+      color: var(--atlas-ink-faint);
+      font-size: 9px;
+      letter-spacing: 0.18em;
+      margin-bottom: 0.45rem;
+      text-transform: uppercase;
+    }
+    .timeline-ledger-year {
+      color: var(--atlas-ink-muted);
+      font-family: var(--atlas-font-display);
+      font-size: 2rem;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      line-height: 1;
+      margin-bottom: 0.45rem;
+      transition: color 0.2s ease;
+    }
+    .timeline-ledger-date {
+      color: var(--atlas-ink-muted);
+      font-size: 11px;
+      line-height: 1.6;
+    }
+    .timeline-ledger-body {
+      border-left: 1px solid var(--atlas-rule);
+      padding-left: 2rem;
+      position: relative;
+    }
+    .timeline-ledger-body::before {
+      color: var(--atlas-ornament);
+      content: "◇";
+      font-size: 10px;
+      left: -0.45em;
+      line-height: 1;
+      position: absolute;
+      top: 0.1em;
+    }
+    .timeline-ledger-topline {
+      align-items: center;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-bottom: 0.7rem;
+    }
+    .timeline-ledger-category,
+    .timeline-ledger-severity {
+      border: 1px solid var(--atlas-rule);
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      padding: 0.16rem 0.5rem;
+      text-transform: uppercase;
+    }
+    .timeline-ledger-category {
+      color: var(--atlas-ink-muted);
+    }
+    .timeline-ledger-severity {
+      color: var(--atlas-gold);
+    }
+    .timeline-ledger-severity.is-critical {
+      color: var(--atlas-red);
+    }
+    .timeline-ledger-title {
+      color: var(--atlas-ink);
+      font-family: var(--atlas-font-display);
+      font-size: clamp(1.4rem, 2.4vw, 2rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.05;
+      margin-bottom: 0.65rem;
+    }
+    .timeline-ledger-summary {
+      color: var(--atlas-ink-mid);
+      font-size: 13px;
+      line-height: 1.85;
+      margin: 0;
+      max-width: 68ch;
+    }
+    .timeline-ledger-foot {
+      align-items: center;
+      display: flex;
+      gap: 0.65rem;
+      margin-top: 0.9rem;
+    }
+    .timeline-ledger-hint {
+      color: var(--atlas-gold);
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+    .timeline-ledger-arrow {
+      color: var(--atlas-ink-muted);
+      font-size: 0.95rem;
+      transition: transform 0.2s ease;
+    }
+    .timeline-ledger-link:hover .timeline-ledger-year {
+      color: var(--atlas-red);
+    }
+    .timeline-ledger-link:hover .timeline-ledger-arrow {
+      transform: translate(2px, -2px);
+    }
+
+    :root[data-theme="dark"] .timeline-ledger-link:hover {
+      background:
+        linear-gradient(
+          90deg,
+          rgba(212, 175, 85, 0.1),
+          rgba(212, 175, 85, 0.03) 38%,
+          transparent 72%
+        ),
+        linear-gradient(180deg, rgba(10, 23, 38, 0.36), rgba(10, 23, 38, 0.16));
+      box-shadow: inset 0 0 0 1px rgba(212, 175, 85, 0.14);
+    }
+    :root[data-theme="dark"] .timeline-ledger-category,
+    :root[data-theme="dark"] .timeline-ledger-severity {
+      border-color: rgba(212, 175, 85, 0.16);
+    }
+    :root[data-theme="dark"] .timeline-ledger-severity,
+    :root[data-theme="dark"] .timeline-ledger-hint {
+      color: #d4af55;
+    }
+    :root[data-theme="dark"] .timeline-ledger-severity.is-critical,
+    :root[data-theme="dark"] .timeline-ledger-link:hover .timeline-ledger-year {
+      color: #f1d98d;
+    }
+
+    @media (max-width: 900px) {
+      .timeline-ledger {
+        padding: 0 1.5rem 3rem;
+      }
+      .timeline-ledger-link {
+        grid-template-columns: 1fr;
+        padding: 1.5rem 0;
+      }
+      .timeline-ledger-date-col {
+        padding: 0 0 0.8rem;
+      }
+      .timeline-ledger-body {
+        border-left: 0;
+        border-top: 1px solid var(--atlas-rule);
+        padding-left: 0;
+        padding-top: 1rem;
+      }
+      .timeline-ledger-body::before {
+        display: none;
+      }
+    }
+  }
+</style>

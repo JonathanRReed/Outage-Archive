@@ -1,0 +1,227 @@
+---
+type Clipping = {
+  date: string;
+  category: string;
+  headline: string;
+  body: string;
+  lesson: string;
+};
+
+const {
+  kicker = "",
+  heading = "",
+  intro = "",
+  clippings = [] as Clipping[],
+  useDefaultEditableBinding: _useDefaultEditableBinding = false,
+  _component,
+  ...htmlAttributes
+} = Astro.props;
+---
+
+<div class="double-rule"></div>
+<div
+  class="sec-masthead"
+  id="archive"
+  {...htmlAttributes}
+>
+  <div
+    class="sec-kicker"
+    data-prop="kicker"
+  >
+    {kicker}
+  </div>
+  <h2
+    class="sec-h"
+    data-prop="heading"
+  >
+    {heading}
+  </h2>
+  <p
+    class="sec-intro-p"
+    data-prop="intro"
+  >
+    {intro}
+  </p>
+</div>
+<div class="archive-section">
+  <div
+    class="clipping-grid"
+    data-children-prop="clippings"
+  >
+    {
+      clippings.map((clip: Clipping) => (
+        <details class="clipping">
+          <summary class="clp-summary">
+            <div class="clp-date">{clip.date}</div>
+            <div class="clp-cat">{clip.category}</div>
+            <div class="clp-hed">{clip.headline}</div>
+            <div class="clp-expand-hint">Read clipping</div>
+          </summary>
+          <div class="clp-detail">
+            <div class="clp-rule" />
+            <div class="clp-body">{clip.body}</div>
+            <div class="clp-lesson">{clip.lesson}</div>
+          </div>
+        </details>
+      ))
+    }
+  </div>
+</div>
+
+<style>
+  @layer page-sections {
+    .archive-section {
+      padding: 0 3rem 4rem;
+    }
+    .clipping-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 2rem;
+    }
+    .clipping {
+      border: 1px solid var(--atlas-rule);
+      background: var(--atlas-surface);
+      position: relative;
+      transition:
+        box-shadow 0.25s,
+        opacity 0.6s ease,
+        transform 0.6s ease;
+    }
+    .clipping::before {
+      background: var(--atlas-parchment-dark);
+      clip-path: polygon(0 0, 100% 0, 95% 100%, 5% 100%);
+      content: "";
+      height: 6px;
+      left: 20%;
+      position: absolute;
+      top: -6px;
+      width: 60%;
+    }
+    .clipping:hover,
+    .clipping[open] {
+      box-shadow: 3px 6px 20px rgba(26, 18, 9, 0.1);
+      transform: translateY(-3px) rotate(-0.3deg);
+    }
+    .clipping[open] {
+      border-color: var(--atlas-gold);
+    }
+
+    .clp-summary {
+      padding: 2rem;
+      cursor: pointer;
+      list-style: none;
+      user-select: none;
+    }
+    .clp-summary::-webkit-details-marker {
+      display: none;
+    }
+    .clp-summary::marker {
+      display: none;
+      content: "";
+    }
+
+    .clp-date {
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--atlas-ink-faint);
+      margin-bottom: 0.5rem;
+    }
+    .clp-cat {
+      display: inline-block;
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      border: 1px solid var(--atlas-rule);
+      color: var(--atlas-ink-muted);
+      padding: 0.1rem 0.4rem;
+      margin-bottom: 0.75rem;
+    }
+    .clp-hed {
+      font-family: var(--atlas-font-display);
+      font-size: 1.15rem;
+      font-weight: 700;
+      line-height: 1.15;
+      letter-spacing: -0.01em;
+      margin-bottom: 0;
+    }
+    .clp-expand-hint {
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--atlas-gold);
+      margin-top: 0.75rem;
+    }
+    .clipping[open] .clp-expand-hint {
+      display: none;
+    }
+
+    .clp-detail {
+      padding: 0 2rem 2rem;
+      animation: clp-slide-in 0.3s ease;
+    }
+    @keyframes clp-slide-in {
+      from {
+        opacity: 0;
+        transform: translateY(-6px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .clp-rule {
+      height: 1px;
+      background: var(--atlas-rule);
+      margin: 0.75rem 0;
+    }
+    .clp-body {
+      font-size: 12px;
+      line-height: 1.7;
+      color: var(--atlas-ink-mid);
+    }
+    .clp-lesson {
+      border-top: 1px dotted var(--atlas-rule);
+      font-style: italic;
+      font-size: 11px;
+      color: var(--atlas-ink-muted);
+      margin-top: 0.75rem;
+      padding-top: 0.75rem;
+    }
+
+    /* Dark mode */
+    :root[data-theme="dark"] .clp-cat {
+      color: #d4af55;
+      border-color: rgba(212, 175, 85, 0.2);
+    }
+    :root[data-theme="dark"] .clp-rule {
+      background: rgba(212, 175, 85, 0.15);
+    }
+    :root[data-theme="dark"] .clp-lesson {
+      color: #d4af55;
+    }
+    :root[data-theme="dark"] .clipping::before {
+      background: #0d1b2a;
+    }
+    :root[data-theme="dark"] .clipping:hover,
+    :root[data-theme="dark"] .clipping[open] {
+      box-shadow: 0 4px 20px rgba(212, 175, 85, 0.08);
+    }
+    :root[data-theme="dark"] .clipping[open] {
+      border-color: #d4af55;
+    }
+
+    @media (max-width: 900px) {
+      .archive-section {
+        padding: 0 1.5rem 3rem;
+      }
+      .clipping-grid {
+        grid-template-columns: 1fr;
+      }
+      .clipping:hover,
+      .clipping[open] {
+        transform: none;
+      }
+    }
+  }
+</style>

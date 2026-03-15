@@ -1,0 +1,158 @@
+---
+import ArchiveLedger from "@components/atlas/archive-ledger/ArchiveLedger.astro";
+import AtlasFooter from "@components/atlas/atlas-footer/AtlasFooter.astro";
+import AtlasPageShell from "@components/atlas/shared/AtlasPageShell.astro";
+import { getArchiveGroups } from "@data/atlasIncidents";
+import Layout from "@layouts/BaseLayout.astro";
+
+const groups = getArchiveGroups();
+const incidentCount = groups.reduce((total, group) => total + group.items.length, 0);
+---
+
+<Layout
+  title="Archives"
+  description="The canonical archive record for Internet Outage Atlas incidents."
+>
+  <div class="atlas-page-surface">
+    <AtlasPageShell
+      currentPage="archives"
+      dateline={`Vol. I · Archive Register · ${incidentCount} incidents filed`}
+      kicker="Internet Outage Atlas · Archive"
+      heading="THE<br>ARCHIVES"
+      subtitle="The full incident record, grouped by failure type and openable in place"
+    >
+      <section class="archives-page-lede">
+        <div class="archives-page-copy">
+          <div class="archives-page-byline">Full incident record</div>
+          <h2 class="archives-page-title">All incidents in one place</h2>
+          <p>
+            This page holds the full atlas record. The homepage is selective. The timeline is for
+            scanning by date. The archive is where every incident stays available in detail.
+          </p>
+          <p>If you arrive from the timeline, the matching record opens automatically.</p>
+        </div>
+        <aside class="archives-page-side">
+          <div class="archives-page-card">
+            <div class="archives-page-card-label">Archive rules</div>
+            <ul>
+              <li>One canonical record per incident</li>
+              <li>Grouped by the layer that amplified the failure</li>
+              <li>Directly addressable by anchored archive link</li>
+              <li>Includes homepage incidents and supporting incidents together</li>
+            </ul>
+          </div>
+        </aside>
+      </section>
+
+      <ArchiveLedger groups={groups} />
+
+      <AtlasFooter
+        publicationTitle="Internet<br>Outage Atlas"
+        tagline="Canonical grouped record for every incident in the atlas corpus"
+        figures={[
+          { bold: String(incidentCount), text: "Incident records filed in the archive" },
+          { bold: String(groups.length), text: "Failure groupings in the archive ledger" },
+          { bold: "Linked", text: "Timeline entries route directly into these records" },
+        ]}
+        editionText="Archive Edition<br />Canonical incident register"
+        copyrightText="© 2026 Jonathan R Reed"
+        typesetText="Grouped and indexed for Internet Outage Atlas"
+        websiteUrl="https://JonathanRReed.com"
+        articleUrl="https://JonathanRReed.com/blog/days-the-internet-dies/"
+      />
+    </AtlasPageShell>
+  </div>
+</Layout>
+
+<style>
+  @layer page-sections {
+    .archives-page-lede {
+      display: grid;
+      gap: 1.5rem;
+      grid-template-columns: minmax(0, 3fr) minmax(280px, 1.4fr);
+      padding: 2.2rem 3rem 2rem;
+    }
+    .archives-page-byline {
+      border-left: 2px solid var(--atlas-gold);
+      color: var(--atlas-ink-muted);
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      margin-bottom: 1.1rem;
+      padding-left: 1rem;
+      text-transform: uppercase;
+    }
+    .archives-page-title {
+      color: var(--atlas-ink);
+      font-family: var(--atlas-font-display);
+      font-size: clamp(2rem, 3.4vw, 2.8rem);
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      line-height: 1.02;
+      margin-bottom: 0.8rem;
+    }
+    .archives-page-copy p {
+      color: var(--atlas-ink-mid);
+      font-size: 14px;
+      line-height: 1.9;
+      margin-bottom: 1rem;
+      max-width: 64ch;
+    }
+    .archives-page-copy p:last-child {
+      margin-bottom: 0;
+    }
+    .archives-page-card {
+      background: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--atlas-surface) 94%, transparent),
+        transparent 100%
+      );
+      border: 1px solid color-mix(in srgb, var(--atlas-rule) 75%, transparent);
+      box-shadow: 0 24px 60px -48px rgba(13, 27, 42, 0.5);
+      padding: 1.1rem 1rem 1rem;
+    }
+    .archives-page-card-label {
+      color: var(--atlas-ink-muted);
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+    }
+    .archives-page-card ul {
+      display: grid;
+      gap: 0.55rem;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .archives-page-card li {
+      color: var(--atlas-ink-mid);
+      font-size: 13px;
+      line-height: 1.7;
+      padding-left: 1rem;
+      position: relative;
+    }
+    .archives-page-card li::before {
+      background: var(--atlas-gold);
+      border-radius: 50%;
+      content: "";
+      height: 5px;
+      left: 0;
+      position: absolute;
+      top: 0.72em;
+      width: 5px;
+    }
+
+    :root[data-theme="dark"] .archives-page-card {
+      background: linear-gradient(180deg, rgba(10, 23, 38, 0.28), rgba(10, 23, 38, 0.12));
+      border-color: rgba(212, 175, 85, 0.14);
+      box-shadow: 0 24px 60px -48px rgba(0, 0, 0, 0.45);
+    }
+
+    @media (max-width: 1080px) {
+      .archives-page-lede {
+        grid-template-columns: 1fr;
+        padding: 2rem 1.5rem 1.5rem;
+      }
+    }
+  }
+</style>

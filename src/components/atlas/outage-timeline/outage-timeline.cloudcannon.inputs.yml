@@ -1,0 +1,41 @@
+_inputs:
+  kicker:
+    type: text
+    label: Kicker
+  heading:
+    type: text
+    label: Heading
+  intro:
+    type: textarea
+    label: Introduction
+  entries:
+    type: array
+    label: Timeline Entries
+  entries[*]:
+    type: object
+    label: Timeline Entry
+  entries[*].year:
+    type: text
+    label: Year
+  entries[*].title:
+    type: text
+    label: Title
+  entries[*].dek:
+    type: text
+    label: Deck / Subtitle
+  entries[*].severity:
+    type: select
+    label: Severity
+    options:
+      values:
+        - Critical
+        - High Severity
+  entries[*].category:
+    type: text
+    label: Category Tag
+  entries[*].body:
+    type: textarea
+    label: Body Text
+  entries[*].duration:
+    type: text
+    label: Duration Line

@@ -1,0 +1,38 @@
+{
+  "logoSource": "/images/logo.svg",
+  "logoAlt": "Internet Outage Atlas",
+  "navData": [
+    {
+      "name": "Home Page",
+      "path": "/",
+      "children": []
+    },
+    {
+      "name": "Timeline",
+      "path": "/timeline/",
+      "children": []
+    },
+    {
+      "name": "Archives",
+      "path": "/archives/",
+      "children": []
+    },
+    {
+      "name": "About",
+      "path": "/about/",
+      "children": []
+    }
+  ],
+  "buttonSections": [
+    {
+      "_component": "building-blocks/core-elements/button",
+      "text": "Search",
+      "hideText": true,
+      "link": "/search/",
+      "iconName": "magnifying-glass",
+      "iconPosition": "before",
+      "variant": "ghost",
+      "size": "lg"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+label: Incident Archive
+icon: archive
+description: Grid of incident clipping cards with date, category, headline, body, and lesson
+tags:
+  - Atlas
+  - Archive
+value:
+  _component: atlas/incident-archive
+  kicker: "Chapter Four — Incident Archive"
+  heading: "The Broader Corpus"
+  intro: ""
+  clippings: []

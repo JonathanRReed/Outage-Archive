@@ -1,0 +1,14 @@
+label: Atlas Footer
+icon: article
+description: Publication footer with key figures and edition info
+tags:
+  - Atlas
+  - Footer
+value:
+  _component: atlas/atlas-footer
+  publicationTitle: ""
+  tagline: ""
+  figures: []
+  editionText: ""
+  copyrightText: ""
+  typesetText: ""

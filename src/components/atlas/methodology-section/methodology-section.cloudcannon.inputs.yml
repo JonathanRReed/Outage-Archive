@@ -1,0 +1,37 @@
+_inputs:
+  kicker:
+    type: text
+    label: Kicker
+  heading:
+    type: text
+    label: Heading
+  leftTitle:
+    type: text
+    label: Left Column Title
+  leftBody:
+    type: html
+    label: Left Column Body
+  leftTitle2:
+    type: text
+    label: Left Column Title 2
+  leftBody2:
+    type: html
+    label: Left Column Body 2
+  rightTitle:
+    type: text
+    label: Right Column Title
+  rightItems:
+    type: array
+    label: Right Column Items
+  rightItems[*]:
+    type: text
+    label: Item
+  rightTitle2:
+    type: text
+    label: Right Column Title 2
+  rightItems2:
+    type: array
+    label: Right Column Items 2
+  rightItems2[*]:
+    type: text
+    label: Item

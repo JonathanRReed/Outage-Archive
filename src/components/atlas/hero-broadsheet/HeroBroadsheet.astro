@@ -1,0 +1,508 @@
+---
+type StatFigure = {
+  number: string;
+  label: string;
+  note: string;
+};
+
+const {
+  dateline = "",
+  kicker = "",
+  heading = "",
+  subtitle = "",
+  byline = "",
+  heroHeading = "",
+  heroQuote = "",
+  heroBody = "",
+  statFigures = [] as StatFigure[],
+  colorScheme: _colorScheme = "inherit",
+  backgroundColor: _backgroundColor,
+  useDefaultEditableBinding: _useDefaultEditableBinding = false,
+  _component,
+  ...htmlAttributes
+} = Astro.props;
+---
+
+<div
+  class="atlas-page"
+  {...htmlAttributes}
+>
+  <a
+    href="#main-content"
+    class="skip-link"
+    >Skip to main content</a
+  >
+
+  <header role="banner">
+    <div class="masthead-top">
+      <a
+        href="/"
+        class="masthead-home"
+        aria-current="page"
+        data-prop="dateline"
+      >
+        {dateline}
+      </a>
+      <div class="masthead-right">
+        <ul class="masthead-nav">
+          <li>
+            <a
+              href="/"
+              aria-current="page"
+              >Home Page</a
+            >
+          </li>
+          <li><a href="/timeline/">Timeline</a></li>
+          <li><a href="/archives/">Archives</a></li>
+          <li><a href="/about/">About</a></li>
+        </ul>
+        <button
+          class="theme-toggle"
+          id="themeToggle"
+          aria-label="Toggle dark mode"
+        >
+          <span
+            class="theme-toggle__icon"
+            id="themeIcon"
+            >☀</span
+          >
+          <span id="themeLabel">Light</span>
+        </button>
+      </div>
+    </div>
+    <div class="masthead-main">
+      <div
+        class="masthead-kicker"
+        data-prop="kicker"
+      >
+        {kicker}
+      </div>
+      <h1
+        class="masthead-title"
+        data-prop="heading"
+        set:html={heading}
+      />
+      <p
+        class="masthead-subtitle"
+        data-prop="subtitle"
+      >
+        {subtitle}
+      </p>
+      <div class="masthead-rule-row">
+        <div class="masthead-rule"></div>
+        <span class="masthead-ornament">◆</span>
+        <div class="masthead-rule"></div>
+        <span class="masthead-ornament">◇</span>
+        <div class="masthead-rule"></div>
+        <span class="masthead-ornament">◆</span>
+        <div class="masthead-rule"></div>
+      </div>
+    </div>
+  </header>
+
+  <main
+    id="main-content"
+    role="main"
+  >
+    <div class="hero-grid">
+      <div class="hero-main">
+        <div
+          class="byline"
+          data-prop="byline"
+        >
+          {byline}
+        </div>
+        <h2
+          class="hero-headline"
+          data-prop="heroHeading"
+        >
+          {heroHeading}
+        </h2>
+        {
+          heroQuote && (
+            <p
+              class="hero-subhead"
+              data-prop="heroQuote"
+            >
+              {heroQuote}
+            </p>
+          )
+        }
+        <div
+          class="hero-body"
+          data-prop="heroBody"
+          set:html={heroBody}
+        />
+      </div>
+      <div class="column-rule"></div>
+      <div class="hero-sidebar">
+        <div class="sidebar-title">Key Figures</div>
+        {
+          statFigures.map((stat: StatFigure) => (
+            <div class="sidebar-fact">
+              <div class="sf-number">{stat.number}</div>
+              <div class="sf-label">{stat.label}</div>
+              <div class="sf-note">{stat.note}</div>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </main>
+</div>
+
+<style>
+  @layer page-sections {
+    .masthead-top {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--atlas-parchment);
+      display: grid;
+      gap: 1.5rem;
+      grid-template-columns: minmax(30rem, 1fr) auto;
+      align-items: center;
+      min-height: 3.5rem;
+      padding: 0.5rem 3rem;
+      border-bottom: 1px solid var(--atlas-rule);
+      font-family: var(--atlas-font-body);
+      transition: background 0.4s;
+    }
+    .masthead-home {
+      color: var(--atlas-ink-muted);
+      display: block;
+      flex: 0 0 auto;
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      line-height: 1.3;
+      text-decoration: none;
+      text-transform: uppercase;
+      transition: color 0.15s;
+      white-space: nowrap;
+    }
+    .masthead-home:hover {
+      color: var(--atlas-ink);
+    }
+    .masthead-right {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      justify-self: end;
+    }
+    .masthead-nav {
+      list-style: none;
+      display: flex;
+      gap: 1.5rem;
+    }
+    .masthead-nav a {
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      text-decoration: none;
+      color: var(--atlas-ink-muted);
+      transition: color 0.15s;
+    }
+    .masthead-nav a:hover {
+      color: var(--atlas-ink);
+    }
+
+    .masthead-main {
+      text-align: center;
+      padding: 2.5rem 3rem 1.5rem;
+      border-bottom: 3px double var(--atlas-deco-border);
+      position: relative;
+    }
+    .masthead-main::after {
+      content: "";
+      display: block;
+      margin: 1.25rem auto 0;
+      width: 200px;
+      height: 12px;
+      background: linear-gradient(
+          135deg,
+          transparent 33.33%,
+          var(--atlas-ornament) 33.33%,
+          var(--atlas-ornament) 66.66%,
+          transparent 66.66%
+        )
+        0 0 / 12px 12px repeat-x;
+      opacity: 0.5;
+    }
+    .masthead-kicker {
+      font-family: var(--atlas-font-body);
+      font-size: 11px;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--atlas-ink-muted);
+      margin-bottom: 1rem;
+    }
+    .masthead-title {
+      font-family: var(--atlas-font-display);
+      font-size: clamp(3.5rem, 8vw, 7.5rem);
+      font-weight: 900;
+      line-height: 0.88;
+      letter-spacing: -0.02em;
+      color: var(--atlas-ink);
+      margin-bottom: 0.75rem;
+    }
+    .masthead-subtitle {
+      font-family: var(--atlas-font-display);
+      font-size: clamp(1rem, 2vw, 1.5rem);
+      font-weight: 400;
+      font-style: italic;
+      color: var(--atlas-ink-mid);
+      margin-bottom: 1rem;
+      letter-spacing: 0.01em;
+    }
+    .masthead-rule-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 1.25rem;
+    }
+    .masthead-rule {
+      flex: 1;
+      height: 1px;
+      background: var(--atlas-rule);
+    }
+    .masthead-ornament {
+      font-size: 1.1rem;
+      color: var(--atlas-ornament);
+    }
+
+    /* ── HERO GRID ── */
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 3fr 2px 2fr;
+      gap: 0;
+      padding: 0 3rem;
+      border-bottom: 2px solid var(--atlas-deco-border);
+    }
+    .hero-main {
+      padding: 3rem 3rem 3rem 0;
+    }
+    .column-rule {
+      background: var(--atlas-rule);
+    }
+    .byline {
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--atlas-ink-muted);
+      margin-bottom: 1.5rem;
+      padding-left: 2rem;
+      border-left: 2px solid var(--atlas-gold);
+    }
+    .hero-headline {
+      font-family: var(--atlas-font-display);
+      font-size: clamp(2rem, 3.5vw, 3rem);
+      font-weight: 900;
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      margin-bottom: 1rem;
+    }
+    .hero-subhead {
+      font-family: var(--atlas-font-display);
+      font-style: italic;
+      font-size: 15px;
+      color: var(--atlas-ink-mid);
+      border-left: 3px solid var(--atlas-gold);
+      padding-left: 1rem;
+      margin-bottom: 1.5rem;
+      line-height: 1.6;
+    }
+    .hero-body :global(p) {
+      font-size: 14px;
+      line-height: 1.85;
+      margin-bottom: 1rem;
+      text-align: justify;
+    }
+    .hero-body :global(p:first-letter) {
+      font-family: var(--atlas-font-display);
+      font-size: 3.5em;
+      float: left;
+      line-height: 0.7;
+      margin: 0.1em 0.15em 0 0;
+      font-weight: 700;
+      color: var(--atlas-red);
+    }
+    .hero-body :global(a) {
+      color: var(--atlas-gold);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      transition: color 0.15s;
+    }
+    .hero-body :global(a:hover) {
+      text-decoration-thickness: 2px;
+    }
+
+    /* ── SIDEBAR ── */
+    .hero-sidebar {
+      padding: 3rem 0 3rem 3rem;
+    }
+    .sidebar-title {
+      font-family: var(--atlas-font-body);
+      font-size: 10px;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--atlas-ink-muted);
+      border-bottom: 1px solid var(--atlas-rule);
+      padding-bottom: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+    .sidebar-fact {
+      margin-bottom: 2rem;
+    }
+    .sf-number {
+      font-family: var(--atlas-font-display);
+      font-size: 2.5rem;
+      font-weight: 900;
+      line-height: 1;
+      color: var(--atlas-red);
+    }
+    .sf-label {
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--atlas-ink);
+      margin-top: 0.25rem;
+    }
+    .sf-note {
+      font-size: 11px;
+      font-style: italic;
+      color: var(--atlas-ink-muted);
+      margin-top: 0.15rem;
+    }
+
+    /* ── DARK MODE ── */
+    :root[data-theme="dark"] .sf-number {
+      color: var(--atlas-gold);
+    }
+    :root[data-theme="dark"] .byline {
+      color: #8a9ab0;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .masthead-top {
+        gap: 1rem;
+        grid-template-columns: minmax(0, 1fr) auto;
+        min-height: auto;
+        padding: 0.5rem 1.5rem;
+      }
+      .masthead-nav {
+        display: none;
+      }
+      .masthead-main {
+        padding: 2rem 1.5rem 1rem;
+      }
+      .hero-grid {
+        grid-template-columns: 1fr;
+        padding: 0 1.5rem;
+      }
+      .hero-main {
+        padding: 2rem 0;
+      }
+      .column-rule {
+        display: none;
+      }
+      .hero-sidebar {
+        padding: 2rem 0;
+        border-top: 1px solid var(--atlas-rule);
+      }
+    }
+  }
+</style>
+
+<script is:inline>
+  (function () {
+    var html = document.documentElement;
+    var btn = document.getElementById("themeToggle");
+    var icon = document.getElementById("themeIcon");
+    var label = document.getElementById("themeLabel");
+    var prefersReducedMotion =
+      window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    function applyTheme(theme) {
+      html.setAttribute("data-theme", theme);
+      if (icon) icon.textContent = theme === "dark" ? "☾" : "☀";
+      if (label) label.textContent = theme === "dark" ? "Dark" : "Light";
+      if (btn) {
+        btn.setAttribute("aria-pressed", theme === "dark" ? "true" : "false");
+        btn.setAttribute(
+          "aria-label",
+          theme === "dark" ? "Switch to light mode" : "Switch to dark mode"
+        );
+      }
+      try {
+        localStorage.setItem("ioa-theme", theme);
+      } catch (e) {}
+    }
+
+    var saved = null;
+    try {
+      saved = localStorage.getItem("ioa-theme");
+    } catch (e) {}
+    if (saved === "dark" || saved === "light") {
+      applyTheme(saved);
+    } else if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+      applyTheme("dark");
+    }
+
+    if (btn) {
+      btn.addEventListener("click", function () {
+        var current = html.getAttribute("data-theme") || "light";
+        applyTheme(current === "dark" ? "light" : "dark");
+      });
+    }
+
+    function initAtlasInteractions() {
+      // Scroll reveal
+      if (prefersReducedMotion) {
+        document.querySelectorAll(".reveal").forEach(function (el) {
+          el.classList.add("revealed");
+        });
+      } else if ("IntersectionObserver" in window) {
+        var observer = new IntersectionObserver(
+          function (entries) {
+            entries.forEach(function (entry) {
+              if (entry.isIntersecting) {
+                entry.target.classList.add("revealed");
+                observer.unobserve(entry.target);
+              }
+            });
+          },
+          { threshold: 0.01, rootMargin: "0px 0px -1% 0px" }
+        );
+        document.querySelectorAll(".reveal").forEach(function (el) {
+          observer.observe(el);
+        });
+      }
+
+      // Back to top
+      var btt = document.querySelector(".back-to-top");
+      if (btt) {
+        window.addEventListener(
+          "scroll",
+          function () {
+            if (window.scrollY > 600) {
+              btt.classList.add("visible");
+            } else {
+              btt.classList.remove("visible");
+            }
+          },
+          { passive: true }
+        );
+        btt.addEventListener("click", function () {
+          window.scrollTo({ top: 0, behavior: prefersReducedMotion ? "auto" : "smooth" });
+        });
+      }
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", initAtlasInteractions, { once: true });
+    } else {
+      initAtlasInteractions();
+    }
+  })();
+</script>

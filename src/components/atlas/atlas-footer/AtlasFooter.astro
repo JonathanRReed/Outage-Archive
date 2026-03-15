@@ -1,0 +1,249 @@
+---
+type FooterDetail = {
+  bold: string;
+  text: string;
+};
+
+const {
+  publicationTitle = "",
+  tagline = "",
+  figures = [] as FooterDetail[],
+  editionText = "",
+  copyrightText = "",
+  typesetText = "",
+  websiteUrl = "",
+  articleUrl = "",
+  useDefaultEditableBinding: _useDefaultEditableBinding = false,
+  _component,
+  ...htmlAttributes
+} = Astro.props;
+---
+
+<footer
+  class="atlas-footer"
+  role="contentinfo"
+  {...htmlAttributes}
+>
+  <div class="footer-ornament"></div>
+  <div class="footer-top">
+    <div class="footer-col">
+      <div class="f-col-head">Publication</div>
+      <div
+        class="f-title"
+        data-prop="publicationTitle"
+        set:html={publicationTitle}
+      />
+      <p
+        class="f-tagline"
+        data-prop="tagline"
+      >
+        {tagline}
+      </p>
+    </div>
+    <div class="footer-col-rule"></div>
+    <div class="footer-col">
+      <div class="f-col-head">Key Figures</div>
+      {
+        figures.map((fig: FooterDetail) => (
+          <div class="f-detail">
+            <strong>{fig.bold}</strong> {fig.text}
+          </div>
+        ))
+      }
+    </div>
+    <div class="footer-col-rule"></div>
+    <div class="footer-col">
+      <div class="f-col-head">Edition</div>
+      <div
+        class="f-detail"
+        data-prop="editionText"
+        set:html={editionText}
+      />
+      <div class="footer-links">
+        {
+          websiteUrl && (
+            <a
+              href={websiteUrl}
+              class="footer-link"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              JonathanRReed.com
+            </a>
+          )
+        }
+        {
+          articleUrl && (
+            <a
+              href={articleUrl}
+              class="footer-link footer-link--muted"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Original post
+            </a>
+          )
+        }
+      </div>
+    </div>
+  </div>
+  <div class="footer-colophon">
+    <span data-prop="copyrightText">{copyrightText}</span>
+    <span data-prop="typesetText">{typesetText}</span>
+  </div>
+  <button
+    class="back-to-top"
+    id="backToTop"
+    aria-label="Back to top"
+    >↑</button
+  >
+</footer>
+
+<style>
+  @layer page-sections {
+    .atlas-footer {
+      background: var(--atlas-ink);
+      border-top: 3px double var(--atlas-deco-border);
+      color: var(--atlas-parchment);
+      position: relative;
+    }
+    .footer-ornament {
+      background: linear-gradient(
+          135deg,
+          transparent 33.33%,
+          var(--atlas-ornament) 33.33%,
+          var(--atlas-ornament) 66.66%,
+          transparent 66.66%
+        )
+        center / 12px 12px repeat-x;
+      height: 12px;
+      left: 50%;
+      opacity: 0.4;
+      position: absolute;
+      top: 1.25rem;
+      transform: translateX(-50%);
+      width: min(220px, calc(100% - 6rem));
+    }
+    .footer-top {
+      display: grid;
+      grid-template-columns: 2fr 1px 2fr 1px 2fr;
+      gap: 2rem;
+      padding: 3.75rem 3rem 3rem;
+    }
+    .footer-col-rule {
+      width: 1px;
+      background: var(--atlas-rule);
+    }
+    .f-col-head {
+      font-size: 9px;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--atlas-ink-faint);
+      margin-bottom: 1rem;
+    }
+    .f-title {
+      font-family: var(--atlas-font-display);
+      font-size: 2rem;
+      font-weight: 900;
+      line-height: 0.95;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.75rem;
+    }
+    .f-tagline {
+      font-family: var(--atlas-font-display);
+      font-style: italic;
+      font-size: 13px;
+      color: var(--atlas-ink-lightest);
+    }
+    .f-detail {
+      font-size: 12px;
+      color: var(--atlas-ink-lightest);
+      line-height: 1.7;
+    }
+    .footer-links {
+      display: grid;
+      gap: 0.55rem;
+      margin-top: 1rem;
+    }
+    .footer-link {
+      color: var(--atlas-parchment);
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-decoration: none;
+      text-transform: uppercase;
+      width: fit-content;
+    }
+    .footer-link:hover {
+      color: var(--atlas-gold);
+    }
+    .footer-link--muted {
+      color: var(--atlas-ink-lightest);
+    }
+    .f-detail :global(strong) {
+      font-family: var(--atlas-font-display);
+      font-size: 1.1rem;
+      color: var(--atlas-parchment);
+    }
+    .footer-colophon {
+      border-top: 1px solid color-mix(in srgb, var(--atlas-rule) 60%, transparent);
+      display: flex;
+      justify-content: space-between;
+      padding: 1rem 3rem;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--atlas-ink-faint);
+    }
+
+    /* Dark mode */
+    :root[data-theme="dark"] .f-detail :global(strong) {
+      color: #d4af55;
+    }
+    :root[data-theme="dark"] .atlas-footer {
+      background: #060e18;
+      border-top-color: #d4af55;
+    }
+    :root[data-theme="dark"] .f-col-head {
+      color: #4a5a70;
+    }
+    :root[data-theme="dark"] .f-detail {
+      color: #8a9ab0;
+    }
+    :root[data-theme="dark"] .f-tagline {
+      color: #8a9ab0;
+    }
+    :root[data-theme="dark"] .footer-link {
+      color: #f5f0e8;
+    }
+    :root[data-theme="dark"] .footer-link:hover {
+      color: #d4af55;
+    }
+    :root[data-theme="dark"] .footer-link--muted {
+      color: #8a9ab0;
+    }
+    :root[data-theme="dark"] .footer-colophon {
+      border-top-color: rgba(212, 175, 85, 0.1);
+      color: #4a5a70;
+    }
+    :root[data-theme="dark"] .footer-col-rule {
+      background: rgba(212, 175, 85, 0.15);
+    }
+
+    @media (max-width: 900px) {
+      .footer-top {
+        grid-template-columns: 1fr;
+        padding: 2rem 1.5rem;
+        gap: 1.5rem;
+      }
+      .footer-col-rule {
+        display: none;
+      }
+      .footer-colophon {
+        padding: 1rem 1.5rem;
+        flex-direction: column;
+        gap: 0.25rem;
+        text-align: center;
+      }
+    }
+  }
+</style>

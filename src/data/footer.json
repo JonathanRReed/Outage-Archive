@@ -1,0 +1,35 @@
+{
+  "logoSource": "/images/logo.svg",
+  "logoAlt": "Internet Outage Atlas",
+  "links": [
+    {
+      "name": "Home Page",
+      "path": "/"
+    },
+    {
+      "name": "Timeline",
+      "path": "/timeline/"
+    },
+    {
+      "name": "Archives",
+      "path": "/archives/"
+    },
+    {
+      "name": "About",
+      "path": "/about/"
+    }
+  ],
+  "socials": [
+    {
+      "icon": "social/github",
+      "link": "https://github.com/JonathanRReed",
+      "label": "GitHub"
+    },
+    {
+      "icon": "social/linkedin",
+      "link": "https://www.linkedin.com/in/jonathanrreed0/",
+      "label": "LinkedIn"
+    }
+  ],
+  "footerText": "© 2026 Jonathan Reed. Internet Outage Atlas."
+}

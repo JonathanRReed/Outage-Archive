@@ -1,0 +1,185 @@
+---
+type TaxonEntry = {
+  word: string;
+  position: string;
+  fullName: string;
+  definition: string;
+  triggers: string;
+  examples: string[];
+};
+
+const {
+  kicker = "",
+  heading = "",
+  intro = "",
+  entries = [] as TaxonEntry[],
+  useDefaultEditableBinding: _useDefaultEditableBinding = false,
+  _component,
+  ...htmlAttributes
+} = Astro.props;
+---
+
+<div class="double-rule"></div>
+<div
+  class="sec-masthead reveal"
+  id="taxonomy"
+  {...htmlAttributes}
+>
+  <div
+    class="sec-kicker"
+    data-prop="kicker"
+  >
+    {kicker}
+  </div>
+  <h2
+    class="sec-h"
+    data-prop="heading"
+  >
+    {heading}
+  </h2>
+  <p
+    class="sec-intro-p"
+    data-prop="intro"
+  >
+    {intro}
+  </p>
+</div>
+<div class="taxonomy-section">
+  <div class="taxon-list">
+    {
+      entries.map((entry: TaxonEntry) => (
+        <div class="txn-entry">
+          <div class="txn-term">
+            <div class="txn-word">{entry.word}</div>
+            <div class="txn-pos">{entry.position}</div>
+            <div class="txn-n">{entry.fullName}</div>
+          </div>
+          <div class="txn-def">
+            <p class="txn-def-text">{entry.definition}</p>
+            <p
+              class="txn-trigger"
+              set:html={entry.triggers}
+            />
+            <div class="txn-examples">
+              {entry.examples.map((ex: string) => (
+                <span class="txn-ex">{ex}</span>
+              ))}
+            </div>
+          </div>
+        </div>
+      ))
+    }
+  </div>
+</div>
+
+<style>
+  @layer page-sections {
+    .taxonomy-section {
+      padding: 0 3rem 4rem;
+    }
+    .taxon-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .txn-entry {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 0;
+      border-bottom: 1px solid var(--atlas-rule);
+      padding: 2.5rem 0;
+    }
+    .txn-term {
+      padding-right: 2rem;
+      border-right: 1px solid var(--atlas-rule);
+    }
+    .txn-word {
+      font-family: var(--atlas-font-display);
+      font-size: 1.75rem;
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: -0.02em;
+    }
+    .txn-pos {
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--atlas-ink-muted);
+      margin-top: 0.5rem;
+    }
+    .txn-n {
+      font-family: var(--atlas-font-display);
+      font-style: italic;
+      font-size: 13px;
+      color: var(--atlas-ink-mid);
+      margin-top: 0.25rem;
+    }
+    .txn-def {
+      padding-left: 2rem;
+    }
+    .txn-def-text {
+      font-size: 14px;
+      line-height: 1.75;
+      color: var(--atlas-ink-mid);
+      margin-bottom: 0.75rem;
+    }
+    .txn-trigger {
+      font-size: 13px;
+      color: var(--atlas-ink-muted);
+      margin-bottom: 0.75rem;
+      line-height: 1.6;
+    }
+    .txn-trigger :global(strong) {
+      color: var(--atlas-ink);
+    }
+    .txn-examples {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .txn-ex {
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.2rem 0.6rem;
+      border: 1px solid var(--atlas-rule);
+      color: var(--atlas-ink-muted);
+      transition:
+        color 0.15s,
+        border-color 0.15s;
+    }
+    .txn-ex:hover {
+      color: var(--atlas-ink);
+      border-color: var(--atlas-ink-muted);
+    }
+
+    /* Dark mode */
+    :root[data-theme="dark"] .txn-ex {
+      border-color: rgba(212, 175, 85, 0.2);
+      color: #8a9ab0;
+    }
+    :root[data-theme="dark"] .txn-ex:hover {
+      border-color: #d4af55;
+      color: #d4af55;
+    }
+
+    @media (max-width: 900px) {
+      .taxonomy-section {
+        padding: 0 1.5rem 3rem;
+      }
+      .txn-entry {
+        grid-template-columns: 1fr;
+      }
+      .txn-term {
+        border-right: none;
+        border-bottom: 1px solid var(--atlas-rule);
+        padding-bottom: 0.75rem;
+        margin-bottom: 0.75rem;
+        padding-right: 0;
+      }
+      .txn-def {
+        padding-left: 0;
+      }
+    }
+  }
+</style>

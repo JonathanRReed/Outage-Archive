@@ -1,0 +1,33 @@
+---
+const target = "/about/#methodology";
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      http-equiv="refresh"
+      content={`0;url=${target}`}
+    />
+    <meta
+      name="robots"
+      content="noindex"
+    />
+    <title>Methodology Redirect</title>
+    <link
+      rel="canonical"
+      href={target}
+    />
+    <script is:inline>
+      window.location.replace("/about/#methodology");
+    </script>
+  </head>
+  <body>
+    <p>
+      Redirecting to
+      <a href={target}>About · Methodology</a>
+      …
+    </p>
+  </body>
+</html>

@@ -1,0 +1,14 @@
+label: Blast Radius
+icon: explosion
+description: Four-level failure propagation model diagram
+tags:
+  - Atlas
+  - Blast Radius
+value:
+  _component: atlas/blast-radius
+  kicker: "Chapter Six — Blast Radius"
+  heading: "How Failures Spread"
+  intro: ""
+  insetTitle: "Failure Propagation Model — Illustrated"
+  insetSub: ""
+  levels: []
