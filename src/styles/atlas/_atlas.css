@@ -246,6 +246,18 @@ body:has(.atlas-footer) {
   width: 1em;
 }
 
+@media (max-width: 900px) {
+  .theme-toggle {
+    gap: 0;
+    min-width: auto;
+    padding: 0.45rem 0.7rem;
+  }
+
+  .theme-toggle > :last-child {
+    display: none;
+  }
+}
+
 /* ── Scroll Reveal ── */
 .reveal {
   opacity: 0;

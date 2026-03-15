@@ -1,7 +1,8 @@
 {
   "name": "Internet Outage Atlas",
-  "url": "",
+  "url": "https://outage-archive.jonathanrreed.com",
   "description": "A one-page editorial atlas documenting major internet outages through a broadsheet-inspired visual narrative built for the CloudCannon Astro Challenge.",
+  "defaultImage": "/images/outage-image.png",
   "logoSource": "/images/logo.svg",
   "titleFormat": "{title} | Internet Outage Atlas",
   "twitterHandle": ""

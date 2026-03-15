@@ -76,6 +76,21 @@ const {
           <li><a href="/#timeline">Timeline</a></li>
           <li><a href="/#methodology">Methodology</a></li>
         </ul>
+        <details class="masthead-menu">
+          <summary class="masthead-menu-toggle">Menu</summary>
+          <ul class="masthead-mobile-nav">
+            <li><a href="/about/">About</a></li>
+            <li>
+              <a
+                href="/archives/"
+                aria-current="page"
+                >Archives</a
+              >
+            </li>
+            <li><a href="/#timeline">Timeline</a></li>
+            <li><a href="/#methodology">Methodology</a></li>
+          </ul>
+        </details>
         <button
           class="theme-toggle"
           id="themeToggle"
@@ -314,11 +329,76 @@ const {
       display: flex;
       gap: 1rem;
       justify-self: end;
+      position: relative;
     }
     .masthead-nav {
       display: flex;
       gap: 1.2rem;
       list-style: none;
+    }
+    .masthead-menu {
+      display: none;
+      position: relative;
+    }
+    .masthead-menu-toggle {
+      align-items: center;
+      border: 1px solid var(--atlas-rule);
+      color: var(--atlas-ink-muted);
+      cursor: pointer;
+      display: inline-flex;
+      font-size: 10px;
+      gap: 0.5rem;
+      letter-spacing: 0.12em;
+      list-style: none;
+      min-height: 2.5rem;
+      padding: 0 0.85rem;
+      text-transform: uppercase;
+    }
+    .masthead-menu-toggle::-webkit-details-marker {
+      display: none;
+    }
+    .masthead-menu-toggle::marker {
+      content: "";
+    }
+    .masthead-menu-toggle::after {
+      content: "☰";
+      font-size: 0.95rem;
+      line-height: 1;
+    }
+    .masthead-menu[open] .masthead-menu-toggle::after {
+      content: "✕";
+    }
+    .masthead-mobile-nav {
+      background: var(--atlas-parchment);
+      border: 1px solid var(--atlas-rule);
+      box-shadow: 0 22px 48px -34px rgba(13, 27, 42, 0.45);
+      display: grid;
+      gap: 0.25rem;
+      list-style: none;
+      margin: 0;
+      min-width: 12rem;
+      padding: 0.45rem;
+      position: absolute;
+      right: 0;
+      top: calc(100% + 0.45rem);
+      z-index: 120;
+    }
+    .masthead-mobile-nav a {
+      color: var(--atlas-ink-muted);
+      display: block;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      padding: 0.7rem 0.75rem;
+      text-decoration: none;
+      text-transform: uppercase;
+      transition:
+        background 0.15s ease,
+        color 0.15s ease;
+    }
+    .masthead-mobile-nav a:hover,
+    .masthead-mobile-nav a[aria-current="page"] {
+      background: color-mix(in srgb, var(--atlas-gold) 14%, transparent);
+      color: var(--atlas-ink);
     }
     .masthead-nav a {
       color: var(--atlas-ink-muted);
@@ -607,8 +687,41 @@ const {
     }
 
     @media (max-width: 900px) {
+      .masthead-top {
+        align-items: start;
+        gap: 0.75rem;
+        grid-template-areas:
+          "label"
+          "controls";
+        grid-template-columns: minmax(0, 1fr);
+        padding: 0.65rem 1rem;
+        position: sticky;
+        top: 0;
+        z-index: 160;
+      }
+      .masthead-home {
+        grid-area: label;
+        max-width: 100%;
+        text-align: center;
+        white-space: normal;
+        width: 100%;
+      }
+      .masthead-right {
+        gap: 0.75rem;
+        grid-area: controls;
+        justify-content: center;
+        justify-self: stretch;
+        width: 100%;
+      }
       .masthead-nav {
         display: none;
+      }
+      .masthead-menu {
+        display: block;
+      }
+      .masthead-menu-toggle {
+        min-height: 2.35rem;
+        padding: 0 0.75rem;
       }
       .masthead-main {
         padding: 2rem 1.5rem 1.4rem;

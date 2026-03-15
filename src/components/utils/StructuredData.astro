@@ -9,6 +9,7 @@ export interface Props {
 }
 
 const { site } = Astro.props;
+const siteUrl = site.url || Astro.site?.toString() || "";
 
 const structuredData: Record<string, string> = {
   "@context": "https://schema.org",
@@ -17,12 +18,12 @@ const structuredData: Record<string, string> = {
   description: site.description,
 };
 
-if (site.url) {
-  structuredData.url = site.url;
+if (siteUrl) {
+  structuredData.url = siteUrl;
 }
 
-if (site.url && site.logoSource) {
-  structuredData.logo = new URL(site.logoSource, site.url).toString();
+if (siteUrl && site.logoSource) {
+  structuredData.logo = new URL(site.logoSource, siteUrl).toString();
 }
 ---
 
