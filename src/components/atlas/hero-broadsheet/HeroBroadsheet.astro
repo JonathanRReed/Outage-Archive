@@ -44,21 +44,8 @@ const {
         {dateline}
       </a>
       <div class="masthead-right">
-        <ul class="masthead-nav">
-          <li>
-            <a
-              href="/"
-              aria-current="page"
-              >Home Page</a
-            >
-          </li>
-          <li><a href="/timeline/">Timeline</a></li>
-          <li><a href="/archives/">Archives</a></li>
-          <li><a href="/about/">About</a></li>
-        </ul>
-        <details class="masthead-menu">
-          <summary class="masthead-menu-toggle">Menu</summary>
-          <ul class="masthead-mobile-nav">
+        <nav aria-label="Primary">
+          <ul class="masthead-nav">
             <li>
               <a
                 href="/"
@@ -70,6 +57,23 @@ const {
             <li><a href="/archives/">Archives</a></li>
             <li><a href="/about/">About</a></li>
           </ul>
+        </nav>
+        <details class="masthead-menu">
+          <summary class="masthead-menu-toggle">Menu</summary>
+          <nav aria-label="Mobile primary">
+            <ul class="masthead-mobile-nav">
+              <li>
+                <a
+                  href="/"
+                  aria-current="page"
+                  >Home Page</a
+                >
+              </li>
+              <li><a href="/timeline/">Timeline</a></li>
+              <li><a href="/archives/">Archives</a></li>
+              <li><a href="/about/">About</a></li>
+            </ul>
+          </nav>
         </details>
         <button
           class="theme-toggle"

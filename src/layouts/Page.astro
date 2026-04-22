@@ -55,19 +55,34 @@ const isAtlasPage = sections.some((section) => section._component.startsWith("at
 >
   {!isAtlasPage && <MainNavigation {...mainNav} />}
 
-  <main class:list={[isAtlasPage && "atlas-page-surface"]}>
-    {
-      sections.length > 0 && (
-        <div
-          data-editable="component"
-          data-component="utils/main-component"
-          data-prop-sections="pageSections"
-        >
-          <MainComponent sections={sections} />
-        </div>
-      )
-    }
-    <slot />
-  </main>
+  {
+    isAtlasPage ? (
+      <div class="atlas-page-surface">
+        {sections.length > 0 && (
+          <div
+            data-editable="component"
+            data-component="utils/main-component"
+            data-prop-sections="pageSections"
+          >
+            <MainComponent sections={sections} />
+          </div>
+        )}
+        <slot />
+      </div>
+    ) : (
+      <main>
+        {sections.length > 0 && (
+          <div
+            data-editable="component"
+            data-component="utils/main-component"
+            data-prop-sections="pageSections"
+          >
+            <MainComponent sections={sections} />
+          </div>
+        )}
+        <slot />
+      </main>
+    )
+  }
   {!isAtlasPage && <Footer {...footer} />}
 </Layout>
