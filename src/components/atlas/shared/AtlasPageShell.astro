@@ -53,23 +53,8 @@ const navItems: NavItem[] = [
         {dateline}
       </a>
       <div class="masthead-right">
-        <ul class="masthead-nav">
-          {
-            navItems.map((item: NavItem) => (
-              <li>
-                <a
-                  href={item.path}
-                  aria-current={currentPage === item.key ? "page" : undefined}
-                >
-                  {item.label}
-                </a>
-              </li>
-            ))
-          }
-        </ul>
-        <details class="masthead-menu">
-          <summary class="masthead-menu-toggle">Menu</summary>
-          <ul class="masthead-mobile-nav">
+        <nav aria-label="Primary">
+          <ul class="masthead-nav">
             {
               navItems.map((item: NavItem) => (
                 <li>
@@ -83,6 +68,25 @@ const navItems: NavItem[] = [
               ))
             }
           </ul>
+        </nav>
+        <details class="masthead-menu">
+          <summary class="masthead-menu-toggle">Menu</summary>
+          <nav aria-label="Mobile primary">
+            <ul class="masthead-mobile-nav">
+              {
+                navItems.map((item: NavItem) => (
+                  <li>
+                    <a
+                      href={item.path}
+                      aria-current={currentPage === item.key ? "page" : undefined}
+                    >
+                      {item.label}
+                    </a>
+                  </li>
+                ))
+              }
+            </ul>
+          </nav>
         </details>
         <button
           class="theme-toggle"
