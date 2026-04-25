@@ -13,7 +13,7 @@ const incidentCount = groups.reduce((total, group) => total + group.items.length
   title="Archives"
   description="The canonical archive record for Internet Outage Atlas incidents."
 >
-  <div class="atlas-page-surface">
+  <section class="atlas-page-surface" aria-label="Archive surface">
     <AtlasPageShell
       currentPage="archives"
       dateline={`Vol. I · Archive Register · ${incidentCount} incidents filed`}
@@ -61,7 +61,7 @@ const incidentCount = groups.reduce((total, group) => total + group.items.length
         articleUrl="https://JonathanRReed.com/blog/days-the-internet-dies/"
       />
     </AtlasPageShell>
-  </div>
+  </section>
 </Layout>
 
 <style>

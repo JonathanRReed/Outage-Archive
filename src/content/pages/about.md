@@ -1,7 +1,7 @@
 ---
 _schema: default
-title: About
-description: Learn what Internet Outage Atlas is, how it is organized, and how Jonathan R Reed built and maintains it.
+title: About Internet Outage Atlas
+description: Learn what Internet Outage Atlas covers, how incidents are selected, and how Jonathan R Reed maintains the outage archive.
 pageSections:
   - _component: atlas/about-dossier
     dateline: "About File \xB7 Project Record \xB7 Atlas Edition 2026"

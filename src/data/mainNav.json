@@ -1,5 +1,5 @@
 {
-  "logoSource": "/images/logo.svg",
+  "logoSource": "/images/logo.png",
   "logoAlt": "Internet Outage Atlas",
   "navData": [
     {
@@ -23,16 +23,5 @@
       "children": []
     }
   ],
-  "buttonSections": [
-    {
-      "_component": "building-blocks/core-elements/button",
-      "text": "Search",
-      "hideText": true,
-      "link": "/search/",
-      "iconName": "magnifying-glass",
-      "iconPosition": "before",
-      "variant": "ghost",
-      "size": "lg"
-    }
-  ]
+  "buttonSections": []
 }

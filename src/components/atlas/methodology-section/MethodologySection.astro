@@ -45,7 +45,7 @@ const {
 <div class="method-section">
   <div class="method-col reveal">
     <section class="method-block">
-      <h4>{leftTitle}</h4>
+      <h3>{leftTitle}</h3>
       <div
         data-prop="leftBody"
         set:html={leftBody}
@@ -54,7 +54,7 @@ const {
     {
       leftTitle2 && (
         <section class="method-block">
-          <h4 class="method-subhead">{leftTitle2}</h4>
+          <h3 class="method-subhead">{leftTitle2}</h3>
           {leftBody2 && (
             <div
               data-prop="leftBody2"
@@ -67,7 +67,7 @@ const {
   </div>
   <div class="method-col reveal">
     <section class="method-block">
-      <h4>{rightTitle}</h4>
+      <h3>{rightTitle}</h3>
       <ul>
         {rightItems.map((item: string) => <li>{item}</li>)}
       </ul>
@@ -75,7 +75,7 @@ const {
     {
       rightTitle2 && (
         <section class="method-block">
-          <h4 class="method-subhead">{rightTitle2}</h4>
+          <h3 class="method-subhead">{rightTitle2}</h3>
           {rightItems2.length > 0 && (
             <ul>
               {rightItems2.map((item: string) => (
@@ -142,7 +142,7 @@ const {
     .method-block + .method-block {
       margin-top: 1rem;
     }
-    .method-col h4 {
+    .method-col h3 {
       border-bottom: 1px solid color-mix(in srgb, var(--atlas-rule) 70%, transparent);
       font-family: var(--atlas-font-display);
       color: var(--atlas-ink);
@@ -203,7 +203,7 @@ const {
       background: linear-gradient(180deg, rgba(10, 23, 38, 0.26), rgba(10, 23, 38, 0.1));
       border-color: rgba(212, 175, 85, 0.12);
     }
-    :root[data-theme="dark"] .method-col h4 {
+    :root[data-theme="dark"] .method-col h3 {
       border-bottom-color: rgba(212, 175, 85, 0.18);
       color: #f5f0e8;
     }

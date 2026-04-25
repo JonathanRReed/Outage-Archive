@@ -26,14 +26,14 @@
     "format:fix": "prettier --write ."
   },
   "dependencies": {
-    "@astrojs/mdx": "^5.0.0-beta.11",
-    "@astrojs/node": "^10.0.0-beta.8",
-    "@astrojs/sitemap": "^3.7.1",
+    "@astrojs/mdx": "^5.0.4",
+    "@astrojs/node": "^10.0.6",
+    "@astrojs/sitemap": "^3.7.2",
     "@choctawnationofoklahoma/lite-vimeo": "^1.3.1",
     "@cloudcannon/editable-regions": "^0.0.12",
     "@justinribeiro/lite-youtube": "^1.9.0",
     "@types/js-yaml": "^4.0.9",
-    "astro": "^6.0.1",
+    "astro": "^6.1.9",
     "astro-icon": "^1.1.5",
     "astro-seo": "^1.1.0",
     "embla-carousel": "^8.6.0",
@@ -45,27 +45,27 @@
     "jszip": "^3.10.1",
     "lightningcss": "^1.32.0",
     "markdown-it": "^14.1.1",
-    "react": "^19.2.4",
-    "react-dom": "^19.2.4",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
     "sharp": "^0.34.5",
     "shiki": "^4.0.2",
     "zod": "^4.3.6"
   },
   "devDependencies": {
     "@types/markdown-it": "^14.1.2",
-    "@typescript-eslint/eslint-plugin": "^8.57.0",
-    "@typescript-eslint/parser": "^8.57.0",
+    "@typescript-eslint/eslint-plugin": "^8.59.0",
+    "@typescript-eslint/parser": "^8.59.0",
     "eslint": "^9.39.4",
-    "eslint-plugin-astro": "^1.6.0",
-    "eslint-plugin-jsonc": "^3.1.1",
+    "eslint-plugin-astro": "^1.7.0",
+    "eslint-plugin-jsonc": "^3.1.2",
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-yml": "^3.3.1",
     "jsonc-eslint-parser": "^3.1.0",
-    "prettier": "^3.8.1",
+    "prettier": "^3.8.3",
     "prettier-plugin-astro": "^0.14.1",
-    "stylelint": "^17.4.0",
+    "stylelint": "^17.9.0",
     "stylelint-config-standard": "^40.0.0",
-    "stylelint-order": "^8.0.0",
+    "stylelint-order": "^8.1.1",
     "yaml-eslint-parser": "^2.0.0"
   },
   "engines": {
@@ -76,5 +76,9 @@
     "@img/sharp-linuxmusl-x64": "^0.34.5",
     "@rollup/rollup-linux-x64-gnu": "^4.59.0",
     "@rollup/rollup-win32-x64-msvc": "^4.59.0"
+  },
+  "overrides": {
+    "yaml": "^2.8.3",
+    "brace-expansion": "^2.0.3"
   }
 }

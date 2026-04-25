@@ -57,7 +57,7 @@ const isAtlasPage = sections.some((section) => section._component.startsWith("at
 
   {
     isAtlasPage ? (
-      <div class="atlas-page-surface">
+      <section class="atlas-page-surface" aria-label="Internet Outage Atlas">
         {sections.length > 0 && (
           <div
             data-editable="component"
@@ -68,7 +68,7 @@ const isAtlasPage = sections.some((section) => section._component.startsWith("at
           </div>
         )}
         <slot />
-      </div>
+      </section>
     ) : (
       <main>
         {sections.length > 0 && (

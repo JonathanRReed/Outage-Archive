@@ -10,9 +10,9 @@ const incidents = getAllTimelineIncidents();
 
 <Layout
   title="Timeline"
-  description="The full Internet Outage Atlas timeline, linking each incident to its canonical archive record."
+  description="Review the Internet Outage Atlas timeline by date, with each major infrastructure failure linked to its archive record and source context."
 >
-  <div class="atlas-page-surface">
+  <section class="atlas-page-surface" aria-label="Timeline surface">
     <AtlasPageShell
       currentPage="timeline"
       dateline={`Vol. I · Complete Timeline · ${incidents.length} incidents indexed`}
@@ -60,7 +60,7 @@ const incidents = getAllTimelineIncidents();
         articleUrl="https://JonathanRReed.com/blog/days-the-internet-dies/"
       />
     </AtlasPageShell>
-  </div>
+  </section>
 </Layout>
 
 <style>

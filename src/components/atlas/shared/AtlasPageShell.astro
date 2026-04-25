@@ -91,7 +91,6 @@ const navItems: NavItem[] = [
         <button
           class="theme-toggle"
           id="themeToggle"
-          aria-label="Toggle dark mode"
         >
           <span
             class="theme-toggle__icon"
@@ -148,13 +147,7 @@ const navItems: NavItem[] = [
       html.setAttribute("data-theme", theme);
       if (icon) icon.textContent = theme === "dark" ? "☾" : "☀";
       if (label) label.textContent = theme === "dark" ? "Dark" : "Light";
-      if (btn) {
-        btn.setAttribute("aria-pressed", theme === "dark" ? "true" : "false");
-        btn.setAttribute(
-          "aria-label",
-          theme === "dark" ? "Switch to light mode" : "Switch to dark mode"
-        );
-      }
+      if (btn) btn.setAttribute("aria-pressed", theme === "dark" ? "true" : "false");
       try {
         localStorage.setItem("ioa-theme", theme);
       } catch (e) {}
