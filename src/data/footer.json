@@ -1,5 +1,5 @@
 {
-  "logoSource": "/images/logo.svg",
+  "logoSource": "/images/logo-footer.png",
   "logoAlt": "Internet Outage Atlas",
   "links": [
     {
@@ -17,6 +17,14 @@
     {
       "name": "About",
       "path": "/about/"
+    },
+    {
+      "name": "Contact",
+      "path": "/contact/"
+    },
+    {
+      "name": "Privacy",
+      "path": "/privacy/"
     }
   ],
   "socials": [

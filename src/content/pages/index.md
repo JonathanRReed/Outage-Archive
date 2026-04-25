@@ -2,9 +2,8 @@
 _schema: default
 title: Internet Outage Atlas
 description: >-
-  The Internet Outage Atlas: a forensic editorial record of the failures that
-  define modern digital infrastructure, in the typographic tradition of serious
-  journalism.
+  Internet Outage Atlas is an editorial record of major failures across DNS,
+  BGP, CDNs, identity systems, control planes, and telecom networks.
 pageSections:
   - _component: atlas/hero-broadsheet
     dateline: "Vol. I \xB7 Issue 1 \xB7 Curated Edition 2026 \xB7 52 Incidents Documented"
