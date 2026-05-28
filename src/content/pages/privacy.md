@@ -3,6 +3,16 @@ _schema: default
 title: Privacy Notice | Internet Outage Atlas
 description: Privacy notice for Internet Outage Atlas, a static editorial archive about major internet outages.
 noindex: true
+seoSupportText: >-
+  Internet Outage Atlas is a static editorial archive about public outage
+  records, incident timelines, provider disruptions, and technical reliability
+  notes. Visitors can read the archive without creating an account, submitting
+  personal details, joining a mailing list, or using a payment flow. Basic
+  hosting logs and security systems may process request data only to deliver
+  pages, protect the site, and confirm that outage case files, timeline pages,
+  archive views, contact information, and privacy details remain reachable.
+  External source links, postmortems, status pages, research articles, and
+  Jonathan Reed pages have their own policies.
 pageSections:
   - _component: page-sections/heroes/hero-center
     eyebrow: Internet Outage Atlas

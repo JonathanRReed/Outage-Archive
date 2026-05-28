@@ -16,6 +16,7 @@ type Props = {
     image?: string;
     canonical?: string;
     noindex?: boolean;
+    seoSupportText?: string;
     pageSections?: ContentBlock[];
   };
   title?: string;
@@ -45,6 +46,7 @@ const keywords = frontmatter?.keywords ?? keywordsProp;
 const image = frontmatter?.image ?? imageProp;
 const canonical = frontmatter?.canonical ?? canonicalProp;
 const noindex = frontmatter?.noindex ?? false;
+const seoSupportText = frontmatter?.seoSupportText;
 const sections = frontmatter?.pageSections ?? [];
 const isAtlasPage = sections.some((section) => section._component.startsWith("atlas/"));
 const editingEnabled = process.env.DISABLE_COMPONENT_LIBRARY !== "true";
@@ -73,6 +75,7 @@ const editingEnabled = process.env.DISABLE_COMPONENT_LIBRARY !== "true";
           </div>
         )}
         <slot />
+        {seoSupportText && <p class="seo-support-copy">{seoSupportText}</p>}
       </section>
     ) : (
       <main>
@@ -86,8 +89,23 @@ const editingEnabled = process.env.DISABLE_COMPONENT_LIBRARY !== "true";
           </div>
         )}
         <slot />
+        {seoSupportText && <p class="seo-support-copy">{seoSupportText}</p>}
       </main>
     )
   }
   {!isAtlasPage && <Footer {...footer} />}
 </Layout>
+
+<style>
+  .seo-support-copy {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+</style>
