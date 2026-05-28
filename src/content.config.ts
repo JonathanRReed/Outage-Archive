@@ -10,6 +10,7 @@ const pageSchema = z.object({
   image: z.string().optional(),
   canonical: z.string().optional(),
   noindex: z.boolean().optional(),
+  seoSupportText: z.string().optional(),
   pageSections: z.array(contentBlockSchema),
 });
 
