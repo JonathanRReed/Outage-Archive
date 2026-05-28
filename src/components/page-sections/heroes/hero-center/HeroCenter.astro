@@ -18,6 +18,8 @@ const {
   _component,
   ...htmlAttributes
 } = Astro.props;
+
+const editingEnabled = process.env.DISABLE_COMPONENT_LIBRARY !== "true";
 ---
 
 <CustomSection
@@ -33,28 +35,28 @@ const {
   <SimpleText
     alignX="center"
     class="eyebrow"
-    data-prop="eyebrow"
+    data-prop={editingEnabled ? "eyebrow" : undefined}
     text={eyebrow}
   />
   <Heading
     level="h1"
     size="2xl"
     alignX="center"
-    data-prop="heading"
+    data-prop={editingEnabled ? "heading" : undefined}
   >
     {heading}
   </Heading>
   <Text
     alignX="center"
     class="subtext"
-    data-prop="subtext"
+    data-prop={editingEnabled ? "subtext" : undefined}
     text={subtext}
   />
   <ButtonGroup
     class="buttonSections"
     buttonSections={buttonSections}
     alignX="center"
-    data-children-prop="buttonSections"
+    data-children-prop={editingEnabled ? "buttonSections" : undefined}
   />
 </CustomSection>
 
