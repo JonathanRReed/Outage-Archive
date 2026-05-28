@@ -15,6 +15,7 @@ type Props = {
     keywords?: string[];
     image?: string;
     canonical?: string;
+    noindex?: boolean;
     pageSections?: ContentBlock[];
   };
   title?: string;
@@ -22,6 +23,7 @@ type Props = {
   keywords?: string[];
   image?: string;
   canonical?: string;
+  noindex?: boolean;
   mainNav?: Record<string, unknown>;
   footer?: Record<string, unknown>;
 };
@@ -42,8 +44,10 @@ const description = frontmatter?.description ?? descriptionProp;
 const keywords = frontmatter?.keywords ?? keywordsProp;
 const image = frontmatter?.image ?? imageProp;
 const canonical = frontmatter?.canonical ?? canonicalProp;
+const noindex = frontmatter?.noindex ?? false;
 const sections = frontmatter?.pageSections ?? [];
 const isAtlasPage = sections.some((section) => section._component.startsWith("atlas/"));
+const editingEnabled = process.env.DISABLE_COMPONENT_LIBRARY !== "true";
 ---
 
 <Layout
@@ -52,6 +56,7 @@ const isAtlasPage = sections.some((section) => section._component.startsWith("at
   keywords={keywords}
   image={image}
   canonical={canonical}
+  noindex={noindex}
 >
   {!isAtlasPage && <MainNavigation {...mainNav} />}
 
@@ -60,9 +65,9 @@ const isAtlasPage = sections.some((section) => section._component.startsWith("at
       <section class="atlas-page-surface" aria-label="Internet Outage Atlas">
         {sections.length > 0 && (
           <div
-            data-editable="component"
-            data-component="utils/main-component"
-            data-prop-sections="pageSections"
+            data-editable={editingEnabled ? "component" : undefined}
+            data-component={editingEnabled ? "utils/main-component" : undefined}
+            data-prop-sections={editingEnabled ? "pageSections" : undefined}
           >
             <MainComponent sections={sections} />
           </div>
@@ -73,9 +78,9 @@ const isAtlasPage = sections.some((section) => section._component.startsWith("at
       <main>
         {sections.length > 0 && (
           <div
-            data-editable="component"
-            data-component="utils/main-component"
-            data-prop-sections="pageSections"
+            data-editable={editingEnabled ? "component" : undefined}
+            data-component={editingEnabled ? "utils/main-component" : undefined}
+            data-prop-sections={editingEnabled ? "pageSections" : undefined}
           >
             <MainComponent sections={sections} />
           </div>

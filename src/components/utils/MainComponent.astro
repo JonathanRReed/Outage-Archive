@@ -2,13 +2,14 @@
 import Components from "@components/utils/renderBlock.astro";
 
 const { sections } = Astro.props;
+const editingEnabled = process.env.DISABLE_COMPONENT_LIBRARY !== "true";
 ---
 
 <div
   data-pagefind-body
-  data-editable="array"
-  data-prop="sections"
-  data-component-key="_component"
+  data-editable={editingEnabled ? "array" : undefined}
+  data-prop={editingEnabled ? "sections" : undefined}
+  data-component-key={editingEnabled ? "_component" : undefined}
 >
   <Components contentSections={sections} />
 </div>

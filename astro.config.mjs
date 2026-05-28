@@ -17,7 +17,7 @@ export default defineConfig({
       ? "http://localhost:4321"
       : "https://outage-archive.jonathanrreed.com"),
   build: {
-    inlineStylesheets: "always",
+    inlineStylesheets: "never",
   },
   devToolbar: {
     enabled: false,

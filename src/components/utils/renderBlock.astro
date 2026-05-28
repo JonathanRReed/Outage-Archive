@@ -33,6 +33,8 @@ Object.entries(componentImports).forEach(([path, obj]) => {
 });
 
 const { contentSections, useDefaultEditableBinding = true } = Astro.props;
+const editingEnabled = process.env.DISABLE_COMPONENT_LIBRARY !== "true";
+const bindEditable = editingEnabled && useDefaultEditableBinding;
 ---
 
 {
@@ -50,10 +52,10 @@ const { contentSections, useDefaultEditableBinding = true } = Astro.props;
 
     return Component ? (
       <Component
-        data-editable={useDefaultEditableBinding ? "array-item" : undefined}
-        data-id={block._component}
+        data-editable={bindEditable ? "array-item" : undefined}
+        data-id={editingEnabled ? block._component : undefined}
         {...block}
-        useDefaultEditableBinding={useDefaultEditableBinding}
+        useDefaultEditableBinding={bindEditable}
       />
     ) : null;
   })

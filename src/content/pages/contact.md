@@ -2,6 +2,7 @@
 _schema: default
 title: Contact Internet Outage Atlas
 description: Contact Jonathan R Reed about Internet Outage Atlas corrections, source notes, and editorial questions.
+noindex: true
 pageSections:
   - _component: page-sections/heroes/hero-center
     eyebrow: Internet Outage Atlas

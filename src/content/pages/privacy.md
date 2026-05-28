@@ -2,6 +2,7 @@
 _schema: default
 title: Privacy Notice | Internet Outage Atlas
 description: Privacy notice for Internet Outage Atlas, a static editorial archive about major internet outages.
+noindex: true
 pageSections:
   - _component: page-sections/heroes/hero-center
     eyebrow: Internet Outage Atlas

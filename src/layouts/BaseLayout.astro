@@ -9,6 +9,7 @@ export interface Props {
   keywords?: string[] | null;
   image?: string | null;
   canonical?: string | null;
+  noindex?: boolean | null;
 }
 
 const props = Astro.props;
@@ -20,6 +21,10 @@ const pageImageUrl = siteUrl ? new URL(pageImage, siteUrl).toString() : pageImag
 const canonicalUrl =
   props.canonical || (siteUrl ? new URL(Astro.url.pathname, siteUrl).toString() : Astro.url.href);
 const keywords = props.keywords?.filter(Boolean).join(", ");
+const enableLiveEditing = import.meta.env.DEV || process.env.ENABLE_LIVE_EDITING === "true";
+const liveEditingScript = `if (window.inEditorMode) {
+  import("../../live-editing");
+}`;
 const themeBootstrapScript = `(function () {
   var theme = "light";
   try {
@@ -96,11 +101,11 @@ const themeBootstrapScript = `(function () {
       ) : null
     }
 
-    <script>
-      if (window.inEditorMode) {
-        import("../../live-editing");
-      }
-    </script>
+    {
+      enableLiveEditing ? (
+        <script set:html={liveEditingScript} />
+      ) : null
+    }
 
     <title>{formattedTitle}</title>
     <link
@@ -121,7 +126,7 @@ const themeBootstrapScript = `(function () {
     }
     <meta
       name="robots"
-      content="index, follow"
+      content={props.noindex ? "noindex, follow" : "index, follow"}
     />
     <meta
       property="og:title"

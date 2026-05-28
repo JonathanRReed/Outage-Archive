@@ -23,7 +23,7 @@ const {
 } = Astro.props;
 ---
 
-<div
+<article
   class="atlas-page"
   {...htmlAttributes}
 >
@@ -122,8 +122,8 @@ const {
     id="main-content"
     role="main"
   >
-    <div class="hero-grid">
-      <div class="hero-main">
+    <section class="hero-grid" aria-label="Internet Outage Atlas overview">
+      <section class="hero-main">
         <div
           class="byline"
           data-prop="byline"
@@ -151,23 +151,23 @@ const {
           data-prop="heroBody"
           set:html={heroBody}
         />
-      </div>
+      </section>
       <div class="column-rule"></div>
-      <div class="hero-sidebar">
+      <aside class="hero-sidebar" aria-label="Key figures">
         <div class="sidebar-title">Key Figures</div>
         {
           statFigures.map((stat: StatFigure) => (
-            <div class="sidebar-fact">
+            <article class="sidebar-fact">
               <div class="sf-number">{stat.number}</div>
               <div class="sf-label">{stat.label}</div>
               <div class="sf-note">{stat.note}</div>
-            </div>
+            </article>
           ))
         }
-      </div>
-    </div>
+      </aside>
+    </section>
   </main>
-</div>
+</article>
 
 <style>
   @layer page-sections {
