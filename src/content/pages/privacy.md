@@ -12,7 +12,10 @@ seoSupportText: >-
   pages, protect the site, and confirm that outage case files, timeline pages,
   archive views, contact information, and privacy details remain reachable.
   External source links, postmortems, status pages, research articles, and
-  Jonathan Reed pages have their own policies.
+  Jonathan Reed pages have their own policies. The privacy page is included so
+  readers can understand the static archive model, the absence of accounts, the
+  limited role of infrastructure logs, the purpose of security processing, and
+  how external incident sources differ from the outage archive itself.
 pageSections:
   - _component: page-sections/heroes/hero-center
     eyebrow: Internet Outage Atlas
