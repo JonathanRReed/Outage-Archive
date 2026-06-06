@@ -8,6 +8,7 @@ import { fileURLToPath } from "node:url";
 import mdx from "@astrojs/mdx";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const sitemapExcludedPaths = new Set(["/contact/", "/privacy/", "/methodology/"]);
 
 // https://astro.build/config
 export default defineConfig({
@@ -62,6 +63,9 @@ export default defineConfig({
     }),
     sitemap({
       filter: (page) => {
+        if (sitemapExcludedPaths.has(new URL(page).pathname)) {
+          return false;
+        }
         // Always exclude component library from sitemap if disabled
         if (process.env.DISABLE_COMPONENT_LIBRARY === "true") {
           return !page.includes("/component-docs");
