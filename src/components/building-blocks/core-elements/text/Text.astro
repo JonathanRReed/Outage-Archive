@@ -16,8 +16,9 @@ const {
 const markdownContent = text ? md.render(text) : "";
 const editingEnabled = process.env.DISABLE_COMPONENT_LIBRARY !== "true";
 
-const effectiveDataProp =
-  editingEnabled ? (customDataProp ?? (useDefaultEditableBinding ? "text" : null)) : null;
+const effectiveDataProp = editingEnabled
+  ? (customDataProp ?? (useDefaultEditableBinding ? "text" : null))
+  : null;
 const textDataAttributes = effectiveDataProp
   ? { "data-editable": "text", "data-prop": effectiveDataProp }
   : {};

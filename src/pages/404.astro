@@ -1,0 +1,191 @@
+---
+import AtlasFooter from "@components/atlas/atlas-footer/AtlasFooter.astro";
+import AtlasPageShell from "@components/atlas/shared/AtlasPageShell.astro";
+import Layout from "@layouts/BaseLayout.astro";
+
+const destinations = [
+  { path: "/", label: "Front Page", note: "The full broadsheet and featured timeline" },
+  { path: "/timeline/", label: "Timeline", note: "Every incident in date order" },
+  { path: "/archives/", label: "Archives", note: "The incident register, grouped by failure mode" },
+  { path: "/about/", label: "About", note: "How the atlas is researched and organized" },
+];
+---
+
+<Layout
+  title="Page Not Found"
+  description="The page you requested is not part of the Internet Outage Atlas record. Return to the front page, timeline, or archives."
+  noindex={true}
+>
+  <section
+    class="atlas-page-surface"
+    aria-label="Not found surface"
+  >
+    <AtlasPageShell
+      currentPage="none"
+      dateline="Vol. I · Stop Press · This edition has no record"
+      kicker="Internet Outage Atlas · Error 404"
+      heading="PAGE<br>NOT FOUND"
+      subtitle="The page you requested has gone the way of a withdrawn route — it is no longer in the record"
+    >
+      <section class="notfound-lede">
+        <div class="notfound-copy">
+          <div class="notfound-byline">Editor's note</div>
+          <h2 class="notfound-title">Nothing filed at this address</h2>
+          <p>
+            The link you followed points to a page that was moved, renamed, or never went to press.
+            Like an outage, it is best understood by retracing the route — start from one of the
+            entry points below.
+          </p>
+          <p>
+            If you reached this page from a link on this site, the detail is worth filing as a
+            correction.
+          </p>
+          <p class="notfound-code">HTTP 404 · Resource not found</p>
+        </div>
+        <aside class="notfound-side">
+          <nav
+            class="notfound-card"
+            aria-label="Where to go next"
+          >
+            <div class="notfound-card-label">Where to go next</div>
+            <ul>
+              {
+                destinations.map((d) => (
+                  <li>
+                    <a href={d.path}>
+                      <span class="notfound-dest">{d.label}</span>
+                      <span class="notfound-note">{d.note}</span>
+                    </a>
+                  </li>
+                ))
+              }
+            </ul>
+          </nav>
+        </aside>
+      </section>
+
+      <AtlasFooter
+        publicationTitle="Internet<br>Outage Atlas"
+        tagline="A record of the failures that exposed how much daily life rests on shared internet infrastructure."
+        figures={[
+          { bold: "404", text: "Requested record not found" },
+          { bold: "0", text: "Routes to this address" },
+          { bold: "Go", text: "Front page, timeline, or archives" },
+        ]}
+        editionText="Archival Broadsheet Edition<br />Vol. I · March 2026"
+        copyrightText="© 2026 Internet Outage Atlas Project. All content for educational purposes."
+        typesetText="JonathanRReed.com · Original article available"
+        websiteUrl="https://JonathanRReed.com"
+        articleUrl="https://JonathanRReed.com/blog/days-the-internet-dies/"
+      />
+    </AtlasPageShell>
+  </section>
+</Layout>
+
+<style>
+  @layer page-sections {
+    .notfound-lede {
+      display: grid;
+      gap: 1.5rem;
+      grid-template-columns: minmax(0, 3fr) minmax(280px, 1.4fr);
+      padding: 2.2rem 3rem 2.4rem;
+    }
+    .notfound-byline {
+      border-left: 2px solid var(--atlas-gold);
+      color: var(--atlas-ink-muted);
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      margin-bottom: 1.1rem;
+      padding-left: 1rem;
+      text-transform: uppercase;
+    }
+    .notfound-title {
+      color: var(--atlas-ink);
+      font-family: var(--atlas-font-display);
+      font-size: clamp(2rem, 3.4vw, 2.8rem);
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      line-height: 1.02;
+      margin-bottom: 0.8rem;
+    }
+    .notfound-copy p {
+      color: var(--atlas-ink-mid);
+      font-size: 14px;
+      line-height: 1.9;
+      margin-bottom: 1rem;
+      max-width: 64ch;
+    }
+    .notfound-code {
+      color: var(--atlas-ink-muted);
+      font-family: var(--atlas-font-display);
+      font-size: 12px;
+      font-style: italic;
+      letter-spacing: 0.04em;
+    }
+    .notfound-card {
+      background: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--atlas-surface) 94%, transparent),
+        transparent 100%
+      );
+      border: 1px solid color-mix(in srgb, var(--atlas-rule) 75%, transparent);
+      box-shadow: 0 24px 60px -48px rgba(13, 27, 42, 0.5);
+      padding: 1.1rem 1rem 1rem;
+    }
+    .notfound-card-label {
+      color: var(--atlas-ink-muted);
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      margin-bottom: 0.6rem;
+      text-transform: uppercase;
+    }
+    .notfound-card ul {
+      display: grid;
+      gap: 0.35rem;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .notfound-card a {
+      border-bottom: 1px solid color-mix(in srgb, var(--atlas-rule) 60%, transparent);
+      color: var(--atlas-ink);
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+      padding: 0.55rem 0;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .notfound-card li:last-child a {
+      border-bottom: 0;
+    }
+    .notfound-card a:hover .notfound-dest,
+    .notfound-card a:focus-visible .notfound-dest {
+      color: var(--atlas-red);
+    }
+    .notfound-dest {
+      font-family: var(--atlas-font-display);
+      font-size: 1rem;
+      font-weight: 700;
+    }
+    .notfound-note {
+      color: var(--atlas-ink-muted);
+      font-size: 12px;
+      font-style: italic;
+      line-height: 1.5;
+    }
+
+    :root[data-theme="dark"] .notfound-card {
+      background: linear-gradient(180deg, rgba(10, 23, 38, 0.28), rgba(10, 23, 38, 0.12));
+      border-color: rgba(212, 175, 85, 0.14);
+      box-shadow: 0 24px 60px -48px rgba(0, 0, 0, 0.45);
+    }
+
+    @media (max-width: 1080px) {
+      .notfound-lede {
+        grid-template-columns: 1fr;
+        padding: 2rem 1.5rem 1.5rem;
+      }
+    }
+  }
+</style>

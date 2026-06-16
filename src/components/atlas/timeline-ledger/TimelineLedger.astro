@@ -16,8 +16,8 @@ const {
   <div class="timeline-ledger-intro reveal">
     <div class="timeline-ledger-label">Full incident index</div>
     <p class="timeline-ledger-copy">
-      Every incident below links directly into the canonical archive record. The timeline is the
-      navigation layer. The archive is the record.
+      Every incident below opens its full case file. The timeline is the navigation layer; each case
+      file is the record.
     </p>
   </div>
 
@@ -29,9 +29,8 @@ const {
           style={`--timeline-reveal-delay: ${Math.min(index * 0.007, 0.06)}s`}
         >
           <a
-            href={`/archives/#${incident.slug}`}
+            href={`/incident/${incident.slug}/`}
             class="timeline-ledger-link"
-            data-archive-link={incident.slug}
           >
             <div class="timeline-ledger-date-col">
               <div class="timeline-ledger-date-label">Case file</div>
@@ -53,7 +52,7 @@ const {
               <h2 class="timeline-ledger-title">{incident.title}</h2>
               <p class="timeline-ledger-summary">{incident.summary}</p>
               <div class="timeline-ledger-foot">
-                <span class="timeline-ledger-hint">Open in archives</span>
+                <span class="timeline-ledger-hint">Open case file</span>
                 <span
                   class="timeline-ledger-arrow"
                   aria-hidden="true"
@@ -68,31 +67,6 @@ const {
     }
   </ol>
 </section>
-
-<script is:inline>
-  (function () {
-    function initTimelineArchiveLinks() {
-      document.querySelectorAll("[data-archive-link]").forEach(function (link) {
-        if (!(link instanceof HTMLAnchorElement)) return;
-
-        link.addEventListener("click", function () {
-          var slug = link.getAttribute("data-archive-link");
-          if (!slug) return;
-
-          try {
-            sessionStorage.setItem("ioa-archive-target", slug);
-          } catch (e) {}
-        });
-      });
-    }
-
-    if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", initTimelineArchiveLinks, { once: true });
-    } else {
-      initTimelineArchiveLinks();
-    }
-  })();
-</script>
 
 <style>
   @layer page-sections {

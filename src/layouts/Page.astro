@@ -64,7 +64,10 @@ const editingEnabled = process.env.DISABLE_COMPONENT_LIBRARY !== "true";
 
   {
     isAtlasPage ? (
-      <section class="atlas-page-surface" aria-label="Internet Outage Atlas">
+      <section
+        class="atlas-page-surface"
+        aria-label="Internet Outage Atlas"
+      >
         {sections.length > 0 && (
           <div
             data-editable={editingEnabled ? "component" : undefined}

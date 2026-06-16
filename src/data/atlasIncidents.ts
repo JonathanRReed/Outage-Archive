@@ -1,3 +1,5 @@
+import { atlasEnrichment } from "./atlasEnrichment";
+
 export type AtlasIncidentGroupKey =
   | "routing"
   | "naming"
@@ -7,6 +9,24 @@ export type AtlasIncidentGroupKey =
   | "physical";
 
 export type HomePlacement = "timeline" | "archive" | null;
+
+export type AtlasScope = "global" | "regional" | "local";
+
+export type AtlasGeoPoint = {
+  lat: number;
+  lng: number;
+  label: string;
+};
+
+export type AtlasAffectedService = {
+  name: string;
+  providerSlug?: string;
+};
+
+export type AtlasSource = {
+  label: string;
+  url: string;
+};
 
 export type AtlasIncident = {
   slug: string;
@@ -21,6 +41,14 @@ export type AtlasIncident = {
   duration?: string;
   groupKey: AtlasIncidentGroupKey;
   homePlacement: HomePlacement;
+  scope?: AtlasScope;
+  geo?: AtlasGeoPoint[];
+  originRegion?: AtlasGeoPoint;
+  affectedServices?: AtlasAffectedService[];
+  provider?: string;
+  durationMinutes?: number;
+  severityRank?: 1 | 2 | 3;
+  sources?: AtlasSource[];
 };
 
 type AtlasIncidentGroup = {
@@ -100,7 +128,7 @@ const incidentGroups: AtlasIncidentGroup[] = [
   },
 ];
 
-export const atlasIncidents: AtlasIncident[] = [
+const rawAtlasIncidents: AtlasIncident[] = [
   {
     slug: "as7007-route-leak",
     sortDate: "1997-04-25",
@@ -433,8 +461,8 @@ export const atlasIncidents: AtlasIncident[] = [
   },
   {
     slug: "azure-dns-outage",
-    sortDate: "2021-07-19",
-    dateLabel: "July 2021",
+    sortDate: "2021-04-01",
+    dateLabel: "April 2021",
     year: "2021",
     title: "Azure DNS Outage",
     category: "Cloud DNS",
@@ -610,21 +638,6 @@ export const atlasIncidents: AtlasIncident[] = [
     homePlacement: null,
   },
   {
-    slug: "level3-fiber-outage-2014",
-    sortDate: "2014-09-01",
-    dateLabel: "2014",
-    year: "2014",
-    title: "Level 3 Fiber Outage",
-    category: "Backbone fiber failure",
-    severity: "High Severity",
-    summary:
-      "A backbone fiber disruption at Level 3 highlighted how physical transport failures can still cascade into broad connectivity problems across downstream networks that rely on the same paths.",
-    lesson:
-      "Lesson: Internet abstractions still ride on physical backbone paths that can become common points of failure.",
-    groupKey: "physical",
-    homePlacement: null,
-  },
-  {
     slug: "skype-supernode-failure-2010",
     sortDate: "2010-12-22",
     dateLabel: "December 2010",
@@ -655,36 +668,6 @@ export const atlasIncidents: AtlasIncident[] = [
     homePlacement: null,
   },
   {
-    slug: "azure-dns-outage-2020-second",
-    sortDate: "2020-01-01",
-    dateLabel: "2020",
-    year: "2020",
-    title: "Azure DNS Outage",
-    category: "Cloud DNS",
-    severity: "High Severity",
-    summary:
-      "A separate Azure DNS incident in 2020 reinforced that naming failures recur even inside large cloud platforms, and that those failures can outrank the health of the underlying services they point to.",
-    lesson:
-      "Lesson: Repeated DNS incidents show that naming remains one of the internet's hardest single points of failure.",
-    groupKey: "naming",
-    homePlacement: null,
-  },
-  {
-    slug: "slack-file-storage-outage",
-    sortDate: "2021-01-01",
-    dateLabel: "2020–2022",
-    year: "2021",
-    title: "Slack File-storage Outage",
-    category: "Storage exhaustion",
-    severity: "High Severity",
-    summary:
-      "A file-storage failure inside Slack disrupted access to uploads and working materials, showing how collaboration platforms break not only when messaging fails but also when their attached operational data stops moving.",
-    lesson:
-      "Lesson: Work platforms become operational infrastructure once files, messages, and coordination all depend on the same service.",
-    groupKey: "platform",
-    homePlacement: null,
-  },
-  {
     slug: "google-voice-expired-tls-cert-2021",
     sortDate: "2021-03-01",
     dateLabel: "2021",
@@ -711,21 +694,6 @@ export const atlasIncidents: AtlasIncident[] = [
     lesson:
       "Lesson: Regional concentration stays dangerous even when the failure looks narrower than a full cloud outage.",
     groupKey: "cloud",
-    homePlacement: null,
-  },
-  {
-    slug: "uaf-dhcp-server-outage-2023",
-    sortDate: "2023-09-01",
-    dateLabel: "2023",
-    year: "2023",
-    title: "UAF DHCP Server Outage",
-    category: "Local network control",
-    severity: "Medium Severity",
-    summary:
-      "A DHCP outage at the University of Alaska Fairbanks remains useful because it shows a bounded local-control failure that stayed local, which makes it a clean contrast against the much wider shared-layer incidents elsewhere in the atlas.",
-    lesson:
-      "Lesson: Local failures matter as a control case because they show what happens when blast radius stays contained.",
-    groupKey: "naming",
     homePlacement: null,
   },
   {
@@ -819,17 +787,17 @@ export const atlasIncidents: AtlasIncident[] = [
     homePlacement: null,
   },
   {
-    slug: "telekom-malaysia-route-leak-2025",
-    sortDate: "2025-09-01",
-    dateLabel: "2025",
-    year: "2025",
-    title: "Telekom Malaysia Route Leak",
-    category: "Route leak",
+    slug: "telekom-malaysia-level3-route-leak-2015",
+    sortDate: "2015-06-12",
+    dateLabel: "June 2015",
+    year: "2015",
+    title: "Telekom Malaysia Route Leak Cripples Level 3 and the Global Internet",
+    category: "BGP route leak",
     severity: "High Severity",
     summary:
-      "A modern route leak involving Telekom Malaysia preserved the same old lesson in contemporary form: routing mistakes still escape local intent and become international reachability problems very quickly.",
+      "Telekom Malaysia (AS4788) accidentally announced roughly 179,000 BGP routes to Level 3, which accepted and propagated them. Traffic for large parts of the internet was pulled toward Malaysia, and for about two hours users saw global packet loss and slowdowns, felt most acutely in Australia and New Zealand. eBay, Yahoo Mail, PlayStation Network, and Xbox Live degraded together as the bad routes spread.",
     lesson:
-      "Lesson: Modern networks still inherit the same basic BGP trust problem exposed in older leaks.",
+      "Lesson: One mis-announced route table, accepted by a large transit provider, becomes a global slowdown in minutes.",
     groupKey: "routing",
     homePlacement: null,
   },
@@ -895,6 +863,12 @@ export const atlasIncidents: AtlasIncident[] = [
   },
 ];
 
+export const atlasIncidents: AtlasIncident[] = rawAtlasIncidents.map((incident) => {
+  const enrichment = atlasEnrichment[incident.slug];
+
+  return enrichment ? { ...incident, ...enrichment } : incident;
+});
+
 const groupOrder = incidentGroups.map((group) => group.key);
 
 export const homeTimelineIncidentSlugs = atlasIncidents
@@ -956,4 +930,39 @@ export function getArchiveGroups(): AtlasIncidentArchiveGroup[] {
       };
     })
     .filter((group): group is AtlasIncidentArchiveGroup => group !== null);
+}
+
+export function getIncidentNeighbors(slug: string): {
+  prev: AtlasIncident | null;
+  next: AtlasIncident | null;
+} {
+  const ordered = getAllTimelineIncidents();
+  const index = ordered.findIndex((incident) => incident.slug === slug);
+
+  if (index === -1) return { prev: null, next: null };
+
+  return {
+    prev: index > 0 ? ordered[index - 1] : null,
+    next: index < ordered.length - 1 ? ordered[index + 1] : null,
+  };
+}
+
+export type AffectedServiceEdge = {
+  service: string;
+  providerSlug?: string;
+  incidentSlug: string;
+  incidentTitle: string;
+  severity: string;
+};
+
+export function getAffectedServiceEdges(): AffectedServiceEdge[] {
+  return atlasIncidents.flatMap((incident) =>
+    (incident.affectedServices ?? []).map((service) => ({
+      service: service.name,
+      providerSlug: service.providerSlug,
+      incidentSlug: incident.slug,
+      incidentTitle: incident.title,
+      severity: incident.severity,
+    }))
+  );
 }
