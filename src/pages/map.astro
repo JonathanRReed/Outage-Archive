@@ -35,9 +35,28 @@ for (const inc of atlasIncidents) {
   }
 }
 
+const chronological = [...atlasIncidents].sort((a, b) => a.sortDate.localeCompare(b.sortDate));
+const chrono = chronological.map((inc) => ({
+  slug: inc.slug,
+  title: inc.title,
+  date: inc.sortDate,
+  dateLabel: inc.dateLabel,
+  category: inc.category,
+  rank: inc.severityRank ?? 2,
+  placed: placed.has(inc.slug),
+}));
+
 const worldwide = atlasIncidents
   .filter((inc) => !placed.has(inc.slug))
   .sort((a, b) => a.sortDate.localeCompare(b.sortDate));
+
+const minDate = chrono[0].date;
+const maxDate = chrono[chrono.length - 1].date;
+const minT = Date.parse(minDate);
+const maxT = Date.parse(maxDate);
+const axisTicks = [2000, 2005, 2010, 2015, 2020, 2025]
+  .map((y) => ({ y, pct: round(((Date.parse(`${y}-01-01`) - minT) / (maxT - minT)) * 100) }))
+  .filter((t) => t.pct >= 0 && t.pct <= 100);
 
 const meridians: number[] = [];
 
@@ -57,7 +76,7 @@ const services = (inc: AtlasIncident) =>
 
 <Layout
   title="The Atlas Map"
-  description="An engraved world map of where major internet outages struck, plus a worldwide ledger of the incidents that hit everywhere at once."
+  description="An engraved, playable world map of where major internet outages struck — scrub through 1997 to 2026 and watch the failures ripple onto the map."
 >
   <section
     class="atlas-page-surface"
@@ -68,15 +87,16 @@ const services = (inc: AtlasIncident) =>
       dateline={`Vol. I · Cartography · ${impactMarkers.length + originMarkers.length} located, ${worldwide.length} worldwide`}
       kicker="Internet Outage Atlas · The Map"
       heading="THE<br>ATLAS MAP"
-      subtitle="Where the outages struck, and which were too global to pin to a single place"
+      subtitle="Press play to watch a quarter-century of outages ripple across the world"
     >
       <section class="map-section">
         <div class="map-lede">
           <p>
-            Markers show incidents that can be tied to a place — a datacenter region, a country, a
-            metro. Hollow marks are fault origins for failures whose impact still spread worldwide.
-            The incidents in the <a href="#worldwide-ledger">Worldwide Ledger</a> struck everywhere at
-            once and resist a single dot, which is the atlas thesis in cartographic form.
+            Press <strong>Play the record</strong> to sweep from 1997 to today and watch each outage strike
+            in order, or drag the dial to any year. Solid marks are incidents tied to a place; hollow
+            marks are fault origins for failures whose impact still spread worldwide. The incidents in
+            the <a href="#worldwide-ledger">Worldwide Ledger</a> struck everywhere at once and resist
+            a single dot.
           </p>
         </div>
 
@@ -84,6 +104,7 @@ const services = (inc: AtlasIncident) =>
           <svg
             viewBox={WORLD_VIEWBOX}
             class="world-map"
+            id="atlasMap"
             role="img"
             aria-label="Equirectangular world map with markers for outage-affected regions"
             preserveAspectRatio="xMidYMid meet"
@@ -129,11 +150,20 @@ const services = (inc: AtlasIncident) =>
                   <a
                     href={`/incident/${m.inc.slug}/`}
                     class="map-marker is-origin"
+                    data-slug={m.inc.slug}
+                    data-date={m.inc.sortDate}
                     data-title={m.inc.title}
                     data-meta={`Fault origin · ${m.place} · ${m.inc.dateLabel}`}
                     data-services={services(m.inc)}
                   >
                     <circle
+                      class="map-ripple"
+                      cx={m.x}
+                      cy={m.y}
+                      r="3.4"
+                    />
+                    <circle
+                      class="map-core"
                       cx={m.x}
                       cy={m.y}
                       r="3.4"
@@ -149,11 +179,20 @@ const services = (inc: AtlasIncident) =>
                   <a
                     href={`/incident/${m.inc.slug}/`}
                     class:list={["map-marker", sevClass(m.inc.severityRank)]}
+                    data-slug={m.inc.slug}
+                    data-date={m.inc.sortDate}
                     data-title={m.inc.title}
                     data-meta={`${m.place} · ${m.inc.dateLabel}`}
                     data-services={services(m.inc)}
                   >
                     <circle
+                      class="map-ripple"
+                      cx={m.x}
+                      cy={m.y}
+                      r="4.6"
+                    />
+                    <circle
+                      class="map-core"
                       cx={m.x}
                       cy={m.y}
                       r="4.6"
@@ -189,6 +228,76 @@ const services = (inc: AtlasIncident) =>
             </div>
           </div>
         </div>
+
+        <div
+          class="map-timeline"
+          data-min={minDate}
+          data-max={maxDate}
+        >
+          <div class="map-timeline-head">
+            <button
+              type="button"
+              class="map-play"
+              id="mapPlay"
+              aria-label="Play the outage timeline"
+            >
+              <span
+                class="map-play-icon"
+                id="mapPlayIcon"
+                aria-hidden="true"
+                >▶</span
+              >
+              <span id="mapPlayLabel">Play the record</span>
+            </button>
+            <div class="map-readout">
+              <span
+                class="map-year"
+                id="mapYear"
+                >{maxDate.slice(0, 4)}</span
+              >
+              <span
+                class="map-dispatch"
+                id="mapDispatch"
+                aria-live="polite"
+                >All incidents shown — drag the dial or press play</span
+              >
+            </div>
+          </div>
+          <div class="map-scrubber-wrap">
+            <input
+              type="range"
+              class="map-scrubber"
+              id="mapScrubber"
+              min="0"
+              max="1000"
+              value="1000"
+              step="1"
+              aria-label="Scrub through the outage timeline by date"
+            />
+            <div
+              class="map-axis"
+              aria-hidden="true"
+            >
+              {
+                axisTicks.map((t) => (
+                  <span
+                    class="map-axis-tick"
+                    style={`left:${t.pct}%`}
+                  >
+                    {t.y}
+                  </span>
+                ))
+              }
+            </div>
+          </div>
+        </div>
+
+        <script
+          type="application/json"
+          id="mapChrono"
+          is:inline
+          set:html={JSON.stringify(chrono)}
+        />
 
         <div
           class="map-legend"
@@ -255,39 +364,163 @@ const services = (inc: AtlasIncident) =>
 <script is:inline>
   (function () {
     function initMap() {
+      var map = document.getElementById("atlasMap");
+      var chronoEl = document.getElementById("mapChrono");
+      var tl = document.querySelector(".map-timeline");
+      var scrubber = document.getElementById("mapScrubber");
+      var yearEl = document.getElementById("mapYear");
+      var dispatchEl = document.getElementById("mapDispatch");
+      var playBtn = document.getElementById("mapPlay");
+      var playIcon = document.getElementById("mapPlayIcon");
+      var playLabel = document.getElementById("mapPlayLabel");
       var tip = document.getElementById("mapTooltip");
       var frame = document.querySelector(".map-frame");
-      if (!tip || !frame) return;
-      var tTitle = tip.querySelector("[data-tip-title]");
-      var tMeta = tip.querySelector("[data-tip-meta]");
-      var tServices = tip.querySelector("[data-tip-services]");
+      if (!map || !chronoEl || !scrubber || !tl) return;
 
-      function show(marker) {
-        tTitle.textContent = marker.getAttribute("data-title") || "";
-        tMeta.textContent = marker.getAttribute("data-meta") || "";
-        var svc = marker.getAttribute("data-services") || "";
-        tServices.textContent = svc;
-        tServices.style.display = svc ? "block" : "none";
-        var r = marker.getBoundingClientRect();
-        var fr = frame.getBoundingClientRect();
-        tip.style.left = r.left + r.width / 2 - fr.left + "px";
-        tip.style.top = r.top - fr.top + "px";
-        tip.hidden = false;
-      }
-      function hide() {
-        tip.hidden = true;
-      }
+      // Activate timeline-controlled visibility only once JS is alive, so the
+      // map degrades to all-markers-visible if this script never runs.
+      map.classList.add("is-timed");
 
-      document.querySelectorAll(".map-marker").forEach(function (marker) {
-        marker.addEventListener("mouseenter", function () {
-          show(marker);
-        });
-        marker.addEventListener("mouseleave", hide);
-        marker.addEventListener("focus", function () {
-          show(marker);
-        });
-        marker.addEventListener("blur", hide);
+      var chrono = JSON.parse(chronoEl.textContent || "[]");
+      var minT = Date.parse(tl.getAttribute("data-min"));
+      var maxT = Date.parse(tl.getAttribute("data-max"));
+      var span = maxT - minT || 1;
+      var reduce =
+        window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      var markers = {};
+      var onState = {};
+      Array.prototype.forEach.call(map.querySelectorAll(".map-marker"), function (m) {
+        var slug = m.getAttribute("data-slug");
+        if (!markers[slug]) markers[slug] = [];
+        markers[slug].push(m);
+        m.classList.add("is-on");
+        onState[slug] = true;
       });
+
+      function timeFromValue(v) {
+        return minT + (v / 1000) * span;
+      }
+
+      function render(t, animate) {
+        yearEl.textContent = new Date(t).getFullYear();
+        var latest = null;
+        for (var i = 0; i < chrono.length; i++) {
+          var inc = chrono[i];
+          var on = Date.parse(inc.date) <= t;
+          if (on) latest = inc;
+          if (onState[inc.slug] !== on) {
+            onState[inc.slug] = on;
+            var els = markers[inc.slug] || [];
+            for (var j = 0; j < els.length; j++) {
+              els[j].classList.toggle("is-on", on);
+              if (on && animate && !reduce) {
+                (function (el) {
+                  el.classList.remove("rippling");
+                  void el.getBBox();
+                  el.classList.add("rippling");
+                  setTimeout(function () {
+                    el.classList.remove("rippling");
+                  }, 950);
+                })(els[j]);
+              }
+            }
+          }
+        }
+        dispatchEl.textContent = latest
+          ? latest.dateLabel + " — " + latest.title
+          : "Before the record begins";
+      }
+
+      render(maxT, false);
+
+      scrubber.addEventListener("input", function () {
+        stop();
+        render(timeFromValue(parseInt(scrubber.value, 10)), false);
+      });
+
+      var raf = null;
+      var startStamp = 0;
+      var startValue = 0;
+      var DURATION = 17000;
+
+      function step(ts) {
+        if (!startStamp) startStamp = ts;
+        var v = startValue + ((ts - startStamp) / DURATION) * (1000 - startValue);
+        if (v >= 1000) {
+          scrubber.value = "1000";
+          render(maxT, true);
+          stop();
+          return;
+        }
+        scrubber.value = String(Math.round(v));
+        render(timeFromValue(v), true);
+        raf = requestAnimationFrame(step);
+      }
+
+      function play() {
+        if (reduce) {
+          scrubber.value = "1000";
+          render(maxT, false);
+          return;
+        }
+        var cur = parseInt(scrubber.value, 10);
+        if (cur >= 1000) {
+          cur = 0;
+          scrubber.value = "0";
+          render(minT, false);
+        }
+        startStamp = 0;
+        startValue = cur;
+        playBtn.classList.add("is-playing");
+        playIcon.textContent = "❚❚";
+        playLabel.textContent = "Pause";
+        raf = requestAnimationFrame(step);
+      }
+
+      function stop() {
+        if (raf) cancelAnimationFrame(raf);
+        raf = null;
+        playBtn.classList.remove("is-playing");
+        playIcon.textContent = "▶";
+        playLabel.textContent = "Play the record";
+      }
+
+      playBtn.addEventListener("click", function () {
+        if (raf) stop();
+        else play();
+      });
+
+      if (tip && frame) {
+        var tTitle = tip.querySelector("[data-tip-title]");
+        var tMeta = tip.querySelector("[data-tip-meta]");
+        var tServices = tip.querySelector("[data-tip-services]");
+        var show = function (marker) {
+          tTitle.textContent = marker.getAttribute("data-title") || "";
+          tMeta.textContent = marker.getAttribute("data-meta") || "";
+          var svc = marker.getAttribute("data-services") || "";
+          tServices.textContent = svc;
+          tServices.style.display = svc ? "block" : "none";
+          var r = marker.getBoundingClientRect();
+          var fr = frame.getBoundingClientRect();
+          tip.style.left = r.left + r.width / 2 - fr.left + "px";
+          tip.style.top = r.top - fr.top + "px";
+          tip.hidden = false;
+        };
+        var hide = function () {
+          tip.hidden = true;
+        };
+        Array.prototype.forEach.call(map.querySelectorAll(".map-marker"), function (marker) {
+          marker.addEventListener("mouseenter", function () {
+            show(marker);
+          });
+          marker.addEventListener("mouseleave", hide);
+          marker.addEventListener("focus", function () {
+            show(marker);
+          });
+          marker.addEventListener("blur", hide);
+        });
+      }
     }
 
     if (document.readyState === "loading") {
@@ -313,10 +546,14 @@ const services = (inc: AtlasIncident) =>
       line-height: 1.9;
       margin: 0;
     }
+    .map-lede strong {
+      color: var(--atlas-ink);
+      font-weight: 700;
+    }
     .map-lede a {
+      border-bottom: 1px solid color-mix(in srgb, var(--atlas-red) 40%, transparent);
       color: var(--atlas-red);
       text-decoration: none;
-      border-bottom: 1px solid color-mix(in srgb, var(--atlas-red) 40%, transparent);
     }
 
     .map-frame {
@@ -341,41 +578,91 @@ const services = (inc: AtlasIncident) =>
     .map-land {
       fill: color-mix(in srgb, var(--atlas-ink-faint) 38%, var(--atlas-surface));
       stroke: var(--atlas-ink-muted);
-      stroke-width: 0.4;
       stroke-linejoin: round;
+      stroke-width: 0.4;
     }
 
-    .map-marker circle {
+    .map-marker {
       cursor: pointer;
+    }
+    .map-core {
       stroke: var(--atlas-surface);
       stroke-width: 1;
+      transform-box: fill-box;
+      transform-origin: center;
       transition:
-        r 0.15s ease,
+        transform 0.15s ease,
         fill 0.15s ease;
     }
-    .map-marker.is-critical circle {
+    .map-ripple {
+      fill: var(--atlas-gold);
+      opacity: 0;
+      pointer-events: none;
+      transform-box: fill-box;
+      transform-origin: center;
+    }
+    .map-marker.is-critical .map-core,
+    .map-marker.is-critical .map-ripple {
       fill: var(--atlas-red);
     }
-    .map-marker.is-high circle {
+    .map-marker.is-high .map-core {
       fill: var(--atlas-gold);
     }
-    .map-marker.is-low circle {
+    .map-marker.is-low .map-core {
       fill: var(--atlas-ink-muted);
     }
-    .map-marker.is-origin circle {
+    .map-marker.is-origin .map-core {
       fill: none;
       stroke: var(--atlas-gold);
-      stroke-width: 1.4;
       stroke-dasharray: 2.4 1.8;
+      stroke-width: 1.4;
     }
-    .map-marker:hover circle,
-    .map-marker:focus-visible circle {
-      r: 7;
+    .map-marker:hover .map-core,
+    .map-marker:focus-visible .map-core {
+      transform: scale(1.55);
     }
-    .map-marker:focus-visible circle {
+    .map-marker:focus-visible .map-core {
       outline: none;
       stroke: var(--atlas-ink);
       stroke-width: 1.4;
+    }
+
+    .world-map.is-timed .map-marker {
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+    .world-map.is-timed .map-marker.is-on {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .map-marker.rippling .map-core {
+      animation: map-core-pop 0.55s ease-out;
+    }
+    .map-marker.rippling .map-ripple {
+      animation: map-ripple-out 0.95s ease-out;
+    }
+    @keyframes map-core-pop {
+      0% {
+        transform: scale(0.2);
+      }
+      55% {
+        transform: scale(1.45);
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+    @keyframes map-ripple-out {
+      0% {
+        opacity: 0.5;
+        transform: scale(0.5);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(4.2);
+      }
     }
 
     .map-tooltip {
@@ -415,15 +702,129 @@ const services = (inc: AtlasIncident) =>
       padding-top: 0.4rem;
     }
 
+    .map-timeline {
+      margin: 1.3rem auto 0;
+      max-width: 62rem;
+    }
+    .map-timeline-head {
+      align-items: center;
+      display: flex;
+      gap: 1.25rem;
+      margin-bottom: 1rem;
+    }
+    .map-play {
+      align-items: center;
+      background: var(--atlas-ink);
+      border: 1px solid var(--atlas-ink);
+      color: var(--atlas-parchment);
+      cursor: pointer;
+      display: inline-flex;
+      flex-shrink: 0;
+      font-family: var(--atlas-font-display);
+      font-size: 12px;
+      font-weight: 700;
+      gap: 0.55rem;
+      letter-spacing: 0.12em;
+      padding: 0.6rem 1.1rem;
+      text-transform: uppercase;
+      transition:
+        background 0.2s,
+        color 0.2s;
+    }
+    .map-play:hover,
+    .map-play.is-playing {
+      background: var(--atlas-red);
+      border-color: var(--atlas-red);
+      color: var(--atlas-parchment);
+    }
+    .map-play-icon {
+      font-size: 10px;
+    }
+    .map-readout {
+      align-items: baseline;
+      display: flex;
+      gap: 1rem;
+      min-width: 0;
+    }
+    .map-year {
+      color: var(--atlas-ink);
+      font-family: var(--atlas-font-display);
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      font-variant-numeric: tabular-nums;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      line-height: 1;
+    }
+    .map-dispatch {
+      color: var(--atlas-ink-muted);
+      font-family: var(--atlas-font-display);
+      font-size: 13px;
+      font-style: italic;
+      line-height: 1.4;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .map-scrubber-wrap {
+      position: relative;
+    }
+    .map-scrubber {
+      appearance: none;
+      -webkit-appearance: none;
+      background: transparent;
+      cursor: pointer;
+      display: block;
+      margin: 0;
+      width: 100%;
+    }
+    .map-scrubber::-webkit-slider-runnable-track {
+      background: var(--atlas-rule);
+      height: 2px;
+    }
+    .map-scrubber::-moz-range-track {
+      background: var(--atlas-rule);
+      height: 2px;
+    }
+    .map-scrubber::-webkit-slider-thumb {
+      appearance: none;
+      -webkit-appearance: none;
+      background: var(--atlas-red);
+      border: 0;
+      height: 18px;
+      margin-top: -8px;
+      transform: rotate(45deg);
+      width: 18px;
+    }
+    .map-scrubber::-moz-range-thumb {
+      background: var(--atlas-red);
+      border: 0;
+      border-radius: 0;
+      height: 18px;
+      transform: rotate(45deg);
+      width: 18px;
+    }
+    .map-axis {
+      height: 1.1rem;
+      margin-top: 0.5rem;
+      position: relative;
+    }
+    .map-axis-tick {
+      color: var(--atlas-ink-faint);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      position: absolute;
+      transform: translateX(-50%);
+    }
+
     .map-legend {
       color: var(--atlas-ink-muted);
       display: flex;
       flex-wrap: wrap;
-      gap: 1.25rem;
       font-size: 11px;
+      gap: 1.25rem;
       justify-content: center;
       letter-spacing: 0.08em;
-      margin: 1rem 0 0;
+      margin: 1.6rem 0 0;
       text-transform: uppercase;
     }
     .map-legend-item {
@@ -529,8 +930,13 @@ const services = (inc: AtlasIncident) =>
       fill: #24364f;
       stroke: #46597a;
     }
-    :root[data-theme="dark"] .map-marker circle {
+    :root[data-theme="dark"] .map-core {
       stroke: #0d1b2a;
+    }
+    :root[data-theme="dark"] .map-play {
+      background: var(--atlas-gold);
+      border-color: var(--atlas-gold);
+      color: #0d1b2a;
     }
 
     @media (max-width: 900px) {
@@ -539,6 +945,10 @@ const services = (inc: AtlasIncident) =>
       }
       .map-frame {
         padding: 0.6rem;
+      }
+      .map-timeline-head {
+        flex-wrap: wrap;
+        gap: 0.85rem;
       }
       .map-ledger-list {
         grid-template-columns: 1fr;
