@@ -18,6 +18,11 @@
       "children": []
     },
     {
+      "name": "Map",
+      "path": "/map/",
+      "children": []
+    },
+    {
       "name": "About",
       "path": "/about/",
       "children": []

@@ -1,0 +1,548 @@
+---
+import AtlasFooter from "@components/atlas/atlas-footer/AtlasFooter.astro";
+import AtlasPageShell from "@components/atlas/shared/AtlasPageShell.astro";
+import { atlasIncidents, type AtlasIncident } from "@data/atlasIncidents";
+import {
+  WORLD_HEIGHT,
+  WORLD_VIEWBOX,
+  WORLD_WIDTH,
+  projectEquirectangular,
+  worldLandPath,
+} from "@data/worldMapPath";
+import Layout from "@layouts/BaseLayout.astro";
+
+const round = (n: number) => Math.round(n * 10) / 10;
+
+type Marker = { inc: AtlasIncident; x: number; y: number; place: string };
+
+const impactMarkers: Marker[] = [];
+const originMarkers: Marker[] = [];
+const placed = new Set<string>();
+
+for (const inc of atlasIncidents) {
+  if (inc.geo && inc.geo.length) {
+    placed.add(inc.slug);
+    for (const pt of inc.geo) {
+      const p = projectEquirectangular(pt.lng, pt.lat);
+
+      impactMarkers.push({ inc, x: round(p.x), y: round(p.y), place: pt.label });
+    }
+  } else if (inc.originRegion) {
+    placed.add(inc.slug);
+    const p = projectEquirectangular(inc.originRegion.lng, inc.originRegion.lat);
+
+    originMarkers.push({ inc, x: round(p.x), y: round(p.y), place: inc.originRegion.label });
+  }
+}
+
+const worldwide = atlasIncidents
+  .filter((inc) => !placed.has(inc.slug))
+  .sort((a, b) => a.sortDate.localeCompare(b.sortDate));
+
+const meridians: number[] = [];
+
+for (let lng = -150; lng <= 150; lng += 30) meridians.push(round(projectEquirectangular(lng, 0).x));
+const parallels: number[] = [];
+
+for (let lat = -60; lat <= 60; lat += 30) parallels.push(round(projectEquirectangular(0, lat).y));
+
+const sevClass = (rank?: 1 | 2 | 3) =>
+  rank === 3 ? "is-critical" : rank === 1 ? "is-low" : "is-high";
+const services = (inc: AtlasIncident) =>
+  (inc.affectedServices ?? [])
+    .map((s) => s.name)
+    .slice(0, 5)
+    .join(" · ");
+---
+
+<Layout
+  title="The Atlas Map"
+  description="An engraved world map of where major internet outages struck, plus a worldwide ledger of the incidents that hit everywhere at once."
+>
+  <section
+    class="atlas-page-surface"
+    aria-label="Atlas map surface"
+  >
+    <AtlasPageShell
+      currentPage="map"
+      dateline={`Vol. I · Cartography · ${impactMarkers.length + originMarkers.length} located, ${worldwide.length} worldwide`}
+      kicker="Internet Outage Atlas · The Map"
+      heading="THE<br>ATLAS MAP"
+      subtitle="Where the outages struck, and which were too global to pin to a single place"
+    >
+      <section class="map-section">
+        <div class="map-lede">
+          <p>
+            Markers show incidents that can be tied to a place — a datacenter region, a country, a
+            metro. Hollow marks are fault origins for failures whose impact still spread worldwide.
+            The incidents in the <a href="#worldwide-ledger">Worldwide Ledger</a> struck everywhere at
+            once and resist a single dot, which is the atlas thesis in cartographic form.
+          </p>
+        </div>
+
+        <div class="map-frame">
+          <svg
+            viewBox={WORLD_VIEWBOX}
+            class="world-map"
+            role="img"
+            aria-label="Equirectangular world map with markers for outage-affected regions"
+            preserveAspectRatio="xMidYMid meet"
+          >
+            <rect
+              x="0"
+              y="0"
+              width={WORLD_WIDTH}
+              height={WORLD_HEIGHT}
+              class="map-ocean"
+            ></rect>
+            <g class="map-graticule">
+              {
+                meridians.map((x) => (
+                  <line
+                    x1={x}
+                    y1="0"
+                    x2={x}
+                    y2={WORLD_HEIGHT}
+                  />
+                ))
+              }
+              {
+                parallels.map((y) => (
+                  <line
+                    x1="0"
+                    y1={y}
+                    x2={WORLD_WIDTH}
+                    y2={y}
+                  />
+                ))
+              }
+            </g>
+            <path
+              d={worldLandPath}
+              class="map-land"
+              fill-rule="evenodd"
+            ></path>
+
+            <g class="map-markers">
+              {
+                originMarkers.map((m) => (
+                  <a
+                    href={`/incident/${m.inc.slug}/`}
+                    class="map-marker is-origin"
+                    data-title={m.inc.title}
+                    data-meta={`Fault origin · ${m.place} · ${m.inc.dateLabel}`}
+                    data-services={services(m.inc)}
+                  >
+                    <circle
+                      cx={m.x}
+                      cy={m.y}
+                      r="3.4"
+                    />
+                    <title>
+                      {m.inc.title} — fault origin: {m.place} ({m.inc.dateLabel})
+                    </title>
+                  </a>
+                ))
+              }
+              {
+                impactMarkers.map((m) => (
+                  <a
+                    href={`/incident/${m.inc.slug}/`}
+                    class:list={["map-marker", sevClass(m.inc.severityRank)]}
+                    data-title={m.inc.title}
+                    data-meta={`${m.place} · ${m.inc.dateLabel}`}
+                    data-services={services(m.inc)}
+                  >
+                    <circle
+                      cx={m.x}
+                      cy={m.y}
+                      r="4.6"
+                    />
+                    <title>
+                      {m.inc.title} — {m.place} ({m.inc.dateLabel})
+                    </title>
+                  </a>
+                ))
+              }
+            </g>
+          </svg>
+
+          <div
+            class="map-tooltip"
+            id="mapTooltip"
+            hidden
+          >
+            <div
+              class="map-tooltip-title"
+              data-tip-title
+            >
+            </div>
+            <div
+              class="map-tooltip-meta"
+              data-tip-meta
+            >
+            </div>
+            <div
+              class="map-tooltip-services"
+              data-tip-services
+            >
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="map-legend"
+          aria-hidden="true"
+        >
+          <span class="map-legend-item"><span class="map-dot is-critical"></span>Critical</span>
+          <span class="map-legend-item"><span class="map-dot is-high"></span>High</span>
+          <span class="map-legend-item"><span class="map-dot is-low"></span>Lower</span>
+          <span class="map-legend-item"
+            ><span class="map-dot is-origin"></span>Fault origin (global reach)</span
+          >
+        </div>
+
+        <aside
+          class="map-ledger"
+          id="worldwide-ledger"
+        >
+          <div class="map-ledger-head">
+            <div class="map-ledger-label">Worldwide Ledger</div>
+            <h2 class="map-ledger-title">Incidents without a map</h2>
+            <p class="map-ledger-intro">
+              Failures in shared layers — DNS, BGP, CDNs, certificate trust, global control planes —
+              that struck everywhere at once. There is no single place to mark, so they are filed
+              here as dispatches.
+            </p>
+          </div>
+          <ul class="map-ledger-list">
+            {
+              worldwide.map((inc) => (
+                <li>
+                  <a href={`/incident/${inc.slug}/`}>
+                    <span class="map-ledger-year">{inc.year}</span>
+                    <span class="map-ledger-name">{inc.title}</span>
+                    <span class="map-ledger-cat">{inc.category}</span>
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </aside>
+
+        <AtlasFooter
+          publicationTitle="Internet<br>Outage Atlas"
+          tagline="An engraved chart of where shared-infrastructure failures touched the ground."
+          figures={[
+            {
+              bold: String(impactMarkers.length + originMarkers.length),
+              text: "Incidents located on the map",
+            },
+            { bold: String(worldwide.length), text: "Filed in the Worldwide Ledger" },
+            { bold: String(atlasIncidents.length), text: "Incidents in the atlas" },
+          ]}
+          editionText="Cartographic Edition<br />Equirectangular projection"
+          copyrightText="© 2026 Internet Outage Atlas Project. All content for educational purposes."
+          typesetText="Land outline: Natural Earth (public domain)"
+          websiteUrl="https://JonathanRReed.com"
+          articleUrl="https://JonathanRReed.com/blog/days-the-internet-dies/"
+        />
+      </section>
+    </AtlasPageShell>
+  </section>
+</Layout>
+
+<script is:inline>
+  (function () {
+    function initMap() {
+      var tip = document.getElementById("mapTooltip");
+      var frame = document.querySelector(".map-frame");
+      if (!tip || !frame) return;
+      var tTitle = tip.querySelector("[data-tip-title]");
+      var tMeta = tip.querySelector("[data-tip-meta]");
+      var tServices = tip.querySelector("[data-tip-services]");
+
+      function show(marker) {
+        tTitle.textContent = marker.getAttribute("data-title") || "";
+        tMeta.textContent = marker.getAttribute("data-meta") || "";
+        var svc = marker.getAttribute("data-services") || "";
+        tServices.textContent = svc;
+        tServices.style.display = svc ? "block" : "none";
+        var r = marker.getBoundingClientRect();
+        var fr = frame.getBoundingClientRect();
+        tip.style.left = r.left + r.width / 2 - fr.left + "px";
+        tip.style.top = r.top - fr.top + "px";
+        tip.hidden = false;
+      }
+      function hide() {
+        tip.hidden = true;
+      }
+
+      document.querySelectorAll(".map-marker").forEach(function (marker) {
+        marker.addEventListener("mouseenter", function () {
+          show(marker);
+        });
+        marker.addEventListener("mouseleave", hide);
+        marker.addEventListener("focus", function () {
+          show(marker);
+        });
+        marker.addEventListener("blur", hide);
+      });
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", initMap, { once: true });
+    } else {
+      initMap();
+    }
+  })();
+</script>
+
+<style>
+  @layer page-sections {
+    .map-section {
+      padding: 0 3rem 1.5rem;
+    }
+    .map-lede {
+      margin: 0 auto 1.6rem;
+      max-width: 60rem;
+    }
+    .map-lede p {
+      color: var(--atlas-ink-mid);
+      font-size: 14px;
+      line-height: 1.9;
+      margin: 0;
+    }
+    .map-lede a {
+      color: var(--atlas-red);
+      text-decoration: none;
+      border-bottom: 1px solid color-mix(in srgb, var(--atlas-red) 40%, transparent);
+    }
+
+    .map-frame {
+      background: var(--atlas-surface);
+      border: 1px solid var(--atlas-rule);
+      box-shadow: 0 30px 70px -56px rgba(13, 27, 42, 0.6);
+      padding: 1.2rem;
+      position: relative;
+    }
+    .world-map {
+      display: block;
+      height: auto;
+      width: 100%;
+    }
+    .map-ocean {
+      fill: color-mix(in srgb, var(--atlas-parchment) 60%, var(--atlas-surface));
+    }
+    .map-graticule line {
+      stroke: color-mix(in srgb, var(--atlas-rule) 55%, transparent);
+      stroke-width: 0.4;
+    }
+    .map-land {
+      fill: color-mix(in srgb, var(--atlas-ink-faint) 38%, var(--atlas-surface));
+      stroke: var(--atlas-ink-muted);
+      stroke-width: 0.4;
+      stroke-linejoin: round;
+    }
+
+    .map-marker circle {
+      cursor: pointer;
+      stroke: var(--atlas-surface);
+      stroke-width: 1;
+      transition:
+        r 0.15s ease,
+        fill 0.15s ease;
+    }
+    .map-marker.is-critical circle {
+      fill: var(--atlas-red);
+    }
+    .map-marker.is-high circle {
+      fill: var(--atlas-gold);
+    }
+    .map-marker.is-low circle {
+      fill: var(--atlas-ink-muted);
+    }
+    .map-marker.is-origin circle {
+      fill: none;
+      stroke: var(--atlas-gold);
+      stroke-width: 1.4;
+      stroke-dasharray: 2.4 1.8;
+    }
+    .map-marker:hover circle,
+    .map-marker:focus-visible circle {
+      r: 7;
+    }
+    .map-marker:focus-visible circle {
+      outline: none;
+      stroke: var(--atlas-ink);
+      stroke-width: 1.4;
+    }
+
+    .map-tooltip {
+      background: var(--atlas-surface);
+      border: 1px solid var(--atlas-deco-border);
+      box-shadow: 0 18px 40px -28px rgba(13, 27, 42, 0.7);
+      left: 0;
+      max-width: 17rem;
+      padding: 0.6rem 0.75rem;
+      pointer-events: none;
+      position: absolute;
+      top: 0;
+      transform: translate(-50%, calc(-100% - 12px));
+      z-index: 40;
+    }
+    .map-tooltip-title {
+      color: var(--atlas-ink);
+      font-family: var(--atlas-font-display);
+      font-size: 0.95rem;
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 0.25rem;
+    }
+    .map-tooltip-meta {
+      color: var(--atlas-ink-muted);
+      font-size: 11px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .map-tooltip-services {
+      border-top: 1px solid color-mix(in srgb, var(--atlas-rule) 60%, transparent);
+      color: var(--atlas-ink-mid);
+      font-size: 12px;
+      font-style: italic;
+      line-height: 1.5;
+      margin-top: 0.45rem;
+      padding-top: 0.4rem;
+    }
+
+    .map-legend {
+      color: var(--atlas-ink-muted);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.25rem;
+      font-size: 11px;
+      justify-content: center;
+      letter-spacing: 0.08em;
+      margin: 1rem 0 0;
+      text-transform: uppercase;
+    }
+    .map-legend-item {
+      align-items: center;
+      display: flex;
+      gap: 0.4rem;
+    }
+    .map-dot {
+      border-radius: 50%;
+      display: inline-block;
+      height: 10px;
+      width: 10px;
+    }
+    .map-dot.is-critical {
+      background: var(--atlas-red);
+    }
+    .map-dot.is-high {
+      background: var(--atlas-gold);
+    }
+    .map-dot.is-low {
+      background: var(--atlas-ink-muted);
+    }
+    .map-dot.is-origin {
+      background: none;
+      border: 1.5px dashed var(--atlas-gold);
+    }
+
+    .map-ledger {
+      margin: 3rem auto 0;
+      max-width: 60rem;
+    }
+    .map-ledger-head {
+      margin-bottom: 1.2rem;
+      text-align: center;
+    }
+    .map-ledger-label {
+      color: var(--atlas-ink-muted);
+      font-size: 10px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+    }
+    .map-ledger-title {
+      color: var(--atlas-ink);
+      font-family: var(--atlas-font-display);
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      font-weight: 900;
+      margin: 0.4rem 0 0.6rem;
+    }
+    .map-ledger-intro {
+      color: var(--atlas-ink-muted);
+      font-size: 13px;
+      font-style: italic;
+      line-height: 1.7;
+      margin: 0 auto;
+      max-width: 44rem;
+    }
+    .map-ledger-list {
+      display: grid;
+      gap: 0;
+      grid-template-columns: repeat(2, 1fr);
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .map-ledger-list a {
+      align-items: baseline;
+      border-bottom: 1px solid color-mix(in srgb, var(--atlas-rule) 55%, transparent);
+      color: var(--atlas-ink);
+      display: flex;
+      gap: 0.7rem;
+      padding: 0.65rem 0.5rem;
+      text-decoration: none;
+    }
+    .map-ledger-year {
+      color: var(--atlas-gold);
+      font-family: var(--atlas-font-display);
+      font-size: 13px;
+      font-weight: 700;
+      min-width: 2.6rem;
+    }
+    .map-ledger-name {
+      flex: 1;
+      font-family: var(--atlas-font-display);
+      font-size: 0.95rem;
+      font-weight: 700;
+      line-height: 1.25;
+      transition: color 0.2s;
+    }
+    .map-ledger-list a:hover .map-ledger-name,
+    .map-ledger-list a:focus-visible .map-ledger-name {
+      color: var(--atlas-red);
+    }
+    .map-ledger-cat {
+      color: var(--atlas-ink-muted);
+      font-size: 11px;
+      font-style: italic;
+    }
+
+    :root[data-theme="dark"] .map-ocean {
+      fill: #0a1626;
+    }
+    :root[data-theme="dark"] .map-land {
+      fill: #24364f;
+      stroke: #46597a;
+    }
+    :root[data-theme="dark"] .map-marker circle {
+      stroke: #0d1b2a;
+    }
+
+    @media (max-width: 900px) {
+      .map-section {
+        padding: 0 1.25rem 1.5rem;
+      }
+      .map-frame {
+        padding: 0.6rem;
+      }
+      .map-ledger-list {
+        grid-template-columns: 1fr;
+      }
+    }
+  }
+</style>
