@@ -10,15 +10,18 @@ const incidents = getAllTimelineIncidents();
 
 <Layout
   title="Timeline"
-  description="Review the Internet Outage Atlas timeline by date, with each major infrastructure failure linked to its archive record and source context."
+  description="Review the Internet Outage Atlas timeline by date, with each major infrastructure failure linked to its full case file and source context."
 >
-  <section class="atlas-page-surface" aria-label="Timeline surface">
+  <section
+    class="atlas-page-surface"
+    aria-label="Timeline surface"
+  >
     <AtlasPageShell
       currentPage="timeline"
       dateline={`Vol. I · Complete Timeline · ${incidents.length} incidents indexed`}
       kicker="Internet Outage Atlas · Timeline"
       heading="FULL<br>TIMELINE"
-      subtitle="A date-ordered view of the atlas, with every entry linked to its archive record"
+      subtitle="A date-ordered view of the atlas, with every entry linked to its full case file"
     >
       <section class="timeline-page-lede">
         <div class="timeline-page-copy">
@@ -28,7 +31,7 @@ const incidents = getAllTimelineIncidents();
             This page orders the atlas by date so you can scan how outage patterns changed over time
             and which dependencies kept failing.
           </p>
-          <p>Open any incident to jump straight to its full archive record.</p>
+          <p>Open any incident to read its full case file.</p>
         </div>
         <aside class="timeline-page-side">
           <div class="timeline-page-card">
@@ -36,7 +39,7 @@ const incidents = getAllTimelineIncidents();
             <ul>
               <li>Ordered chronologically across the atlas corpus</li>
               <li>Designed for fast scanning before deeper archive reading</li>
-              <li>Each incident routes directly into the archive record</li>
+              <li>Each incident routes directly to its full case file</li>
               <li>Homepage incidents remain included here, not separated out</li>
             </ul>
           </div>
@@ -47,10 +50,10 @@ const incidents = getAllTimelineIncidents();
 
       <AtlasFooter
         publicationTitle="Internet<br>Outage Atlas"
-        tagline="Chronological index of the atlas corpus with direct links into the archive record"
+        tagline="Chronological index of the atlas corpus with direct links into each case file"
         figures={[
           { bold: String(incidents.length), text: "Incidents indexed in the timeline" },
-          { bold: "1", text: "Canonical archive destination for each incident" },
+          { bold: "1", text: "Canonical case-file destination for each incident" },
           { bold: "Mode", text: "Timeline view for sequence, archive view for detail" },
         ]}
         editionText="Timeline Edition<br />Chronological record"

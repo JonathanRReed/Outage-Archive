@@ -6,7 +6,7 @@ description: >-
   BGP, CDNs, identity systems, control planes, and telecom networks.
 pageSections:
   - _component: atlas/hero-broadsheet
-    dateline: "Vol. I \xB7 Issue 1 \xB7 Curated Edition 2026 \xB7 52 Incidents Documented"
+    dateline: "Vol. I \xB7 Issue 1 \xB7 Curated Edition 2026 \xB7 50 Incidents Documented"
     kicker: 'Internet Outage Atlas · Launch Edition'
     heading: 'INTERNET<br>OUTAGE ATLAS'
     subtitle: A reference to the outages that showed how shared internet systems fail
@@ -19,7 +19,7 @@ pageSections:
       planes. When one of those layers breaks, unrelated services start failing
       together.</p>
 
-      <p>This atlas tracks fifty-two incidents where the blast radius escaped
+      <p>This atlas tracks fifty incidents where the blast radius escaped
       the original system and spilled into public life. Hospitals switched to
       paper. Airlines stopped moving. Banks went dark. Emergency systems
       failed. The same dependency patterns keep showing up because the internet
@@ -30,7 +30,7 @@ pageSections:
       href="#taxonomy">Failure Taxonomy</a> to see what broke, how it spread,
       and why the same failures keep returning.</p>
     statFigures:
-      - number: '52'
+      - number: '50'
         label: Incidents Documented
         note: Curated atlas, version 1
       - number: 8.5M
@@ -48,7 +48,7 @@ pageSections:
 
   - _component: atlas/outage-timeline
     kicker: "Chapter Three \xB7 Featured Timeline"
-    heading: Eight Defining Incidents
+    heading: Seven Defining Incidents
     intro: >-
       These are the incidents operators still cite because each one exposed a
       different way shared infrastructure can fail.
@@ -359,7 +359,7 @@ pageSections:
       - Peer-reviewed research and major conference proceedings (USENIX, SIGCOMM)
     rightTitle2: Scope and Coverage
     rightItems2:
-      - 52-incident curated atlas, version 1
+      - 50-incident curated atlas, version 1
       - 13-incident canonical core for the featured timeline
       - 56-incident watchlist for potential version 2 expansion
       - 'Temporal scope: year 2000 through March 2026'
@@ -370,7 +370,7 @@ pageSections:
     publicationTitle: 'INTERNET<br>OUTAGE<br>ATLAS'
     tagline: A record of the failures that exposed how much daily life rests on shared internet infrastructure.
     figures:
-      - bold: '52'
+      - bold: '50'
         text: Incidents documented, v1
       - bold: 8.5M
         text: "Devices crashed \xB7 CrowdStrike 2024"

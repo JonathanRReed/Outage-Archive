@@ -1,7 +1,7 @@
 {
   "name": "Internet Outage Atlas",
   "url": "https://outage-archive.jonathanrreed.com",
-  "description": "A one-page editorial atlas documenting major internet outages through a broadsheet-inspired visual narrative built for the CloudCannon Astro Challenge.",
+  "description": "Internet Outage Atlas is an editorial broadsheet documenting landmark internet outages across DNS, BGP, CDN, identity, cloud, and telecom systems — what failed, how it spread, and why the same patterns keep returning.",
   "defaultImage": "/images/outage-image.png",
   "logoSource": "/images/logo.png",
   "titleFormat": "{title} | Internet Outage Atlas",

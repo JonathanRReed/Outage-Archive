@@ -196,6 +196,12 @@ function getIncidentLead(incident: AtlasIncident): string {
                         ))}
                       </ul>
                     </div>
+                    <a
+                      class="archive-record-casefile"
+                      href={`/incident/${incident.slug}/`}
+                    >
+                      Read the full case file →
+                    </a>
                   </div>
                 </details>
               );
@@ -716,6 +722,23 @@ function getIncidentLead(incident: AtlasIncident): string {
       position: absolute;
       top: 0.72em;
       width: 4px;
+    }
+    .archive-record-casefile {
+      border-bottom: 1px solid color-mix(in srgb, var(--atlas-red) 40%, transparent);
+      color: var(--atlas-red);
+      display: inline-block;
+      font-family: var(--atlas-font-display);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      margin-top: 0.9rem;
+      text-decoration: none;
+      text-transform: uppercase;
+      transition: border-color 0.2s;
+    }
+    .archive-record-casefile:hover,
+    .archive-record-casefile:focus-visible {
+      border-color: var(--atlas-red);
     }
     :root[data-theme="dark"] .archive-record {
       background: linear-gradient(180deg, rgba(10, 23, 38, 0.28), rgba(10, 23, 38, 0.12));

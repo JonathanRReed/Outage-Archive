@@ -2,8 +2,8 @@
   "name": "internet-outage-atlas",
   "type": "module",
   "version": "1.0.0",
-  "description": "A one-page editorial atlas of major internet outages built with Astro and CloudCannon for the CloudCannon Astro Challenge.",
-  "keywords": ["astro", "cloudcannon", "editorial-design", "internet-outages", "one-page-site"],
+  "description": "An editorial broadsheet atlas documenting major internet outages, built with Astro and CloudCannon.",
+  "keywords": ["astro", "cloudcannon", "editorial-design", "internet-outages", "broadsheet"],
   "license": "MIT",
   "scripts": {
     "dev": "astro dev",
