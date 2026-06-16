@@ -67,6 +67,9 @@ for (let lat = -60; lat <= 60; lat += 30) parallels.push(round(projectEquirectan
 
 const sevClass = (rank?: 1 | 2 | 3) =>
   rank === 3 ? "is-critical" : rank === 1 ? "is-low" : "is-high";
+// Severity drives the marker: bigger core + more concentric "blast" rings = wider blast radius.
+const coreR = (rank?: 1 | 2 | 3) => (rank === 3 ? 6.4 : rank === 2 ? 4.8 : 3.6);
+const ringCount = (rank?: 1 | 2 | 3) => (rank === 3 ? 2 : rank === 2 ? 1 : 0);
 const services = (inc: AtlasIncident) =>
   (inc.affectedServices ?? [])
     .map((s) => s.name)
@@ -146,62 +149,107 @@ const services = (inc: AtlasIncident) =>
 
             <g class="map-markers">
               {
-                originMarkers.map((m) => (
-                  <a
-                    href={`/incident/${m.inc.slug}/`}
-                    class="map-marker is-origin"
-                    data-slug={m.inc.slug}
-                    data-date={m.inc.sortDate}
-                    data-title={m.inc.title}
-                    data-meta={`Fault origin · ${m.place} · ${m.inc.dateLabel}`}
-                    data-services={services(m.inc)}
-                  >
-                    <circle
-                      class="map-ripple"
-                      cx={m.x}
-                      cy={m.y}
-                      r="3.4"
-                    />
-                    <circle
-                      class="map-core"
-                      cx={m.x}
-                      cy={m.y}
-                      r="3.4"
-                    />
-                    <title>
-                      {m.inc.title} — fault origin: {m.place} ({m.inc.dateLabel})
-                    </title>
-                  </a>
-                ))
+                originMarkers.map((m) => {
+                  const r = coreR(m.inc.severityRank);
+
+                  return (
+                    <a
+                      href={`/incident/${m.inc.slug}/`}
+                      class="map-marker is-origin"
+                      data-slug={m.inc.slug}
+                      data-date={m.inc.sortDate}
+                      data-title={m.inc.title}
+                      data-meta={`Fault origin · ${m.place} · ${m.inc.dateLabel}`}
+                      data-services={services(m.inc)}
+                    >
+                      {m.inc.severityRank === 3 && (
+                        <circle
+                          class="map-ring map-ring-1 is-dashed"
+                          cx={m.x}
+                          cy={m.y}
+                          r={r + 5}
+                        />
+                      )}
+                      <circle
+                        class="map-ripple"
+                        cx={m.x}
+                        cy={m.y}
+                        r={r}
+                      />
+                      <circle
+                        class="map-core"
+                        cx={m.x}
+                        cy={m.y}
+                        r={r}
+                      />
+                      <circle
+                        class="map-hit"
+                        cx={m.x}
+                        cy={m.y}
+                        r={Math.max(r + 9, 12)}
+                      />
+                      <title>
+                        {m.inc.title} — fault origin: {m.place} ({m.inc.dateLabel})
+                      </title>
+                    </a>
+                  );
+                })
               }
               {
-                impactMarkers.map((m) => (
-                  <a
-                    href={`/incident/${m.inc.slug}/`}
-                    class:list={["map-marker", sevClass(m.inc.severityRank)]}
-                    data-slug={m.inc.slug}
-                    data-date={m.inc.sortDate}
-                    data-title={m.inc.title}
-                    data-meta={`${m.place} · ${m.inc.dateLabel}`}
-                    data-services={services(m.inc)}
-                  >
-                    <circle
-                      class="map-ripple"
-                      cx={m.x}
-                      cy={m.y}
-                      r="4.6"
-                    />
-                    <circle
-                      class="map-core"
-                      cx={m.x}
-                      cy={m.y}
-                      r="4.6"
-                    />
-                    <title>
-                      {m.inc.title} — {m.place} ({m.inc.dateLabel})
-                    </title>
-                  </a>
-                ))
+                impactMarkers.map((m) => {
+                  const r = coreR(m.inc.severityRank);
+                  const rings = ringCount(m.inc.severityRank);
+
+                  return (
+                    <a
+                      href={`/incident/${m.inc.slug}/`}
+                      class:list={["map-marker", sevClass(m.inc.severityRank)]}
+                      data-slug={m.inc.slug}
+                      data-date={m.inc.sortDate}
+                      data-title={m.inc.title}
+                      data-meta={`${m.place} · ${m.inc.dateLabel}`}
+                      data-services={services(m.inc)}
+                    >
+                      {rings >= 2 && (
+                        <circle
+                          class="map-ring map-ring-2"
+                          cx={m.x}
+                          cy={m.y}
+                          r={r + 10}
+                        />
+                      )}
+                      {rings >= 1 && (
+                        <circle
+                          class="map-ring map-ring-1"
+                          cx={m.x}
+                          cy={m.y}
+                          r={r + 5}
+                        />
+                      )}
+                      <circle
+                        class="map-ripple"
+                        cx={m.x}
+                        cy={m.y}
+                        r={r}
+                      />
+                      <circle
+                        class="map-core"
+                        cx={m.x}
+                        cy={m.y}
+                        r={r}
+                      />
+                      <circle
+                        class="map-hit"
+                        cx={m.x}
+                        cy={m.y}
+                        r={Math.max(r + 11, 13)}
+                      />
+                      <title>
+                        {m.inc.title} — {m.place} ({m.inc.dateLabel})
+                      </title>
+                    </a>
+                  );
+                })
               }
             </g>
           </svg>
@@ -627,6 +675,57 @@ const services = (inc: AtlasIncident) =>
       stroke-width: 1.4;
     }
 
+    /* severity blast rings: more rings + wider = more severe */
+    .map-ring {
+      fill: none;
+      pointer-events: none;
+      transform-box: fill-box;
+      transform-origin: center;
+    }
+    .map-ring-1 {
+      opacity: 0.55;
+      stroke-width: 0.7;
+    }
+    .map-ring-2 {
+      opacity: 0.3;
+      stroke-width: 0.6;
+    }
+    .map-marker.is-critical .map-ring {
+      stroke: var(--atlas-red);
+    }
+    .map-marker.is-high .map-ring {
+      stroke: var(--atlas-gold);
+    }
+    .map-ring.is-dashed {
+      opacity: 0.5;
+      stroke: var(--atlas-gold);
+      stroke-dasharray: 2.2 1.8;
+    }
+    .map-marker:hover .map-ring,
+    .map-marker:focus-visible .map-ring {
+      opacity: 0.9;
+    }
+    /* invisible enlarged tap/hover target */
+    .map-hit {
+      fill: transparent;
+      pointer-events: all;
+    }
+    /* slow living pulse on the widest critical blast ring */
+    .map-marker.is-critical .map-ring-2 {
+      animation: map-ring-breathe 4.5s ease-in-out infinite;
+    }
+    @keyframes map-ring-breathe {
+      0%,
+      100% {
+        opacity: 0.28;
+        transform: scale(1);
+      }
+      50% {
+        opacity: 0.1;
+        transform: scale(1.18);
+      }
+    }
+
     .world-map.is-timed .map-marker {
       opacity: 0;
       pointer-events: none;
@@ -840,12 +939,18 @@ const services = (inc: AtlasIncident) =>
     }
     .map-dot.is-critical {
       background: var(--atlas-red);
+      height: 14px;
+      width: 14px;
     }
     .map-dot.is-high {
       background: var(--atlas-gold);
+      height: 10px;
+      width: 10px;
     }
     .map-dot.is-low {
       background: var(--atlas-ink-muted);
+      height: 7px;
+      width: 7px;
     }
     .map-dot.is-origin {
       background: none;
