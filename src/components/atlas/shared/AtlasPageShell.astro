@@ -1,5 +1,5 @@
 ---
-type AtlasPageKey = "home" | "timeline" | "archives" | "methodology" | "about" | "none";
+type AtlasPageKey = "home" | "timeline" | "archives" | "map" | "methodology" | "about" | "none";
 
 type NavItem = {
   key: AtlasPageKey;
@@ -29,6 +29,7 @@ const navItems: NavItem[] = [
   { key: "home", label: "Home Page", path: "/" },
   { key: "timeline", label: "Timeline", path: "/timeline/" },
   { key: "archives", label: "Archives", path: "/archives/" },
+  { key: "map", label: "Map", path: "/map/" },
   { key: "about", label: "About", path: "/about/" },
 ];
 ---
