@@ -1,0 +1,189 @@
+---
+import AtlasFooter from "@components/atlas/atlas-footer/AtlasFooter.astro";
+import AtlasPageShell from "@components/atlas/shared/AtlasPageShell.astro";
+import Layout from "@layouts/BaseLayout.astro";
+
+const checklist = [
+  "The incident title as it appears in the archive",
+  "The date and the affected provider or platform",
+  "A primary source URL — postmortem, status page, or filing",
+  "The specific detail that should be reviewed or corrected",
+];
+---
+
+<Layout
+  title="Contact"
+  description="Contact Jonathan R Reed about Internet Outage Atlas corrections, source notes, and editorial questions."
+  noindex={true}
+>
+  <section
+    class="atlas-page-surface"
+    aria-label="Contact surface"
+  >
+    <AtlasPageShell
+      currentPage="none"
+      dateline="Vol. I · Editorial Desk · Corrections & sources"
+      kicker="Internet Outage Atlas · Contact"
+      heading="THE<br>DESK"
+      subtitle="Send corrections, source notes, or questions about how an outage is filed"
+    >
+      <section class="doc-page">
+        <div class="doc-lede reveal">
+          <div class="doc-byline">From the editor</div>
+          <p>
+            Internet Outage Atlas is maintained by Jonathan R Reed. Use this page for corrections,
+            source suggestions, disputed incident details, or questions about how an outage is
+            categorized in the archive.
+          </p>
+          <p>
+            The best starting point is the contact form on Jonathan's main site at <a
+              href="https://jonathanrreed.com/contact/"
+              rel="nofollow noopener"
+              target="_blank"
+              >JonathanRReed.com</a
+            >. A good message names the incident, cites the source, and points to the exact detail
+            that should be checked.
+          </p>
+        </div>
+
+        <aside class="doc-card reveal">
+          <div class="doc-card-label">What to include</div>
+          <ul class="doc-checklist">
+            {checklist.map((item) => <li>{item}</li>)}
+          </ul>
+          <a
+            class="doc-card-cta"
+            href="https://jonathanrreed.com/contact/"
+            rel="nofollow noopener"
+            target="_blank"
+          >
+            Open the contact form →
+          </a>
+        </aside>
+      </section>
+
+      <AtlasFooter
+        publicationTitle="Internet<br>Outage Atlas"
+        tagline="Corrections and primary sources keep the case record accurate."
+        figures={[
+          { bold: "Corrections", text: "Welcome on any incident in the archive" },
+          { bold: "Sources", text: "Primary postmortems and filings preferred" },
+          { bold: "Atlas", text: "Maintained as a static research reference" },
+        ]}
+        editionText="Editorial Desk Edition<br />Corrections & source notes"
+        copyrightText="© 2026 Jonathan R Reed"
+        typesetText="Researched and curated for Internet Outage Atlas"
+        websiteUrl="https://JonathanRReed.com"
+        articleUrl="https://JonathanRReed.com/blog/days-the-internet-dies/"
+      />
+    </AtlasPageShell>
+  </section>
+</Layout>
+
+<style>
+  @layer page-sections {
+    .doc-page {
+      display: grid;
+      gap: 1.5rem;
+      grid-template-columns: minmax(0, 3fr) minmax(280px, 1.5fr);
+      padding: 2.4rem 3rem 3rem;
+    }
+    .doc-byline {
+      border-left: 2px solid var(--atlas-gold);
+      color: var(--atlas-ink-muted);
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      margin-bottom: 1.1rem;
+      padding-left: 1rem;
+      text-transform: uppercase;
+    }
+    .doc-lede p {
+      color: var(--atlas-ink-mid);
+      font-size: 1.02rem;
+      line-height: 1.95;
+      margin: 0 0 1.1rem;
+      max-width: 60ch;
+    }
+    .doc-lede p:last-child {
+      margin-bottom: 0;
+    }
+    .doc-lede a {
+      border-bottom: 1px solid color-mix(in srgb, var(--atlas-red) 40%, transparent);
+      color: var(--atlas-ink);
+      text-decoration: none;
+      transition: border-color 0.2s;
+    }
+    .doc-lede a:hover,
+    .doc-lede a:focus-visible {
+      border-color: var(--atlas-red);
+    }
+    .doc-card {
+      align-self: start;
+      background: var(--atlas-surface);
+      border: 1px solid var(--atlas-rule);
+      border-top: 2px solid var(--atlas-deco-border);
+      box-shadow:
+        0 1px 0 rgba(0, 0, 0, 0.04),
+        0 18px 44px -36px rgba(13, 27, 42, 0.5);
+      padding: 1.2rem 1.2rem 1.3rem;
+    }
+    .doc-card-label {
+      border-bottom: 2px solid var(--atlas-deco-border);
+      color: var(--atlas-ink-muted);
+      font-family: var(--atlas-font-display);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      margin-bottom: 0.9rem;
+      padding-bottom: 0.5rem;
+      text-transform: uppercase;
+    }
+    .doc-checklist {
+      display: grid;
+      gap: 0.6rem;
+      list-style: none;
+      margin: 0 0 1.1rem;
+      padding: 0;
+    }
+    .doc-checklist li {
+      color: var(--atlas-ink-mid);
+      font-size: 13px;
+      line-height: 1.65;
+      padding-left: 1.1rem;
+      position: relative;
+    }
+    .doc-checklist li::before {
+      color: var(--atlas-gold);
+      content: "◆";
+      font-size: 8px;
+      left: 0;
+      position: absolute;
+      top: 0.4em;
+    }
+    .doc-card-cta {
+      border-bottom: 1px solid color-mix(in srgb, var(--atlas-red) 40%, transparent);
+      color: var(--atlas-red);
+      font-family: var(--atlas-font-display);
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-decoration: none;
+      transition: border-color 0.2s;
+    }
+    .doc-card-cta:hover,
+    .doc-card-cta:focus-visible {
+      border-color: var(--atlas-red);
+    }
+
+    :root[data-theme="dark"] .doc-card {
+      background: #1b2d45;
+      border-color: rgba(212, 175, 85, 0.22);
+    }
+
+    @media (max-width: 1080px) {
+      .doc-page {
+        grid-template-columns: 1fr;
+        padding: 2rem 1.5rem 2.5rem;
+      }
+    }
+  }
+</style>
