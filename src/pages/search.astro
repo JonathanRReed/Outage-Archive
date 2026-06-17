@@ -1,0 +1,217 @@
+---
+import AtlasFooter from "@components/atlas/atlas-footer/AtlasFooter.astro";
+import AtlasPageShell from "@components/atlas/shared/AtlasPageShell.astro";
+import { atlasIncidents } from "@data/atlasIncidents";
+import Layout from "@layouts/BaseLayout.astro";
+
+const routes = [
+  {
+    href: "/timeline/",
+    label: "By date",
+    title: "Timeline",
+    body: "The outage record in date order. The fastest way to compare when major incidents happened and how patterns repeated across the years.",
+  },
+  {
+    href: "/archives/",
+    label: "By failure type",
+    title: "Archives",
+    body: "The full register grouped by failure mode — routing, DNS, control plane, CDN, telecom, and the other shared-infrastructure cases — so similar incidents sit side by side. Filter by year, severity, or title.",
+  },
+  {
+    href: "/map/",
+    label: "By geography",
+    title: "Atlas Map",
+    body: "Located incidents plotted on an engraved world map, sized by severity, with a play-through-time scrubber and a reach zone for each event's area of effect.",
+  },
+  {
+    href: "/about/",
+    label: "By method",
+    title: "About",
+    body: "The editorial method, the source hierarchy, and the project background — what belongs in the atlas, how disputed details are handled, and why this is a historical reference, not a live dashboard.",
+  },
+];
+
+const incidentCount = atlasIncidents.length;
+---
+
+<Layout
+  title="Find Atlas Records"
+  description="Find Internet Outage Atlas records by timeline view, archive grouping, map, methodology notes, and source context."
+  noindex={true}
+>
+  <section
+    class="atlas-page-surface"
+    aria-label="Finder surface"
+  >
+    <AtlasPageShell
+      currentPage="none"
+      dateline="Vol. I · Index · Finding aid"
+      kicker="Internet Outage Atlas · Finder"
+      heading="THE<br>FINDER"
+      subtitle="The fastest paths through the outage record, without a search bundle to load"
+    >
+      <section class="finder-page">
+        <ul class="finder-grid">
+          {
+            routes.map((route, index) => (
+              <li
+                class="finder-card reveal"
+                style={`--reveal-delay: ${Math.min(index * 0.05, 0.2)}s`}
+              >
+                <a href={route.href}>
+                  <span class="finder-card-label">{route.label}</span>
+                  <span class="finder-card-title">{route.title}</span>
+                  <span class="finder-card-body">{route.body}</span>
+                  <span class="finder-card-go">Open {route.title} →</span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+
+        <div class="finder-note reveal">
+          <div class="double-rule"></div>
+          <h2 class="finder-note-h">A reading path</h2>
+          <p>
+            Start with the homepage for the core story, move to the timeline for sequence, then use
+            the archive to compare similar failures side by side. If you are researching a specific
+            infrastructure layer, scan the archive group headings first. If you are checking whether
+            an incident belongs in the atlas, read the methodology notes on the About page before
+            sending a correction.
+          </p>
+          <p>
+            For source review, the atlas prefers official incident reports, engineering postmortems,
+            regulatory filings, and routing analyses with reproducible evidence. News coverage is
+            useful when it establishes public impact, but technical claims are tied to primary or
+            specialist sources wherever possible.
+          </p>
+        </div>
+      </section>
+
+      <AtlasFooter
+        publicationTitle="Internet<br>Outage Atlas"
+        tagline="Four ways into one record: by date, by failure type, by geography, by method."
+        figures={[
+          { bold: String(incidentCount), text: "Incidents reachable across the record" },
+          { bold: "4", text: "Entry points into the archive" },
+          { bold: "Static", text: "No client-side search bundle required" },
+        ]}
+        editionText="Finding Aid Edition<br />Paths through the record"
+        copyrightText="© 2026 Jonathan R Reed"
+        typesetText="Indexed for Internet Outage Atlas"
+        websiteUrl="https://JonathanRReed.com"
+        articleUrl="https://JonathanRReed.com/blog/days-the-internet-dies/"
+      />
+    </AtlasPageShell>
+  </section>
+</Layout>
+
+<style>
+  @layer page-sections {
+    .finder-page {
+      padding: 2.4rem 3rem 3rem;
+    }
+    .finder-grid {
+      display: grid;
+      gap: 1.1rem;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      list-style: none;
+      margin: 0 0 2.4rem;
+      padding: 0;
+    }
+    .finder-card a {
+      background: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--atlas-surface) 94%, transparent),
+        transparent 100%
+      );
+      border: 1px solid color-mix(in srgb, var(--atlas-rule) 75%, transparent);
+      box-shadow: 0 20px 56px -48px rgba(13, 27, 42, 0.45);
+      display: grid;
+      gap: 0.5rem;
+      height: 100%;
+      padding: 1.35rem 1.4rem 1.4rem;
+      text-decoration: none;
+      transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.2s ease;
+    }
+    .finder-card a:hover,
+    .finder-card a:focus-visible {
+      border-color: var(--atlas-gold);
+      box-shadow: 0 26px 60px -46px rgba(13, 27, 42, 0.4);
+      transform: translateY(-3px);
+    }
+    .finder-card-label {
+      color: var(--atlas-ink-muted);
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+    .finder-card-title {
+      color: var(--atlas-ink);
+      font-family: var(--atlas-font-display);
+      font-size: 1.5rem;
+      font-weight: 900;
+      letter-spacing: -0.01em;
+      line-height: 1.05;
+    }
+    .finder-card-body {
+      color: var(--atlas-ink-mid);
+      font-size: 13px;
+      line-height: 1.75;
+    }
+    .finder-card-go {
+      color: var(--atlas-red);
+      font-family: var(--atlas-font-display);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      margin-top: 0.35rem;
+      text-transform: uppercase;
+    }
+    .finder-note {
+      max-width: 64ch;
+    }
+    .finder-note-h {
+      color: var(--atlas-ink);
+      font-family: var(--atlas-font-display);
+      font-size: 1.3rem;
+      font-weight: 900;
+      letter-spacing: -0.01em;
+      margin: 1.2rem 0 0.9rem;
+    }
+    .finder-note p {
+      color: var(--atlas-ink-mid);
+      font-size: 1.02rem;
+      line-height: 1.95;
+      margin: 0 0 1.1rem;
+    }
+    .finder-note p:last-child {
+      margin-bottom: 0;
+    }
+
+    :root[data-theme="dark"] .finder-card a {
+      background: linear-gradient(180deg, rgba(10, 23, 38, 0.28), rgba(10, 23, 38, 0.12));
+      border-color: rgba(212, 175, 85, 0.14);
+      box-shadow: 0 24px 60px -48px rgba(0, 0, 0, 0.45);
+    }
+    :root[data-theme="dark"] .finder-card a:hover,
+    :root[data-theme="dark"] .finder-card a:focus-visible {
+      border-color: #d4af55;
+    }
+    :root[data-theme="dark"] .finder-card-go {
+      color: #e8a39b;
+    }
+
+    @media (max-width: 900px) {
+      .finder-page {
+        padding: 2rem 1.5rem 2.5rem;
+      }
+      .finder-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  }
+</style>

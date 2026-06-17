@@ -35,8 +35,9 @@ if (!htmlAttributes.id && label) {
 }
 
 const hasContentSections = contentSections !== undefined;
-const effectiveChildrenProp =
-  editingEnabled ? (childrenDataProp ?? (useDefaultEditableBinding ? "contentSections" : null)) : null;
+const effectiveChildrenProp = editingEnabled
+  ? (childrenDataProp ?? (useDefaultEditableBinding ? "contentSections" : null))
+  : null;
 const arrayDataAttributes =
   effectiveChildrenProp && hasContentSections
     ? { "data-editable": "array", "data-prop": effectiveChildrenProp }

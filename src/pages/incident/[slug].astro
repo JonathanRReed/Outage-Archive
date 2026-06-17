@@ -1,0 +1,694 @@
+---
+import AtlasFooter from "@components/atlas/atlas-footer/AtlasFooter.astro";
+import AtlasPageShell from "@components/atlas/shared/AtlasPageShell.astro";
+import {
+  atlasIncidents,
+  getArchiveGroups,
+  getIncidentNeighbors,
+  getIncidentSecondaryDetail,
+  getIncidentSourceLabels,
+  type AtlasIncident,
+} from "@data/atlasIncidents";
+import seoData from "@data/seo.json";
+import Layout from "@layouts/BaseLayout.astro";
+
+export function getStaticPaths() {
+  return atlasIncidents.map((incident) => ({
+    params: { slug: incident.slug },
+    props: { incident },
+  }));
+}
+
+const { incident } = Astro.props as { incident: AtlasIncident };
+
+const [leadSentence] = incident.summary.split(/(?<=\.)\s+/);
+const lead = leadSentence?.trim() || incident.summary;
+const secondaryDetail = getIncidentSecondaryDetail(incident);
+const sourceLabels = getIncidentSourceLabels(incident);
+const neighbors = getIncidentNeighbors(incident.slug);
+const group = getArchiveGroups().find((entry) => entry.key === incident.groupKey);
+const related = (group?.items ?? []).filter((entry) => entry.slug !== incident.slug).slice(0, 4);
+
+const lessonText = incident.lesson.replace(/^Lesson:\s*/i, "");
+const durationText = incident.duration?.replace(/^Duration:\s*/i, "");
+
+const realSources = incident.sources ?? [];
+const affectedServices = incident.affectedServices ?? [];
+const scopeLabel =
+  incident.scope === "global"
+    ? "Worldwide"
+    : incident.scope === "regional"
+      ? "Regional"
+      : incident.scope === "local"
+        ? "Local"
+        : null;
+
+const siteUrl = seoData.url;
+const canonical = `${siteUrl}/incident/${incident.slug}/`;
+const articleJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "NewsArticle",
+  headline: incident.title,
+  description: lead,
+  datePublished: incident.sortDate,
+  articleSection: group?.label ?? incident.category,
+  keywords: [incident.category, incident.severity, group?.label].filter(Boolean).join(", "),
+  url: canonical,
+  mainEntityOfPage: canonical,
+  isPartOf: { "@type": "WebSite", name: seoData.name, url: siteUrl },
+  publisher: { "@type": "Organization", name: seoData.name, url: siteUrl },
+  articleBody: incident.summary,
+};
+---
+
+<Layout
+  title={incident.title}
+  description={lead}
+  ogType="article"
+>
+  <script
+    slot="head"
+    type="application/ld+json"
+    is:inline
+    set:html={JSON.stringify(articleJsonLd)}
+  />
+  <section
+    class="atlas-page-surface"
+    aria-label="Incident case file"
+  >
+    <AtlasPageShell
+      currentPage="archives"
+      dateline={`Vol. I · Case File · ${incident.dateLabel}`}
+      kicker={`Internet Outage Atlas · ${group?.label ?? "Incident Record"}`}
+      heading={incident.title}
+      subtitle={`${incident.category} · ${incident.dateLabel}`}
+    >
+      <article class="incident">
+        <nav
+          class="incident-rail"
+          aria-label="Section"
+        >
+          <a href="/timeline/">← Timeline</a>
+          <a href="/archives/">Archives →</a>
+        </nav>
+
+        <div class="incident-grid">
+          <div class="incident-main">
+            <p class="incident-lede">{lead}</p>
+            {
+              secondaryDetail && (
+                <Fragment>
+                  <h2 class="incident-h">How it spread</h2>
+                  <p class="incident-copy">{secondaryDetail}</p>
+                </Fragment>
+              )
+            }
+
+            <figure class="incident-lesson reveal">
+              <blockquote>{lessonText}</blockquote>
+              <figcaption>The lesson on the record</figcaption>
+            </figure>
+
+            <a
+              class="incident-register-link"
+              href={`/archives/#${incident.slug}`}
+              data-archive-link={incident.slug}
+            >
+              See this entry in the register →
+            </a>
+          </div>
+
+          <aside
+            class="incident-side reveal"
+            style="--reveal-delay: 0.08s"
+          >
+            <div class="incident-dossier">
+              <div class="incident-dossier-label">Case metadata</div>
+              <dl class="incident-meta">
+                <div>
+                  <dt>Date</dt>
+                  <dd>
+                    <time datetime={incident.sortDate}>{incident.dateLabel}</time>
+                  </dd>
+                </div>
+                <div>
+                  <dt>Category</dt>
+                  <dd>{incident.category}</dd>
+                </div>
+                <div>
+                  <dt>Severity</dt>
+                  <dd>{incident.severity}</dd>
+                </div>
+                <div>
+                  <dt>Failure class</dt>
+                  <dd>{group?.label ?? "—"}</dd>
+                </div>
+                {
+                  scopeLabel && (
+                    <div>
+                      <dt>Scope</dt>
+                      <dd>{scopeLabel}</dd>
+                    </div>
+                  )
+                }
+                {
+                  durationText && (
+                    <div>
+                      <dt>Duration</dt>
+                      <dd>{durationText}</dd>
+                    </div>
+                  )
+                }
+              </dl>
+            </div>
+
+            {
+              affectedServices.length > 0 && (
+                <div class="incident-dossier">
+                  <div class="incident-dossier-label">Services affected</div>
+                  <ul class="incident-services">
+                    {affectedServices.map((service) => (
+                      <li>{service.name}</li>
+                    ))}
+                  </ul>
+                </div>
+              )
+            }
+
+            <div class="incident-dossier">
+              <div class="incident-dossier-label">Sources</div>
+              {
+                realSources.length > 0 ? (
+                  <ul class="incident-sources incident-sources--links">
+                    {realSources.map((source) => (
+                      <li>
+                        <a
+                          href={source.url}
+                          rel="nofollow noopener"
+                          target="_blank"
+                        >
+                          {source.label}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <ul class="incident-sources">
+                    {sourceLabels.map((label) => (
+                      <li>{label}</li>
+                    ))}
+                  </ul>
+                )
+              }
+            </div>
+
+            {
+              group && (
+                <div class="incident-dossier">
+                  <div class="incident-dossier-label">Filed under</div>
+                  <p class="incident-group-heading">{group.heading}</p>
+                  <p class="incident-group-intro">{group.intro}</p>
+                </div>
+              )
+            }
+          </aside>
+        </div>
+
+        <nav
+          class="incident-pager reveal"
+          aria-label="Adjacent incidents"
+        >
+          {
+            neighbors.prev ? (
+              <a
+                class="incident-pager-link is-prev"
+                href={`/incident/${neighbors.prev.slug}/`}
+              >
+                <span class="incident-pager-dir">← Earlier on the record</span>
+                <span class="incident-pager-title">{neighbors.prev.title}</span>
+              </a>
+            ) : (
+              <span class="incident-pager-link is-empty" />
+            )
+          }
+          {
+            neighbors.next ? (
+              <a
+                class="incident-pager-link is-next"
+                href={`/incident/${neighbors.next.slug}/`}
+              >
+                <span class="incident-pager-dir">Later on the record →</span>
+                <span class="incident-pager-title">{neighbors.next.title}</span>
+              </a>
+            ) : (
+              <span class="incident-pager-link is-empty" />
+            )
+          }
+        </nav>
+
+        {
+          related.length > 0 && (
+            <section class="incident-related reveal">
+              <div class="double-rule" />
+              <h2 class="incident-related-h">Related incidents · {group?.label}</h2>
+              <ul class="incident-related-list">
+                {related.map((rel) => (
+                  <li>
+                    <a href={`/incident/${rel.slug}/`}>
+                      <span class="incident-related-year">{rel.year}</span>
+                      <span class="incident-related-title">{rel.title}</span>
+                      <span class="incident-related-cat">{rel.category}</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )
+        }
+
+        <AtlasFooter
+          publicationTitle="Internet<br>Outage Atlas"
+          tagline="Each incident filed as a case in the record of how shared internet systems fail."
+          figures={[
+            { bold: incident.year, text: "Year of the incident" },
+            {
+              bold: String(group?.items.length ?? 1),
+              text: `Incidents in the ${group?.label ?? "archive"} class`,
+            },
+            { bold: "Atlas", text: "Part of the full outage record" },
+          ]}
+          editionText="Case File Edition<br />Single-incident record"
+          copyrightText="© 2026 Jonathan R Reed"
+          typesetText="Researched and curated for Internet Outage Atlas"
+          websiteUrl="https://JonathanRReed.com"
+          articleUrl="https://JonathanRReed.com/blog/days-the-internet-dies/"
+        />
+      </article>
+    </AtlasPageShell>
+  </section>
+</Layout>
+
+<script is:inline>
+  (function () {
+    function initRegisterLink() {
+      document.querySelectorAll("[data-archive-link]").forEach(function (link) {
+        if (!(link instanceof HTMLAnchorElement)) return;
+        link.addEventListener("click", function () {
+          var slug = link.getAttribute("data-archive-link");
+          if (!slug) return;
+          try {
+            sessionStorage.setItem("ioa-archive-target", slug);
+          } catch (e) {}
+        });
+      });
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", initRegisterLink, { once: true });
+    } else {
+      initRegisterLink();
+    }
+  })();
+</script>
+
+<style>
+  @layer page-sections {
+    .incident {
+      padding: 0 3rem 1rem;
+    }
+    .incident-rail {
+      display: flex;
+      gap: 1.5rem;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--atlas-rule);
+      padding: 0 0 0.85rem;
+      margin-bottom: 2rem;
+    }
+    .incident-rail a {
+      color: var(--atlas-ink-muted);
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-decoration: none;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .incident-rail a:hover,
+    .incident-rail a:focus-visible {
+      color: var(--atlas-red);
+    }
+    .incident-grid {
+      display: grid;
+      gap: 2.5rem;
+      grid-template-columns: minmax(0, 2.3fr) minmax(280px, 1fr);
+    }
+    .incident-lede {
+      color: var(--atlas-ink);
+      font-family: var(--atlas-font-body);
+      font-size: 1.25rem;
+      line-height: 1.7;
+      margin: 0 0 1.6rem;
+    }
+    .incident-lede::first-letter {
+      color: var(--atlas-red);
+      float: left;
+      font-family: var(--atlas-font-display);
+      font-size: 3.6em;
+      font-weight: 900;
+      line-height: 0.74;
+      padding: 0.06em 0.1em 0 0;
+    }
+    .incident-h {
+      border-bottom: 1px solid var(--atlas-rule);
+      color: var(--atlas-ink-muted);
+      font-family: var(--atlas-font-display);
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      margin: 2rem 0 0.9rem;
+      padding-bottom: 0.45rem;
+      text-transform: uppercase;
+    }
+    .incident-copy {
+      color: var(--atlas-ink-mid);
+      font-size: 1.02rem;
+      line-height: 1.85;
+      margin: 0 0 1.8rem;
+    }
+    .incident-lesson {
+      border-left: 3px solid var(--atlas-gold);
+      margin: 0.5rem 0 2rem;
+      padding: 0.4rem 0 0.4rem 2.8rem;
+      position: relative;
+    }
+    .incident-lesson::before {
+      color: var(--atlas-gold);
+      content: "\201C";
+      font-family: var(--atlas-font-display);
+      font-size: 3.4rem;
+      left: 0.65rem;
+      line-height: 0;
+      opacity: 0.4;
+      position: absolute;
+      top: 1.5rem;
+    }
+    .incident-lesson blockquote {
+      color: var(--atlas-ink);
+      font-family: var(--atlas-font-display);
+      font-size: 1.6rem;
+      font-style: italic;
+      line-height: 1.32;
+      margin: 0 0 0.7rem;
+      text-wrap: balance;
+    }
+    .incident-lesson figcaption {
+      color: var(--atlas-ink-muted);
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+    .incident-lesson figcaption::before {
+      color: var(--atlas-gold);
+      content: "◆ ";
+      font-size: 8px;
+    }
+    .incident-register-link {
+      color: var(--atlas-red);
+      font-family: var(--atlas-font-display);
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-decoration: none;
+      border-bottom: 1px solid color-mix(in srgb, var(--atlas-red) 40%, transparent);
+      padding-bottom: 0.1rem;
+      transition: border-color 0.2s;
+    }
+    .incident-register-link:hover,
+    .incident-register-link:focus-visible {
+      border-color: var(--atlas-red);
+    }
+
+    .incident-side {
+      display: grid;
+      gap: 1.4rem;
+      align-content: start;
+    }
+    .incident-dossier {
+      background: var(--atlas-surface);
+      border: 1px solid var(--atlas-rule);
+      border-top: 2px solid var(--atlas-deco-border);
+      box-shadow:
+        0 1px 0 rgba(0, 0, 0, 0.04),
+        0 10px 26px -22px rgba(13, 27, 42, 0.3);
+      padding: 1.1rem 1.1rem 1.2rem;
+    }
+    .incident-dossier-label {
+      border-bottom: 2px solid var(--atlas-deco-border);
+      color: var(--atlas-ink-muted);
+      font-family: var(--atlas-font-display);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      margin-bottom: 0.85rem;
+      padding-bottom: 0.5rem;
+      text-transform: uppercase;
+    }
+    .incident-meta {
+      display: grid;
+      gap: 0.7rem;
+      margin: 0;
+    }
+    .incident-meta div {
+      align-items: baseline;
+      border-bottom: 1px dotted color-mix(in srgb, var(--atlas-rule) 65%, transparent);
+      display: flex;
+      gap: 0.75rem;
+      justify-content: space-between;
+      padding-bottom: 0.6rem;
+    }
+    .incident-meta div:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+    .incident-meta dt {
+      color: var(--atlas-ink-muted);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .incident-meta dd {
+      color: var(--atlas-ink);
+      font-family: var(--atlas-font-display);
+      font-size: 13px;
+      font-weight: 700;
+      margin: 0;
+      text-align: right;
+    }
+    .incident-sources {
+      display: grid;
+      gap: 0.5rem;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .incident-sources li {
+      color: var(--atlas-ink-mid);
+      font-size: 12px;
+      font-style: italic;
+      line-height: 1.55;
+      padding-left: 0.9rem;
+      position: relative;
+    }
+    .incident-sources li::before {
+      color: var(--atlas-gold);
+      content: "◆";
+      font-size: 8px;
+      left: 0;
+      position: absolute;
+      top: 0.35em;
+    }
+    .incident-sources a {
+      border-bottom: 1px solid color-mix(in srgb, var(--atlas-gold) 45%, transparent);
+      color: var(--atlas-ink);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .incident-sources a:hover,
+    .incident-sources a:focus-visible {
+      color: var(--atlas-red);
+    }
+    .incident-services {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .incident-services li {
+      background: color-mix(in srgb, var(--atlas-deco-border) 14%, transparent);
+      border: 1px solid color-mix(in srgb, var(--atlas-rule) 80%, transparent);
+      color: var(--atlas-ink-muted);
+      font-family: var(--atlas-font-display);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      padding: 0.22rem 0.55rem;
+      text-transform: uppercase;
+    }
+    .incident-group-heading {
+      color: var(--atlas-ink);
+      font-family: var(--atlas-font-display);
+      font-size: 0.95rem;
+      font-weight: 700;
+      line-height: 1.3;
+      margin: 0 0 0.5rem;
+    }
+    .incident-group-intro {
+      color: var(--atlas-ink-muted);
+      font-size: 12px;
+      font-style: italic;
+      line-height: 1.65;
+      margin: 0;
+    }
+
+    .incident-pager {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: 1fr 1fr;
+      margin: 2.6rem 0 0;
+    }
+    .incident-pager-link {
+      border: 1px solid color-mix(in srgb, var(--atlas-rule) 70%, transparent);
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      min-height: 3.5rem;
+      padding: 0.85rem 1rem;
+      text-decoration: none;
+      transition:
+        border-color 0.2s,
+        background 0.2s,
+        transform 0.2s ease;
+    }
+    .incident-pager-link.is-next {
+      text-align: right;
+    }
+    .incident-pager-link.is-empty {
+      border-color: transparent;
+    }
+    a.incident-pager-link.is-prev:hover,
+    a.incident-pager-link.is-prev:focus-visible {
+      transform: translateX(-3px);
+    }
+    a.incident-pager-link.is-next:hover,
+    a.incident-pager-link.is-next:focus-visible {
+      transform: translateX(3px);
+    }
+    a.incident-pager-link:hover,
+    a.incident-pager-link:focus-visible {
+      background: color-mix(in srgb, var(--atlas-gold) 8%, transparent);
+      border-color: var(--atlas-gold);
+    }
+    .incident-pager-dir {
+      color: var(--atlas-ink-muted);
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+    .incident-pager-title {
+      color: var(--atlas-ink);
+      font-family: var(--atlas-font-display);
+      font-size: 0.95rem;
+      font-weight: 700;
+      line-height: 1.25;
+    }
+
+    .incident-related {
+      margin-top: 2.8rem;
+    }
+    .incident-related-h {
+      color: var(--atlas-ink);
+      font-family: var(--atlas-font-display);
+      font-size: 1.1rem;
+      font-weight: 900;
+      letter-spacing: 0.02em;
+      margin: 1.2rem 0 1rem;
+    }
+    .incident-related-list {
+      display: grid;
+      gap: 0.5rem;
+      grid-template-columns: repeat(2, 1fr);
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .incident-related-list a {
+      align-items: baseline;
+      border-bottom: 1px solid color-mix(in srgb, var(--atlas-rule) 55%, transparent);
+      color: var(--atlas-ink);
+      display: flex;
+      gap: 0.6rem;
+      padding: 0.6rem 0 0.6rem 0;
+      text-decoration: none;
+      transition:
+        border-color 0.2s,
+        padding-left 0.2s ease;
+    }
+    .incident-related-list a:hover,
+    .incident-related-list a:focus-visible {
+      border-bottom-color: color-mix(in srgb, var(--atlas-gold) 55%, transparent);
+      padding-left: 0.4rem;
+    }
+    .incident-related-year {
+      color: var(--atlas-gold);
+      font-family: var(--atlas-font-display);
+      font-size: 13px;
+      font-weight: 700;
+      min-width: 2.6rem;
+    }
+    .incident-related-title {
+      flex: 1;
+      font-family: var(--atlas-font-display);
+      font-size: 0.95rem;
+      font-weight: 700;
+      line-height: 1.25;
+      transition: color 0.2s;
+    }
+    .incident-related-list a:hover .incident-related-title,
+    .incident-related-list a:focus-visible .incident-related-title {
+      color: var(--atlas-red);
+    }
+    .incident-related-cat {
+      color: var(--atlas-ink-muted);
+      font-size: 11px;
+      font-style: italic;
+    }
+
+    :root[data-theme="dark"] .incident-dossier {
+      background: #1b2d45;
+      border-color: rgba(212, 175, 85, 0.22);
+      box-shadow:
+        0 1px 0 rgba(0, 0, 0, 0.25),
+        0 10px 26px -22px rgba(0, 0, 0, 0.5);
+    }
+
+    @media (max-width: 1080px) {
+      .incident {
+        padding: 0 1.5rem 1rem;
+      }
+      .incident-grid {
+        gap: 2rem;
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .incident-pager,
+      .incident-related-list {
+        grid-template-columns: 1fr;
+      }
+      .incident-pager-link.is-empty {
+        display: none;
+      }
+    }
+  }
+</style>

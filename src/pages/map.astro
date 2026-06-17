@@ -1,0 +1,1677 @@
+---
+import AtlasFooter from "@components/atlas/atlas-footer/AtlasFooter.astro";
+import AtlasPageShell from "@components/atlas/shared/AtlasPageShell.astro";
+import { atlasIncidents, type AtlasIncident } from "@data/atlasIncidents";
+import {
+  WORLD_HEIGHT,
+  WORLD_VIEWBOX,
+  WORLD_WIDTH,
+  projectEquirectangular,
+  worldLandPath,
+} from "@data/worldMapPath";
+import Layout from "@layouts/BaseLayout.astro";
+
+const round = (n: number) => Math.round(n * 10) / 10;
+
+type Marker = { inc: AtlasIncident; x: number; y: number; place: string };
+
+const impactMarkers: Marker[] = [];
+const originMarkers: Marker[] = [];
+const placed = new Set<string>();
+
+for (const inc of atlasIncidents) {
+  if (inc.geo && inc.geo.length) {
+    placed.add(inc.slug);
+    for (const pt of inc.geo) {
+      const p = projectEquirectangular(pt.lng, pt.lat);
+
+      impactMarkers.push({ inc, x: round(p.x), y: round(p.y), place: pt.label });
+    }
+  } else if (inc.originRegion) {
+    placed.add(inc.slug);
+    const p = projectEquirectangular(inc.originRegion.lng, inc.originRegion.lat);
+
+    originMarkers.push({ inc, x: round(p.x), y: round(p.y), place: inc.originRegion.label });
+  }
+}
+
+const chronological = [...atlasIncidents].sort((a, b) => a.sortDate.localeCompare(b.sortDate));
+const chrono = chronological.map((inc) => ({
+  slug: inc.slug,
+  title: inc.title,
+  date: inc.sortDate,
+  dateLabel: inc.dateLabel,
+  category: inc.category,
+  rank: inc.severityRank ?? 2,
+  placed: placed.has(inc.slug),
+}));
+
+const worldwide = atlasIncidents
+  .filter((inc) => !placed.has(inc.slug))
+  .sort((a, b) => a.sortDate.localeCompare(b.sortDate));
+
+const minDate = chrono[0].date;
+const maxDate = chrono[chrono.length - 1].date;
+const minT = Date.parse(minDate);
+const maxT = Date.parse(maxDate);
+const axisTicks = [2000, 2005, 2010, 2015, 2020, 2025]
+  .map((y) => ({ y, pct: round(((Date.parse(`${y}-01-01`) - minT) / (maxT - minT)) * 100) }))
+  .filter((t) => t.pct >= 0 && t.pct <= 100);
+
+const meridians: number[] = [];
+
+for (let lng = -150; lng <= 150; lng += 30) meridians.push(round(projectEquirectangular(lng, 0).x));
+const parallels: number[] = [];
+
+for (let lat = -60; lat <= 60; lat += 30) parallels.push(round(projectEquirectangular(0, lat).y));
+
+const sevClass = (rank?: 1 | 2 | 3) =>
+  rank === 3 ? "is-critical" : rank === 1 ? "is-low" : "is-high";
+// Severity drives the marker: bigger core + more concentric "blast" rings = wider blast radius.
+const coreR = (rank?: 1 | 2 | 3) => (rank === 3 ? 6.4 : rank === 2 ? 4.8 : 3.6);
+const ringCount = (rank?: 1 | 2 | 3) => (rank === 3 ? 2 : rank === 2 ? 1 : 0);
+const services = (inc: AtlasIncident) =>
+  (inc.affectedServices ?? [])
+    .map((s) => s.name)
+    .slice(0, 5)
+    .join(" · ");
+
+// --- Reach / area of effect ---
+type Reach = { score: number; text: string };
+function reachOf(inc: AtlasIncident): Reach {
+  const svc = inc.affectedServices?.length ?? 0;
+  const dur = inc.durationMinutes ?? 0;
+  let s = inc.scope === "global" ? 3 : inc.scope === "regional" ? 2 : 1;
+
+  s += Math.min(1.5, svc / 6);
+  s += dur >= 1440 ? 1 : dur >= 360 ? 0.5 : 0;
+  s += inc.severityRank === 3 ? 0.5 : 0;
+  const score = Math.max(1, Math.min(5, Math.round(s)));
+
+  const reachWord =
+    inc.scope === "global" ? "Worldwide" : inc.scope === "regional" ? "Regional" : "Local";
+  const durTxt =
+    dur >= 1440
+      ? `~${Math.round(dur / 1440)}-day recovery`
+      : dur >= 60
+        ? `~${Math.round(dur / 60)}h`
+        : dur
+          ? `${dur}m`
+          : "";
+  const text = [`${reachWord} reach`, svc ? `${svc} services` : "", durTxt]
+    .filter(Boolean)
+    .join(" · ");
+
+  return { score, text };
+}
+
+// Fan co-located markers (e.g. the AWS us-east-1 stack) onto a small ring so each
+// stays individually hoverable instead of hiding under the top one.
+function declutterMarkers(all: Marker[]): void {
+  const buckets = new Map<string, Marker[]>();
+
+  for (const m of all) {
+    const key = `${Math.round(m.x)},${Math.round(m.y)}`;
+    const arr = buckets.get(key);
+
+    if (arr) arr.push(m);
+    else buckets.set(key, [m]);
+  }
+  for (const group of buckets.values()) {
+    if (group.length < 2) continue;
+    const n = group.length;
+    const radius = 2.6 + n * 0.7;
+
+    group.forEach((m, i) => {
+      const angle = (i / n) * Math.PI * 2 - Math.PI / 2;
+
+      m.x = round(m.x + Math.cos(angle) * radius);
+      m.y = round(m.y + Math.sin(angle) * radius);
+    });
+  }
+}
+declutterMarkers([...impactMarkers, ...originMarkers]);
+
+const reachPips = (score: number) => Array.from({ length: 5 }, (_, i) => i < score);
+
+// Map center for an incident's reach zone: its location, fault origin, or map-centre for placeless globals.
+function incidentCenter(inc: AtlasIncident): { cx: number; cy: number } {
+  if (inc.geo && inc.geo.length) {
+    const p = projectEquirectangular(inc.geo[0].lng, inc.geo[0].lat);
+
+    return { cx: round(p.x), cy: round(p.y) };
+  }
+  if (inc.originRegion) {
+    const p = projectEquirectangular(inc.originRegion.lng, inc.originRegion.lat);
+
+    return { cx: round(p.x), cy: round(p.y) };
+  }
+  return { cx: 500, cy: 248 };
+}
+
+// Per-incident data for the on-click impact panel + reach zone (looked up by slug).
+const panelData = Object.fromEntries(
+  atlasIncidents.map((inc) => {
+    const r = reachOf(inc);
+    const c = incidentCenter(inc);
+
+    return [
+      inc.slug,
+      {
+        title: inc.title,
+        dateLabel: inc.dateLabel,
+        category: inc.category,
+        severity: inc.severity,
+        rank: inc.severityRank ?? 2,
+        scope: inc.scope || "regional",
+        cx: c.cx,
+        cy: c.cy,
+        reachScore: r.score,
+        reachText: r.text,
+        services: (inc.affectedServices ?? []).map((s) => s.name),
+      },
+    ];
+  })
+);
+---
+
+<Layout
+  title="The Atlas Map"
+  description="An engraved, playable world map of where major internet outages struck — scrub through 1997 to 2026 and watch the failures ripple onto the map."
+>
+  <section
+    class="atlas-page-surface"
+    aria-label="Atlas map surface"
+  >
+    <AtlasPageShell
+      currentPage="map"
+      dateline={`Vol. I · Cartography · ${placed.size} located, ${worldwide.length} worldwide`}
+      kicker="Internet Outage Atlas · The Map"
+      heading="THE<br>ATLAS MAP"
+      subtitle="Press play to watch a quarter-century of outages ripple across the world"
+    >
+      <section class="map-section">
+        <div class="map-lede">
+          <p>
+            Press <strong>Play the record</strong> to sweep from 1997 to today and watch each outage strike
+            in order, or drag the dial to any year. Solid marks are incidents tied to a place; hollow
+            marks are fault origins for failures whose impact still spread worldwide. The incidents in
+            the <a href="#worldwide-ledger">Worldwide Ledger</a> struck everywhere at once and resist
+            a single dot.
+          </p>
+        </div>
+
+        <div class="map-frame">
+          <svg
+            viewBox={WORLD_VIEWBOX}
+            class="world-map"
+            id="atlasMap"
+            role="img"
+            aria-label="Equirectangular world map with markers for outage-affected regions"
+            preserveAspectRatio="xMidYMid meet"
+          >
+            <rect
+              x="0"
+              y="0"
+              width={WORLD_WIDTH}
+              height={WORLD_HEIGHT}
+              class="map-ocean"
+            ></rect>
+            <g class="map-graticule">
+              {
+                meridians.map((x) => (
+                  <line
+                    x1={x}
+                    y1="0"
+                    x2={x}
+                    y2={WORLD_HEIGHT}
+                  />
+                ))
+              }
+              {
+                parallels.map((y) => (
+                  <line
+                    x1="0"
+                    y1={y}
+                    x2={WORLD_WIDTH}
+                    y2={y}
+                  />
+                ))
+              }
+            </g>
+            <path
+              d={worldLandPath}
+              class="map-land"
+              fill-rule="evenodd"
+            ></path>
+
+            <g
+              class="reach-zone"
+              id="reachZone"
+              aria-hidden="true"
+            >
+              <circle
+                class="reach-zone-fill"
+                cx="500"
+                cy="248"
+                r="0"
+              ></circle>
+              <circle
+                class="reach-zone-ring reach-zone-mid"
+                cx="500"
+                cy="248"
+                r="0"
+              ></circle>
+              <circle
+                class="reach-zone-ring reach-zone-out"
+                cx="500"
+                cy="248"
+                r="0"
+              ></circle>
+            </g>
+
+            <g class="map-markers">
+              {
+                originMarkers.map((m) => {
+                  const r = coreR(m.inc.severityRank);
+                  const reach = reachOf(m.inc);
+
+                  return (
+                    <a
+                      href={`/incident/${m.inc.slug}/`}
+                      class="map-marker is-origin"
+                      data-slug={m.inc.slug}
+                      data-reach={String(reach.score)}
+                      data-reach-text={reach.text}
+                      data-date={m.inc.sortDate}
+                      data-title={m.inc.title}
+                      data-meta={`Fault origin · ${m.place} · ${m.inc.dateLabel}`}
+                      data-services={services(m.inc)}
+                    >
+                      {m.inc.severityRank === 3 && (
+                        <circle
+                          class="map-ring map-ring-1 is-dashed"
+                          cx={m.x}
+                          cy={m.y}
+                          r={r + 5}
+                        />
+                      )}
+                      <circle
+                        class="map-ripple"
+                        cx={m.x}
+                        cy={m.y}
+                        r={r}
+                      />
+                      <circle
+                        class="map-core"
+                        cx={m.x}
+                        cy={m.y}
+                        r={r}
+                      />
+                      <circle
+                        class="map-hit"
+                        cx={m.x}
+                        cy={m.y}
+                        r={Math.max(r + 9, 12)}
+                      />
+                      <title>
+                        {m.inc.title} — fault origin: {m.place} ({m.inc.dateLabel})
+                      </title>
+                    </a>
+                  );
+                })
+              }
+              {
+                impactMarkers.map((m) => {
+                  const r = coreR(m.inc.severityRank);
+                  const rings = ringCount(m.inc.severityRank);
+                  const reach = reachOf(m.inc);
+
+                  return (
+                    <a
+                      href={`/incident/${m.inc.slug}/`}
+                      class:list={["map-marker", sevClass(m.inc.severityRank)]}
+                      data-slug={m.inc.slug}
+                      data-reach={String(reach.score)}
+                      data-reach-text={reach.text}
+                      data-date={m.inc.sortDate}
+                      data-title={m.inc.title}
+                      data-meta={`${m.place} · ${m.inc.dateLabel}`}
+                      data-services={services(m.inc)}
+                    >
+                      {rings >= 2 && (
+                        <circle
+                          class="map-ring map-ring-2"
+                          cx={m.x}
+                          cy={m.y}
+                          r={r + 10}
+                        />
+                      )}
+                      {rings >= 1 && (
+                        <circle
+                          class="map-ring map-ring-1"
+                          cx={m.x}
+                          cy={m.y}
+                          r={r + 5}
+                        />
+                      )}
+                      <circle
+                        class="map-ripple"
+                        cx={m.x}
+                        cy={m.y}
+                        r={r}
+                      />
+                      <circle
+                        class="map-core"
+                        cx={m.x}
+                        cy={m.y}
+                        r={r}
+                      />
+                      <circle
+                        class="map-hit"
+                        cx={m.x}
+                        cy={m.y}
+                        r={Math.max(r + 11, 13)}
+                      />
+                      <title>
+                        {m.inc.title} — {m.place} ({m.inc.dateLabel})
+                      </title>
+                    </a>
+                  );
+                })
+              }
+            </g>
+          </svg>
+
+          <div
+            class="map-tooltip"
+            id="mapTooltip"
+            hidden
+          >
+            <div
+              class="map-tooltip-title"
+              data-tip-title
+            >
+            </div>
+            <div
+              class="map-tooltip-meta"
+              data-tip-meta
+            >
+            </div>
+            <div class="map-tooltip-reach">
+              <span
+                class="reach-meter"
+                data-tip-meter
+              >
+                <span class="reach-pip"></span>
+                <span class="reach-pip"></span>
+                <span class="reach-pip"></span>
+                <span class="reach-pip"></span>
+                <span class="reach-pip"></span>
+              </span>
+              <span
+                class="reach-text"
+                data-tip-reach-text
+              ></span>
+            </div>
+            <div
+              class="map-tooltip-services"
+              data-tip-services
+            >
+            </div>
+          </div>
+
+          <div
+            class="map-panel"
+            id="mapPanel"
+            hidden
+          >
+            <button
+              type="button"
+              class="map-panel-close"
+              id="mapPanelClose"
+              aria-label="Close impact dispatch"
+              >×</button
+            >
+            <div
+              class="map-panel-kicker"
+              data-panel-kicker
+            >
+            </div>
+            <h3
+              class="map-panel-title"
+              data-panel-title
+            >
+            </h3>
+            <div
+              class="map-panel-meta"
+              data-panel-meta
+            >
+            </div>
+            <div class="map-panel-reach">
+              <span
+                class="reach-meter"
+                data-panel-meter
+              >
+                <span class="reach-pip"></span>
+                <span class="reach-pip"></span>
+                <span class="reach-pip"></span>
+                <span class="reach-pip"></span>
+                <span class="reach-pip"></span>
+              </span>
+              <span
+                class="reach-text"
+                data-panel-reach-text
+              >
+              </span>
+            </div>
+            <div
+              class="map-panel-services"
+              data-panel-services
+            >
+            </div>
+            <a
+              class="map-panel-cta"
+              data-panel-cta
+              href="#"
+              >Read the full case file →</a
+            >
+          </div>
+        </div>
+
+        <div
+          class="map-timeline"
+          data-min={minDate}
+          data-max={maxDate}
+        >
+          <div class="map-timeline-head">
+            <button
+              type="button"
+              class="map-play"
+              id="mapPlay"
+              aria-label="Play the outage timeline"
+            >
+              <span
+                class="map-play-icon"
+                id="mapPlayIcon"
+                aria-hidden="true"
+                >▶</span
+              >
+              <span id="mapPlayLabel">Play the record</span>
+            </button>
+            <div class="map-readout">
+              <span
+                class="map-year"
+                id="mapYear"
+                >{maxDate.slice(0, 4)}</span
+              >
+              <span
+                class="map-dispatch"
+                id="mapDispatch"
+                aria-live="polite"
+                >All incidents shown — drag the dial or press play</span
+              >
+            </div>
+          </div>
+          <div class="map-scrubber-wrap">
+            <input
+              type="range"
+              class="map-scrubber"
+              id="mapScrubber"
+              min="0"
+              max="1000"
+              value="1000"
+              step="1"
+              aria-label="Scrub through the outage timeline by date"
+            />
+            <div
+              class="map-axis"
+              aria-hidden="true"
+            >
+              {
+                axisTicks.map((t) => (
+                  <span
+                    class="map-axis-tick"
+                    style={`left:${t.pct}%`}
+                  >
+                    {t.y}
+                  </span>
+                ))
+              }
+            </div>
+          </div>
+        </div>
+
+        <script
+          type="application/json"
+          id="mapChrono"
+          is:inline
+          set:html={JSON.stringify(chrono)}
+        />
+
+        <script
+          type="application/json"
+          id="mapPanelData"
+          is:inline
+          set:html={JSON.stringify(panelData)}
+        />
+
+        <div
+          class="map-legend"
+          aria-hidden="true"
+        >
+          <span class="map-legend-item"><span class="map-dot is-critical"></span>Critical</span>
+          <span class="map-legend-item"><span class="map-dot is-high"></span>High</span>
+          <span class="map-legend-item"><span class="map-dot is-low"></span>Lower</span>
+          <span class="map-legend-item"
+            ><span class="map-dot is-origin"></span>Fault origin (global reach)</span
+          >
+        </div>
+
+        <aside
+          class="map-ledger"
+          id="worldwide-ledger"
+        >
+          <div class="map-ledger-head">
+            <div class="map-ledger-label">Worldwide Ledger</div>
+            <h2 class="map-ledger-title">Incidents without a map</h2>
+            <p class="map-ledger-intro">
+              Failures in shared layers — DNS, BGP, CDNs, certificate trust, global control planes —
+              that struck everywhere at once. There is no single place to mark, so they are filed
+              here as dispatches.
+            </p>
+          </div>
+          <ul class="map-ledger-list">
+            {
+              worldwide.map((inc) => {
+                const reach = reachOf(inc);
+
+                return (
+                  <li>
+                    <a
+                      href={`/incident/${inc.slug}/`}
+                      class="map-ledger-link"
+                      data-slug={inc.slug}
+                      data-reach={String(reach.score)}
+                    >
+                      <span class="map-ledger-main">
+                        <span class="map-ledger-year">{inc.year}</span>
+                        <span class="map-ledger-name">{inc.title}</span>
+                        <span class="map-ledger-cat">{inc.category}</span>
+                      </span>
+                      <span class="map-ledger-reach">
+                        <span
+                          class="reach-meter"
+                          aria-hidden="true"
+                        >
+                          {reachPips(reach.score).map((on) => (
+                            <span class:list={["reach-pip", on && "is-on"]} />
+                          ))}
+                        </span>
+                        <span class="reach-text">{reach.text}</span>
+                      </span>
+                    </a>
+                  </li>
+                );
+              })
+            }
+          </ul>
+        </aside>
+
+        <AtlasFooter
+          publicationTitle="Internet<br>Outage Atlas"
+          tagline="An engraved chart of where shared-infrastructure failures touched the ground."
+          figures={[
+            {
+              bold: String(placed.size),
+              text: "Incidents located on the map",
+            },
+            { bold: String(worldwide.length), text: "Filed in the Worldwide Ledger" },
+            { bold: String(atlasIncidents.length), text: "Incidents in the atlas" },
+          ]}
+          editionText="Cartographic Edition<br />Equirectangular projection"
+          copyrightText="© 2026 Internet Outage Atlas Project. All content for educational purposes."
+          typesetText="Land outline: Natural Earth (public domain)"
+          websiteUrl="https://JonathanRReed.com"
+          articleUrl="https://JonathanRReed.com/blog/days-the-internet-dies/"
+        />
+      </section>
+    </AtlasPageShell>
+  </section>
+</Layout>
+
+<script is:inline>
+  (function () {
+    function initMap() {
+      var map = document.getElementById("atlasMap");
+      var chronoEl = document.getElementById("mapChrono");
+      var tl = document.querySelector(".map-timeline");
+      var scrubber = document.getElementById("mapScrubber");
+      var yearEl = document.getElementById("mapYear");
+      var dispatchEl = document.getElementById("mapDispatch");
+      var playBtn = document.getElementById("mapPlay");
+      var playIcon = document.getElementById("mapPlayIcon");
+      var playLabel = document.getElementById("mapPlayLabel");
+      var tip = document.getElementById("mapTooltip");
+      var frame = document.querySelector(".map-frame");
+      if (!map || !chronoEl || !scrubber || !tl) return;
+
+      // Activate timeline-controlled visibility only once JS is alive, so the
+      // map degrades to all-markers-visible if this script never runs.
+      map.classList.add("is-timed");
+
+      var chrono = JSON.parse(chronoEl.textContent || "[]");
+      var minT = Date.parse(tl.getAttribute("data-min"));
+      var maxT = Date.parse(tl.getAttribute("data-max"));
+      var span = maxT - minT || 1;
+      var reduce =
+        window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      var markers = {};
+      var onState = {};
+      Array.prototype.forEach.call(map.querySelectorAll(".map-marker"), function (m) {
+        var slug = m.getAttribute("data-slug");
+        if (!markers[slug]) markers[slug] = [];
+        markers[slug].push(m);
+        m.classList.add("is-on");
+        onState[slug] = true;
+      });
+
+      function timeFromValue(v) {
+        return minT + (v / 1000) * span;
+      }
+
+      var panelDataEl = document.getElementById("mapPanelData");
+      var panelData = panelDataEl ? JSON.parse(panelDataEl.textContent || "{}") : {};
+      var selectedSlug = null;
+      var lastLatest = null;
+
+      function render(t, animate) {
+        var y = new Date(t).getUTCFullYear();
+        if (String(y) !== yearEl.textContent) {
+          yearEl.textContent = y;
+          if (!reduce) {
+            yearEl.classList.remove("is-ticking");
+            void yearEl.offsetWidth;
+            yearEl.classList.add("is-ticking");
+          }
+        }
+        var latest = null;
+        for (var i = 0; i < chrono.length; i++) {
+          var inc = chrono[i];
+          var on = Date.parse(inc.date) <= t;
+          if (on) latest = inc;
+          if (onState[inc.slug] !== on) {
+            onState[inc.slug] = on;
+            var els = markers[inc.slug] || [];
+            for (var j = 0; j < els.length; j++) {
+              els[j].classList.toggle("is-on", on);
+              if (on && animate && !reduce) {
+                (function (el) {
+                  el.classList.remove("rippling");
+                  void el.getBBox();
+                  el.classList.add("rippling");
+                  setTimeout(function () {
+                    el.classList.remove("rippling");
+                  }, 950);
+                })(els[j]);
+              }
+            }
+          }
+        }
+        dispatchEl.textContent = latest
+          ? latest.dateLabel + " — " + latest.title
+          : "Before the record begins";
+        lastLatest = latest;
+        if (animate && latest && !selectedSlug) showReachFor(latest.slug);
+      }
+
+      function glowLatest() {
+        if (selectedSlug) return;
+        if (lastLatest) showReachFor(lastLatest.slug);
+        else hideReach();
+      }
+
+      render(maxT, false);
+
+      scrubber.addEventListener("input", function () {
+        stop();
+        render(timeFromValue(parseInt(scrubber.value, 10)), false);
+        glowLatest();
+      });
+      scrubber.addEventListener("change", function () {
+        if (!selectedSlug) hideReach();
+      });
+
+      var raf = null;
+      var startStamp = 0;
+      var startValue = 0;
+      var DURATION = 17000;
+
+      function step(ts) {
+        if (!startStamp) startStamp = ts;
+        var v = startValue + ((ts - startStamp) / DURATION) * (1000 - startValue);
+        if (v >= 1000) {
+          scrubber.value = "1000";
+          render(maxT, true);
+          stop();
+          return;
+        }
+        scrubber.value = String(Math.round(v));
+        render(timeFromValue(v), true);
+        raf = requestAnimationFrame(step);
+      }
+
+      function play() {
+        deselect();
+        if (reduce) {
+          scrubber.value = "1000";
+          render(maxT, false);
+          return;
+        }
+        var cur = parseInt(scrubber.value, 10);
+        if (cur >= 1000) {
+          cur = 0;
+          scrubber.value = "0";
+          render(minT, false);
+        }
+        startStamp = 0;
+        startValue = cur;
+        playBtn.classList.add("is-playing");
+        playIcon.textContent = "❚❚";
+        playLabel.textContent = "Pause";
+        dispatchEl.setAttribute("aria-live", "off");
+        raf = requestAnimationFrame(step);
+      }
+
+      function stop() {
+        if (raf) cancelAnimationFrame(raf);
+        raf = null;
+        playBtn.classList.remove("is-playing");
+        playIcon.textContent = "▶";
+        playLabel.textContent = "Play the record";
+        dispatchEl.setAttribute("aria-live", "polite");
+        if (!selectedSlug) hideReach();
+      }
+
+      playBtn.addEventListener("click", function () {
+        if (raf) stop();
+        else play();
+      });
+
+      // reach zone — a clean engraved range ring showing how far an outage spread
+      var reachZone = document.getElementById("reachZone");
+      var zEls = reachZone ? reachZone.querySelectorAll("circle") : [];
+      function hideReach() {
+        if (!reachZone) return;
+        reachZone.classList.remove("is-active");
+        for (var i = 0; i < zEls.length; i++) zEls[i].style.r = "0px";
+      }
+      function showReach(cx, cy, scope, sev) {
+        if (!reachZone || zEls.length < 3) return;
+        var r = scope === "global" ? 240 : scope === "regional" ? 78 : 34;
+        zEls[0].setAttribute("cx", cx);
+        zEls[0].setAttribute("cy", cy);
+        zEls[0].style.r = r + "px";
+        zEls[1].setAttribute("cx", cx);
+        zEls[1].setAttribute("cy", cy);
+        zEls[1].style.r = r * 0.62 + "px";
+        zEls[2].setAttribute("cx", cx);
+        zEls[2].setAttribute("cy", cy);
+        zEls[2].style.r = r + "px";
+        reachZone.setAttribute("data-sev", sev);
+        reachZone.classList.add("is-active");
+      }
+      function showReachFor(slug) {
+        var d = panelData[slug];
+        if (!d) {
+          hideReach();
+          return;
+        }
+        showReach(d.cx, d.cy, d.scope, d.rank >= 3 ? "critical" : d.rank === 2 ? "high" : "low");
+      }
+
+      // --- impact panel (click an incident to reveal its area of effect) ---
+      var panel = document.getElementById("mapPanel");
+      var pEls = panel
+        ? {
+            kicker: panel.querySelector("[data-panel-kicker]"),
+            title: panel.querySelector("[data-panel-title]"),
+            meta: panel.querySelector("[data-panel-meta]"),
+            meter: panel.querySelector("[data-panel-meter]"),
+            reachText: panel.querySelector("[data-panel-reach-text]"),
+            services: panel.querySelector("[data-panel-services]"),
+            cta: panel.querySelector("[data-panel-cta]"),
+          }
+        : null;
+      function deselect() {
+        selectedSlug = null;
+        if (panel) panel.hidden = true;
+        map.removeAttribute("data-selected");
+        Array.prototype.forEach.call(map.querySelectorAll(".map-marker.is-selected"), function (m) {
+          m.classList.remove("is-selected");
+        });
+        hideReach();
+      }
+      function select(slug) {
+        var d = panelData[slug];
+        if (!d || !panel) return;
+        selectedSlug = slug;
+        showReachFor(slug);
+        map.setAttribute("data-selected", "1");
+        Array.prototype.forEach.call(map.querySelectorAll(".map-marker.is-selected"), function (m) {
+          m.classList.remove("is-selected");
+        });
+        (markers[slug] || []).forEach(function (m) {
+          m.classList.add("is-selected");
+        });
+        pEls.kicker.textContent = d.category || "";
+        pEls.title.textContent = d.title || "";
+        pEls.meta.textContent = [d.dateLabel, d.severity].filter(Boolean).join(" · ");
+        var pips = pEls.meter ? pEls.meter.querySelectorAll(".reach-pip") : [];
+        for (var p = 0; p < pips.length; p++) pips[p].classList.toggle("is-on", p < d.reachScore);
+        pEls.reachText.textContent = d.reachText || "";
+        if (d.services && d.services.length) {
+          pEls.services.textContent = "Services affected — " + d.services.join(" · ");
+          pEls.services.style.display = "block";
+        } else {
+          pEls.services.style.display = "none";
+        }
+        pEls.cta.setAttribute("href", "/incident/" + slug + "/");
+        panel.classList.toggle("is-right", d.cx < 500);
+        panel.hidden = false;
+      }
+      function wireSelect(el) {
+        el.addEventListener("click", function (ev) {
+          if (ev.metaKey || ev.ctrlKey || ev.shiftKey) return; // allow open-in-new-tab
+          ev.preventDefault();
+          select(el.getAttribute("data-slug"));
+        });
+      }
+
+      if (tip && frame) {
+        var tTitle = tip.querySelector("[data-tip-title]");
+        var tMeta = tip.querySelector("[data-tip-meta]");
+        var tServices = tip.querySelector("[data-tip-services]");
+        var tMeter = tip.querySelector("[data-tip-meter]");
+        var tReachText = tip.querySelector("[data-tip-reach-text]");
+        var show = function (marker) {
+          tTitle.textContent = marker.getAttribute("data-title") || "";
+          tMeta.textContent = marker.getAttribute("data-meta") || "";
+          var svc = marker.getAttribute("data-services") || "";
+          tServices.textContent = svc;
+          tServices.style.display = svc ? "block" : "none";
+          var score = parseInt(marker.getAttribute("data-reach") || "0", 10);
+          if (tMeter) {
+            var pips = tMeter.querySelectorAll(".reach-pip");
+            for (var p = 0; p < pips.length; p++) pips[p].classList.toggle("is-on", p < score);
+          }
+          if (tReachText) tReachText.textContent = marker.getAttribute("data-reach-text") || "";
+          var r = marker.getBoundingClientRect();
+          var fr = frame.getBoundingClientRect();
+          tip.style.left = r.left + r.width / 2 - fr.left + "px";
+          tip.style.top = r.top - fr.top + "px";
+          tip.hidden = false;
+          tip.classList.toggle("is-below", r.top - fr.top < tip.offsetHeight + 16);
+        };
+        var hide = function () {
+          tip.hidden = true;
+        };
+        Array.prototype.forEach.call(map.querySelectorAll(".map-marker"), function (marker) {
+          marker.addEventListener("mouseenter", function () {
+            show(marker);
+          });
+          marker.addEventListener("mouseleave", hide);
+          marker.addEventListener("focus", function () {
+            show(marker);
+          });
+          marker.addEventListener("blur", hide);
+          wireSelect(marker);
+        });
+      }
+
+      // Worldwide Ledger rows: click reveals the impact panel + reach zone
+      Array.prototype.forEach.call(document.querySelectorAll(".map-ledger-link"), function (row) {
+        wireSelect(row);
+      });
+
+      if (panel) {
+        var closeBtn = document.getElementById("mapPanelClose");
+        if (closeBtn) closeBtn.addEventListener("click", deselect);
+        document.addEventListener("keydown", function (ev) {
+          if (ev.key === "Escape" && selectedSlug) deselect();
+        });
+        map.addEventListener("click", function (ev) {
+          if (selectedSlug && ev.target.closest && !ev.target.closest(".map-marker")) deselect();
+        });
+      }
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", initMap, { once: true });
+    } else {
+      initMap();
+    }
+  })();
+</script>
+
+<style>
+  @layer page-sections {
+    .map-section {
+      padding: 0 3rem 1.5rem;
+    }
+    .map-lede {
+      margin: 0 auto 1.6rem;
+      max-width: 60rem;
+    }
+    .map-lede p {
+      color: var(--atlas-ink-mid);
+      font-size: 14px;
+      line-height: 1.9;
+      margin: 0;
+    }
+    .map-lede strong {
+      color: var(--atlas-ink);
+      font-weight: 700;
+    }
+    .map-lede a {
+      border-bottom: 1px solid color-mix(in srgb, var(--atlas-red) 40%, transparent);
+      color: var(--atlas-red);
+      text-decoration: none;
+    }
+
+    .map-frame {
+      background: var(--atlas-surface);
+      border: 1px solid var(--atlas-rule);
+      box-shadow: 0 30px 70px -56px rgba(13, 27, 42, 0.6);
+      padding: 1.2rem;
+      position: relative;
+    }
+    .world-map {
+      display: block;
+      height: auto;
+      width: 100%;
+    }
+    .map-ocean {
+      fill: color-mix(in srgb, var(--atlas-parchment) 60%, var(--atlas-surface));
+    }
+    .map-graticule line {
+      stroke: color-mix(in srgb, var(--atlas-rule) 55%, transparent);
+      stroke-width: 0.4;
+    }
+    .map-land {
+      fill: color-mix(in srgb, var(--atlas-ink-faint) 38%, var(--atlas-surface));
+      stroke: var(--atlas-ink-muted);
+      stroke-linejoin: round;
+      stroke-width: 0.4;
+    }
+
+    /* reach zone — engraved range ring showing how far an outage spread */
+    .reach-zone {
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+    .reach-zone.is-active {
+      opacity: 1;
+    }
+    .reach-zone circle {
+      transition: r 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .reach-zone-fill {
+      fill: var(--atlas-red);
+      opacity: 0.1;
+    }
+    .reach-zone-ring {
+      fill: none;
+      stroke: var(--atlas-red);
+      stroke-width: 0.9;
+    }
+    .reach-zone-out {
+      opacity: 0.55;
+    }
+    .reach-zone-mid {
+      opacity: 0.32;
+      stroke-dasharray: 2.5 2.5;
+    }
+    .reach-zone[data-sev="high"] .reach-zone-fill {
+      fill: var(--atlas-gold);
+    }
+    .reach-zone[data-sev="high"] .reach-zone-ring {
+      stroke: var(--atlas-gold);
+    }
+    .reach-zone[data-sev="low"] .reach-zone-fill {
+      fill: var(--atlas-ink-muted);
+    }
+    .reach-zone[data-sev="low"] .reach-zone-ring {
+      stroke: var(--atlas-ink-muted);
+    }
+
+    /* magnitude meter (reach) — used in ledger + tooltip */
+    .reach-meter {
+      display: inline-flex;
+      flex-shrink: 0;
+      gap: 3px;
+    }
+    .reach-pip {
+      border: 1px solid var(--atlas-ink-faint);
+      border-radius: 50%;
+      box-sizing: border-box;
+      height: 7px;
+      width: 7px;
+    }
+    .reach-pip.is-on {
+      background: var(--atlas-red);
+      border-color: var(--atlas-red);
+    }
+    .reach-text {
+      color: var(--atlas-ink-muted);
+      font-size: 11px;
+      font-style: italic;
+      letter-spacing: 0.02em;
+    }
+
+    .map-marker {
+      cursor: pointer;
+    }
+    .map-core {
+      stroke: var(--atlas-surface);
+      stroke-width: 1;
+      transform-box: fill-box;
+      transform-origin: center;
+      transition:
+        transform 0.15s ease,
+        fill 0.15s ease;
+    }
+    .map-ripple {
+      fill: var(--atlas-gold);
+      opacity: 0;
+      pointer-events: none;
+      transform-box: fill-box;
+      transform-origin: center;
+    }
+    .map-marker.is-critical .map-core,
+    .map-marker.is-critical .map-ripple {
+      fill: var(--atlas-red);
+    }
+    .map-marker.is-high .map-core {
+      fill: var(--atlas-gold);
+    }
+    .map-marker.is-low .map-core {
+      fill: var(--atlas-ink-muted);
+    }
+    .map-marker.is-origin .map-core {
+      fill: none;
+      stroke: var(--atlas-gold);
+      stroke-dasharray: 2.4 1.8;
+      stroke-width: 1.4;
+    }
+    .map-marker:hover .map-core,
+    .map-marker:focus-visible .map-core {
+      transform: scale(1.55);
+    }
+    .map-marker:focus-visible .map-core {
+      outline: none;
+      stroke: var(--atlas-ink);
+      stroke-width: 1.4;
+    }
+
+    /* severity blast rings: more rings + wider = more severe */
+    .map-ring {
+      fill: none;
+      pointer-events: none;
+      transform-box: fill-box;
+      transform-origin: center;
+    }
+    .map-ring-1 {
+      opacity: 0.55;
+      stroke-width: 0.7;
+    }
+    .map-ring-2 {
+      opacity: 0.3;
+      stroke-width: 0.6;
+    }
+    .map-marker.is-critical .map-ring {
+      stroke: var(--atlas-red);
+    }
+    .map-marker.is-high .map-ring {
+      stroke: var(--atlas-gold);
+    }
+    .map-ring.is-dashed {
+      opacity: 0.5;
+      stroke: var(--atlas-gold);
+      stroke-dasharray: 2.2 1.8;
+    }
+    .map-marker:hover .map-ring,
+    .map-marker:focus-visible .map-ring {
+      opacity: 0.9;
+    }
+    /* invisible enlarged tap/hover target */
+    .map-hit {
+      fill: transparent;
+      pointer-events: all;
+    }
+    /* slow living pulse on the widest critical blast ring */
+    .map-marker.is-critical .map-ring-2 {
+      animation: map-ring-breathe 4.5s ease-in-out infinite;
+    }
+    @keyframes map-ring-breathe {
+      0%,
+      100% {
+        opacity: 0.28;
+        transform: scale(1);
+      }
+      50% {
+        opacity: 0.1;
+        transform: scale(1.18);
+      }
+    }
+
+    .world-map.is-timed .map-marker {
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+    .world-map.is-timed .map-marker.is-on {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .map-marker.rippling .map-core {
+      animation: map-core-pop 0.55s ease-out;
+    }
+    .map-marker.rippling .map-ripple {
+      animation: map-ripple-out 0.95s ease-out;
+    }
+    @keyframes map-core-pop {
+      0% {
+        transform: scale(0.2);
+      }
+      55% {
+        transform: scale(1.45);
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+    @keyframes map-ripple-out {
+      0% {
+        opacity: 0.5;
+        transform: scale(0.5);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(4.2);
+      }
+    }
+
+    .map-tooltip {
+      background: var(--atlas-surface);
+      border: 1px solid var(--atlas-deco-border);
+      box-shadow: 0 18px 40px -28px rgba(13, 27, 42, 0.7);
+      left: 0;
+      max-width: 17rem;
+      padding: 0.6rem 0.75rem;
+      pointer-events: none;
+      position: absolute;
+      top: 0;
+      transform: translate(-50%, calc(-100% - 12px));
+      z-index: 40;
+    }
+    .map-tooltip-title {
+      color: var(--atlas-ink);
+      font-family: var(--atlas-font-display);
+      font-size: 0.95rem;
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 0.25rem;
+    }
+    .map-tooltip-meta {
+      color: var(--atlas-ink-muted);
+      font-size: 11px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .map-tooltip-services {
+      border-top: 1px solid color-mix(in srgb, var(--atlas-rule) 60%, transparent);
+      color: var(--atlas-ink-mid);
+      font-size: 12px;
+      font-style: italic;
+      line-height: 1.5;
+      margin-top: 0.45rem;
+      padding-top: 0.4rem;
+    }
+    .map-tooltip-reach {
+      align-items: center;
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.45rem;
+    }
+    .map-tooltip.is-below {
+      transform: translate(-50%, 16px);
+    }
+
+    /* impact panel (click to reveal) */
+    .map-panel {
+      background: var(--atlas-surface);
+      border: 1px solid var(--atlas-deco-border);
+      bottom: 1.1rem;
+      box-shadow: 0 26px 60px -34px rgba(13, 27, 42, 0.75);
+      left: 1.1rem;
+      max-width: min(19rem, calc(100% - 2.2rem));
+      padding: 1rem 1.1rem 1.1rem;
+      position: absolute;
+      z-index: 45;
+    }
+    .map-panel.is-right {
+      left: auto;
+      right: 1.1rem;
+    }
+    .map-panel-close {
+      align-items: center;
+      background: none;
+      border: 0;
+      border-radius: 50%;
+      color: var(--atlas-ink-muted);
+      cursor: pointer;
+      display: flex;
+      font-size: 1.3rem;
+      height: 28px;
+      justify-content: center;
+      line-height: 1;
+      padding: 0;
+      position: absolute;
+      right: 0.5rem;
+      top: 0.5rem;
+      transition:
+        background 0.15s,
+        color 0.15s;
+      width: 28px;
+    }
+    .map-panel-close:hover,
+    .map-panel-close:focus-visible {
+      background: color-mix(in srgb, var(--atlas-red) 12%, transparent);
+      color: var(--atlas-red);
+    }
+    .map-panel-close:focus-visible {
+      outline: 2px solid var(--atlas-gold);
+      outline-offset: 1px;
+    }
+    .map-panel-kicker {
+      color: var(--atlas-ink-muted);
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+    .map-panel-title {
+      color: var(--atlas-ink);
+      font-family: var(--atlas-font-display);
+      font-size: 1.2rem;
+      font-weight: 800;
+      line-height: 1.15;
+      margin: 0.3rem 0 0.45rem;
+      padding-right: 1rem;
+    }
+    .map-panel-meta {
+      color: var(--atlas-ink-muted);
+      font-size: 11px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .map-panel-reach {
+      align-items: center;
+      display: flex;
+      gap: 0.5rem;
+      margin: 0.7rem 0;
+    }
+    .map-panel-services {
+      border-top: 1px solid color-mix(in srgb, var(--atlas-rule) 60%, transparent);
+      color: var(--atlas-ink-mid);
+      font-size: 12px;
+      font-style: italic;
+      line-height: 1.55;
+      margin-bottom: 0.8rem;
+      padding-top: 0.55rem;
+    }
+    .map-panel-cta {
+      color: var(--atlas-red);
+      font-family: var(--atlas-font-display);
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-decoration: none;
+      text-transform: uppercase;
+    }
+    .map-panel-cta:hover,
+    .map-panel-cta:focus-visible {
+      text-decoration: underline;
+    }
+
+    .map-marker.is-selected .map-core {
+      stroke: var(--atlas-ink);
+      stroke-width: 1.6;
+      transform: scale(1.5);
+    }
+    .map-marker.is-selected .map-ring {
+      opacity: 0.95;
+    }
+
+    :root[data-theme="dark"] .map-panel {
+      background: #1b2d45;
+    }
+
+    .map-timeline {
+      margin: 1.3rem auto 0;
+      max-width: 62rem;
+    }
+    .map-timeline-head {
+      align-items: center;
+      display: flex;
+      gap: 1.25rem;
+      margin-bottom: 1rem;
+    }
+    .map-play {
+      align-items: center;
+      background: var(--atlas-ink);
+      border: 1px solid var(--atlas-ink);
+      color: var(--atlas-parchment);
+      cursor: pointer;
+      display: inline-flex;
+      flex-shrink: 0;
+      font-family: var(--atlas-font-display);
+      font-size: 12px;
+      font-weight: 700;
+      gap: 0.55rem;
+      letter-spacing: 0.12em;
+      padding: 0.6rem 1.1rem;
+      text-transform: uppercase;
+      transition:
+        background 0.2s,
+        color 0.2s;
+    }
+    .map-play:hover,
+    .map-play.is-playing {
+      background: var(--atlas-red);
+      border-color: var(--atlas-red);
+      color: var(--atlas-parchment);
+    }
+    .map-play-icon {
+      font-size: 10px;
+    }
+    .map-readout {
+      align-items: baseline;
+      display: flex;
+      gap: 1rem;
+      min-width: 0;
+    }
+    .map-year {
+      color: var(--atlas-ink);
+      display: inline-block;
+      font-family: var(--atlas-font-display);
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      font-variant-numeric: tabular-nums;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      line-height: 1;
+    }
+    .map-year.is-ticking {
+      animation: map-year-tick 0.2s ease-out;
+    }
+    @keyframes map-year-tick {
+      0% {
+        opacity: 0.5;
+        transform: translateY(3px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .map-dispatch {
+      color: var(--atlas-ink-muted);
+      font-family: var(--atlas-font-display);
+      font-size: 13px;
+      font-style: italic;
+      line-height: 1.4;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .map-scrubber-wrap {
+      position: relative;
+    }
+    .map-scrubber {
+      appearance: none;
+      -webkit-appearance: none;
+      background: transparent;
+      cursor: grab;
+      display: block;
+      margin: 0;
+      width: 100%;
+    }
+    .map-scrubber:active {
+      cursor: grabbing;
+    }
+    .map-scrubber::-webkit-slider-runnable-track {
+      background: var(--atlas-rule);
+      height: 2px;
+    }
+    .map-scrubber::-moz-range-track {
+      background: var(--atlas-rule);
+      height: 2px;
+    }
+    .map-scrubber::-webkit-slider-thumb {
+      appearance: none;
+      -webkit-appearance: none;
+      background: var(--atlas-red);
+      border: 0;
+      height: 18px;
+      margin-top: -8px;
+      transform: rotate(45deg);
+      transition:
+        transform 0.15s ease,
+        box-shadow 0.15s ease;
+      width: 18px;
+    }
+    .map-scrubber::-moz-range-thumb {
+      background: var(--atlas-red);
+      border: 0;
+      border-radius: 0;
+      height: 18px;
+      transform: rotate(45deg);
+      transition:
+        transform 0.15s ease,
+        box-shadow 0.15s ease;
+      width: 18px;
+    }
+    .map-scrubber:hover::-webkit-slider-thumb,
+    .map-scrubber:active::-webkit-slider-thumb {
+      transform: rotate(45deg) scale(1.15);
+    }
+    .map-scrubber:hover::-moz-range-thumb,
+    .map-scrubber:active::-moz-range-thumb {
+      transform: rotate(45deg) scale(1.15);
+    }
+    .map-scrubber:focus-visible::-webkit-slider-thumb {
+      box-shadow: 0 0 0 4px color-mix(in srgb, var(--atlas-gold) 45%, transparent);
+    }
+    .map-scrubber:focus-visible::-moz-range-thumb {
+      box-shadow: 0 0 0 4px color-mix(in srgb, var(--atlas-gold) 45%, transparent);
+    }
+    .map-axis {
+      height: 1.1rem;
+      margin-top: 0.5rem;
+      position: relative;
+    }
+    .map-axis-tick {
+      color: var(--atlas-ink-faint);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      position: absolute;
+      transform: translateX(-50%);
+    }
+
+    .map-legend {
+      color: var(--atlas-ink-muted);
+      display: flex;
+      flex-wrap: wrap;
+      font-size: 11px;
+      gap: 1.25rem;
+      justify-content: center;
+      letter-spacing: 0.08em;
+      margin: 1.6rem 0 0;
+      text-transform: uppercase;
+    }
+    .map-legend-item {
+      align-items: center;
+      display: flex;
+      gap: 0.4rem;
+    }
+    .map-dot {
+      border-radius: 50%;
+      display: inline-block;
+      height: 10px;
+      width: 10px;
+    }
+    .map-dot.is-critical {
+      background: var(--atlas-red);
+      height: 14px;
+      width: 14px;
+    }
+    .map-dot.is-high {
+      background: var(--atlas-gold);
+      height: 10px;
+      width: 10px;
+    }
+    .map-dot.is-low {
+      background: var(--atlas-ink-muted);
+      height: 7px;
+      width: 7px;
+    }
+    .map-dot.is-origin {
+      background: none;
+      border: 1.5px dashed var(--atlas-gold);
+    }
+
+    .map-ledger {
+      margin: 3rem auto 0;
+      max-width: 60rem;
+    }
+    .map-ledger-head {
+      margin-bottom: 1.2rem;
+      text-align: center;
+    }
+    .map-ledger-label {
+      color: var(--atlas-ink-muted);
+      font-size: 10px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+    }
+    .map-ledger-title {
+      color: var(--atlas-ink);
+      font-family: var(--atlas-font-display);
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      font-weight: 900;
+      margin: 0.4rem 0 0.6rem;
+    }
+    .map-ledger-intro {
+      color: var(--atlas-ink-muted);
+      font-size: 13px;
+      font-style: italic;
+      line-height: 1.7;
+      margin: 0 auto;
+      max-width: 44rem;
+    }
+    .map-ledger-list {
+      display: grid;
+      gap: 0 2.75rem;
+      grid-template-columns: repeat(2, 1fr);
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .map-ledger-link {
+      border-bottom: 1px solid color-mix(in srgb, var(--atlas-rule) 55%, transparent);
+      color: var(--atlas-ink);
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      padding: 0.7rem 0.6rem;
+      text-decoration: none;
+      transition:
+        background 0.18s ease,
+        box-shadow 0.18s ease;
+    }
+    .map-ledger-link:hover,
+    .map-ledger-link:focus-visible {
+      background: color-mix(in srgb, var(--atlas-gold) 7%, transparent);
+      box-shadow: inset 2px 0 0 var(--atlas-gold);
+    }
+    .map-ledger-main {
+      align-items: baseline;
+      display: flex;
+      gap: 0.7rem;
+    }
+    .map-ledger-reach {
+      align-items: center;
+      display: flex;
+      gap: 0.55rem;
+      padding-left: 3.3rem;
+    }
+    .map-ledger-year {
+      color: var(--atlas-gold);
+      font-family: var(--atlas-font-display);
+      font-size: 13px;
+      font-weight: 700;
+      min-width: 2.6rem;
+    }
+    .map-ledger-name {
+      flex: 1;
+      font-family: var(--atlas-font-display);
+      font-size: 0.95rem;
+      font-weight: 700;
+      line-height: 1.25;
+      transition: color 0.2s;
+    }
+    .map-ledger-list a:hover .map-ledger-name,
+    .map-ledger-list a:focus-visible .map-ledger-name {
+      color: var(--atlas-red);
+    }
+    .map-ledger-cat {
+      color: var(--atlas-ink-muted);
+      font-size: 11px;
+      font-style: italic;
+    }
+
+    :root[data-theme="dark"] .map-ocean {
+      fill: #0a1626;
+    }
+    :root[data-theme="dark"] .map-land {
+      fill: #24364f;
+      stroke: #46597a;
+    }
+    :root[data-theme="dark"] .map-core {
+      stroke: #0d1b2a;
+    }
+    :root[data-theme="dark"] .map-play {
+      background: var(--atlas-gold);
+      border-color: var(--atlas-gold);
+      color: #0d1b2a;
+    }
+
+    @media (max-width: 900px) {
+      .map-section {
+        padding: 0 1.25rem 1.5rem;
+      }
+      .map-frame {
+        padding: 0.6rem;
+      }
+      .map-timeline-head {
+        flex-wrap: wrap;
+        gap: 0.85rem;
+      }
+      .map-ledger-list {
+        grid-template-columns: 1fr;
+      }
+    }
+  }
+</style>

@@ -196,6 +196,12 @@ function getIncidentLead(incident: AtlasIncident): string {
                         ))}
                       </ul>
                     </div>
+                    <a
+                      class="archive-record-casefile"
+                      href={`/incident/${incident.slug}/`}
+                    >
+                      Read the full case file →
+                    </a>
                   </div>
                 </details>
               );
@@ -449,6 +455,7 @@ function getIncidentLead(incident: AtlasIncident): string {
     .archive-filter-field {
       display: grid;
       gap: 0.35rem;
+      position: relative;
     }
     .archive-filter-field span {
       color: var(--atlas-ink-muted);
@@ -467,16 +474,52 @@ function getIncidentLead(incident: AtlasIncident): string {
       font-size: 13px;
       min-height: 2.65rem;
       padding: 0.65rem 0.8rem;
+      transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+    }
+    .archive-filter-field select {
+      cursor: pointer;
+      padding-right: 2rem;
+    }
+    .archive-filter-field select:hover,
+    .archive-filter-field input:hover {
+      border-color: color-mix(in srgb, var(--atlas-gold) 45%, var(--atlas-rule));
+    }
+    .archive-filter-field select:focus-visible,
+    .archive-filter-field input:focus-visible {
+      border-color: var(--atlas-gold);
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--atlas-gold) 18%, transparent);
+      outline: none;
+    }
+    /* Art-Deco caret for the select fields */
+    .archive-filter-field:not(.archive-filter-field--search)::after {
+      border-left: 4px solid transparent;
+      border-right: 4px solid transparent;
+      border-top: 5px solid var(--atlas-ink-muted);
+      bottom: 1.05rem;
+      content: "";
+      height: 0;
+      pointer-events: none;
+      position: absolute;
+      right: 0.85rem;
+      transition: border-top-color 0.2s ease;
+      width: 0;
+    }
+    .archive-filter-field:not(.archive-filter-field--search):focus-within::after {
+      border-top-color: var(--atlas-gold);
     }
     .archive-filter-field input::placeholder {
       color: var(--atlas-ink-muted);
     }
     .archive-ledger-toolbar-foot {
       align-items: center;
+      border-top: 1px solid color-mix(in srgb, var(--atlas-rule) 60%, transparent);
       display: flex;
       flex-wrap: wrap;
       gap: 0.9rem 1.2rem;
       justify-content: space-between;
+      padding-top: 1rem;
     }
     .archive-ledger-toolbar-count {
       color: var(--atlas-ink);
@@ -527,8 +570,16 @@ function getIncidentLead(incident: AtlasIncident): string {
       font-family: var(--atlas-font-display);
       font-size: 1rem;
       margin: 0 3rem 2rem;
-      padding: 1rem 1.25rem;
+      padding: 1.5rem 1.25rem;
       text-align: center;
+    }
+    .archive-ledger-empty::before {
+      color: var(--atlas-gold);
+      content: "◆ ◆ ◆";
+      display: block;
+      font-size: 8px;
+      letter-spacing: 0.5em;
+      margin-bottom: 0.7rem;
     }
     .archive-ledger-cluster[hidden] {
       display: none;
@@ -591,7 +642,6 @@ function getIncidentLead(incident: AtlasIncident): string {
     .archive-record.is-targeted {
       border-color: var(--atlas-gold);
       box-shadow: 0 28px 65px -48px rgba(13, 27, 42, 0.45);
-      transform: translateY(-2px);
     }
     .archive-record:hover {
       border-color: color-mix(in srgb, var(--atlas-gold) 72%, var(--atlas-rule));
@@ -716,6 +766,23 @@ function getIncidentLead(incident: AtlasIncident): string {
       position: absolute;
       top: 0.72em;
       width: 4px;
+    }
+    .archive-record-casefile {
+      border-bottom: 1px solid color-mix(in srgb, var(--atlas-red) 40%, transparent);
+      color: var(--atlas-red);
+      display: inline-block;
+      font-family: var(--atlas-font-display);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      margin-top: 0.9rem;
+      text-decoration: none;
+      text-transform: uppercase;
+      transition: border-color 0.2s;
+    }
+    .archive-record-casefile:hover,
+    .archive-record-casefile:focus-visible {
+      border-color: var(--atlas-red);
     }
     :root[data-theme="dark"] .archive-record {
       background: linear-gradient(180deg, rgba(10, 23, 38, 0.28), rgba(10, 23, 38, 0.12));

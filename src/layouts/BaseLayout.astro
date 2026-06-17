@@ -10,10 +10,12 @@ export interface Props {
   image?: string | null;
   canonical?: string | null;
   noindex?: boolean | null;
+  ogType?: string | null;
 }
 
 const props = Astro.props;
-const formattedTitle = seoData.titleFormat.replace("{title}", props.title);
+const formattedTitle =
+  props.title === seoData.name ? props.title : seoData.titleFormat.replace("{title}", props.title);
 const pageDescription = props.description || seoData.description;
 const siteUrl = seoData.url || Astro.site?.toString() || "";
 const pageImage = props.image || seoData.defaultImage || seoData.logoSource;
@@ -101,11 +103,7 @@ const themeBootstrapScript = `(function () {
       ) : null
     }
 
-    {
-      enableLiveEditing ? (
-        <script set:html={liveEditingScript} />
-      ) : null
-    }
+    {enableLiveEditing ? <script set:html={liveEditingScript} /> : null}
 
     <title>{formattedTitle}</title>
     <link
@@ -134,7 +132,7 @@ const themeBootstrapScript = `(function () {
     />
     <meta
       property="og:type"
-      content="website"
+      content={props.ogType || "website"}
     />
     <meta
       property="og:image"
