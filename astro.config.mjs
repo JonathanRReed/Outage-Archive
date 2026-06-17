@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 import mdx from "@astrojs/mdx";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const sitemapExcludedPaths = new Set(["/contact/", "/privacy/", "/methodology/"]);
+const sitemapExcludedPaths = new Set(["/contact/", "/privacy/", "/methodology/", "/search/"]);
 
 // https://astro.build/config
 export default defineConfig({

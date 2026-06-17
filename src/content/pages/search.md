@@ -2,6 +2,7 @@
 _schema: default
 title: Find Atlas Records
 description: Find Internet Outage Atlas records by timeline view, archive grouping, methodology notes, and source context.
+noindex: true
 pageSections:
   - _component: page-sections/heroes/hero-center
     eyebrow: Internet Outage Atlas
