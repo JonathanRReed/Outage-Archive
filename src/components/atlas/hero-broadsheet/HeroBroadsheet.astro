@@ -293,7 +293,8 @@ const {
       color: var(--atlas-ink-muted);
       transition: color 0.15s;
     }
-    .masthead-nav a:hover {
+    .masthead-nav a:hover,
+    .masthead-nav a[aria-current="page"] {
       color: var(--atlas-ink);
     }
 
@@ -408,7 +409,7 @@ const {
       margin-bottom: 1rem;
       text-align: justify;
     }
-    .hero-body :global(p:first-letter) {
+    .hero-body :global(p:first-child:first-letter) {
       font-family: var(--atlas-font-display);
       font-size: 3.5em;
       float: left;
