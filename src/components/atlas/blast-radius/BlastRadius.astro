@@ -255,6 +255,36 @@ const {
       border-color: color-mix(in srgb, var(--atlas-red) 20%, transparent);
       inset: -22px;
     }
+
+    /* blast propagation: rings expand outward, stage by stage, when the section reveals */
+    @keyframes blast-ring-out {
+      0% {
+        opacity: 0;
+        transform: scale(0.35);
+      }
+      60% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+    .blast-inset.revealed .blast-circle::before,
+    .blast-inset.revealed .blast-circle::after {
+      animation: blast-ring-out 0.9s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+    }
+    .blast-inset.revealed .b2::before {
+      animation-delay: 0.1s;
+    }
+    .blast-inset.revealed .b3::before,
+    .blast-inset.revealed .b3::after {
+      animation-delay: 0.22s;
+    }
+    .blast-inset.revealed .b4::before,
+    .blast-inset.revealed .b4::after {
+      animation-delay: 0.34s;
+    }
     .blast-core-label {
       color: var(--atlas-ink-faint);
       font-size: 8px;
