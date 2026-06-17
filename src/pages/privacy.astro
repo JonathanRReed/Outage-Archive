@@ -1,0 +1,177 @@
+---
+import AtlasFooter from "@components/atlas/atlas-footer/AtlasFooter.astro";
+import AtlasPageShell from "@components/atlas/shared/AtlasPageShell.astro";
+import Layout from "@layouts/BaseLayout.astro";
+
+const notes = [
+  {
+    h: "A static reference",
+    p: "Internet Outage Atlas is a static editorial reference. The site does not require accounts, does not ask for personal information, and does not include a login, a payment flow, or a newsletter form.",
+  },
+  {
+    h: "Hosting and security logs",
+    p: "Standard hosting and security systems may process basic request data such as IP address, user agent, requested URL, timestamp, and security challenge signals. That information is used to deliver the site, protect it from abuse, and confirm that pages are reachable.",
+  },
+  {
+    h: "External sources",
+    p: "The atlas links to external incident reports, company postmortems, technical analyses, and Jonathan R Reed's main site. Those external sites have their own privacy practices, separate from this archive.",
+  },
+];
+---
+
+<Layout
+  title="Privacy Notice"
+  description="Privacy notice for Internet Outage Atlas, a static editorial archive about major internet outages."
+  noindex={true}
+>
+  <section
+    class="atlas-page-surface"
+    aria-label="Privacy surface"
+  >
+    <AtlasPageShell
+      currentPage="none"
+      dateline="Vol. I · Colophon · Privacy notice"
+      kicker="Internet Outage Atlas · Privacy"
+      heading="PRIVACY<br>NOTICE"
+      subtitle="A short note on how this static outage archive handles data"
+    >
+      <section class="doc-page">
+        <div class="doc-main">
+          {
+            notes.map((note, index) => (
+              <article
+                class="doc-note reveal"
+                style={`--reveal-delay: ${Math.min(index * 0.06, 0.2)}s`}
+              >
+                <h2 class="doc-note-h">{note.h}</h2>
+                <p>{note.p}</p>
+              </article>
+            ))
+          }
+        </div>
+
+        <aside class="doc-card reveal">
+          <div class="doc-card-label">At a glance</div>
+          <ul class="doc-glance">
+            <li><span>Accounts</span><span>None</span></li>
+            <li><span>Personal data collected</span><span>None</span></li>
+            <li><span>Trackers / ads</span><span>None</span></li>
+            <li><span>Newsletter</span><span>None</span></li>
+            <li><span>Hosting logs</span><span>Standard</span></li>
+          </ul>
+        </aside>
+      </section>
+
+      <AtlasFooter
+        publicationTitle="Internet<br>Outage Atlas"
+        tagline="A static archive: no accounts, no tracking, no collected personal data."
+        figures={[
+          { bold: "Static", text: "No accounts and no submitted personal data" },
+          { bold: "Logs", text: "Standard hosting and security request data only" },
+          { bold: "External", text: "Linked sources carry their own policies" },
+        ]}
+        editionText="Colophon Edition<br />Privacy notice"
+        copyrightText="© 2026 Jonathan R Reed"
+        typesetText="Researched and curated for Internet Outage Atlas"
+        websiteUrl="https://JonathanRReed.com"
+        articleUrl="https://JonathanRReed.com/blog/days-the-internet-dies/"
+      />
+    </AtlasPageShell>
+  </section>
+</Layout>
+
+<style>
+  @layer page-sections {
+    .doc-page {
+      display: grid;
+      gap: 1.8rem;
+      grid-template-columns: minmax(0, 3fr) minmax(260px, 1.3fr);
+      padding: 2.4rem 3rem 3rem;
+    }
+    .doc-main {
+      display: grid;
+      gap: 1.6rem;
+      max-width: 62ch;
+    }
+    .doc-note-h {
+      border-bottom: 1px solid var(--atlas-rule);
+      color: var(--atlas-ink-muted);
+      font-family: var(--atlas-font-display);
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      margin: 0 0 0.8rem;
+      padding-bottom: 0.45rem;
+      text-transform: uppercase;
+    }
+    .doc-note p {
+      color: var(--atlas-ink-mid);
+      font-size: 1.02rem;
+      line-height: 1.95;
+      margin: 0;
+    }
+    .doc-card {
+      align-self: start;
+      background: var(--atlas-surface);
+      border: 1px solid var(--atlas-rule);
+      border-top: 2px solid var(--atlas-deco-border);
+      box-shadow:
+        0 1px 0 rgba(0, 0, 0, 0.04),
+        0 18px 44px -36px rgba(13, 27, 42, 0.5);
+      padding: 1.2rem 1.2rem 1.3rem;
+    }
+    .doc-card-label {
+      border-bottom: 2px solid var(--atlas-deco-border);
+      color: var(--atlas-ink-muted);
+      font-family: var(--atlas-font-display);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      margin-bottom: 0.9rem;
+      padding-bottom: 0.5rem;
+      text-transform: uppercase;
+    }
+    .doc-glance {
+      display: grid;
+      gap: 0;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .doc-glance li {
+      align-items: baseline;
+      border-bottom: 1px dotted color-mix(in srgb, var(--atlas-rule) 65%, transparent);
+      display: flex;
+      gap: 0.75rem;
+      justify-content: space-between;
+      padding: 0.55rem 0;
+    }
+    .doc-glance li:last-child {
+      border-bottom: none;
+    }
+    .doc-glance span:first-child {
+      color: var(--atlas-ink-muted);
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .doc-glance span:last-child {
+      color: var(--atlas-ink);
+      font-family: var(--atlas-font-display);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    :root[data-theme="dark"] .doc-card {
+      background: #1b2d45;
+      border-color: rgba(212, 175, 85, 0.22);
+    }
+
+    @media (max-width: 1080px) {
+      .doc-page {
+        grid-template-columns: 1fr;
+        padding: 2rem 1.5rem 2.5rem;
+      }
+    }
+  }
+</style>
