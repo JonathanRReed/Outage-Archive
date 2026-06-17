@@ -75,6 +75,98 @@ const services = (inc: AtlasIncident) =>
     .map((s) => s.name)
     .slice(0, 5)
     .join(" · ");
+
+// --- Reach / area of effect ---
+// Coarse continent ellipses (equirectangular viewBox coords) that light up to show
+// how far an outage reached. Global incidents light the whole world.
+const REGIONS = {
+  na: { cx: 240, cy: 135, rx: 120, ry: 88 },
+  sa: { cx: 332, cy: 322, rx: 70, ry: 108 },
+  eu: { cx: 542, cy: 112, rx: 78, ry: 56 },
+  me: { cx: 628, cy: 188, rx: 52, ry: 48 },
+  af: { cx: 548, cy: 255, rx: 96, ry: 112 },
+  as: { cx: 770, cy: 158, rx: 162, ry: 110 },
+  oc: { cx: 868, cy: 322, rx: 96, ry: 70 },
+} as const;
+
+type RegionKey = keyof typeof REGIONS;
+const ALL_REGIONS = Object.keys(REGIONS) as RegionKey[];
+
+function regionOf(lat: number, lng: number): RegionKey {
+  if (lng >= -82 && lng <= -34 && lat >= -56 && lat <= 14) return "sa";
+  if (lng >= -170 && lng <= -50 && lat >= 7 && lat <= 75) return "na";
+  if (lng >= 33 && lng <= 63 && lat >= 12 && lat <= 43) return "me";
+  if (lng >= -25 && lng <= 45 && lat >= 34 && lat <= 72) return "eu";
+  if (lng >= -20 && lng <= 52 && lat >= -36 && lat <= 37) return "af";
+  if (lng >= 110 && lng <= 180 && lat >= -50 && lat <= 0) return "oc";
+  if (lng >= 60 && lng <= 180 && lat >= 5 && lat <= 78) return "as";
+  return "na";
+}
+
+type Reach = { score: number; regions: string; text: string };
+function reachOf(inc: AtlasIncident): Reach {
+  const svc = inc.affectedServices?.length ?? 0;
+  const dur = inc.durationMinutes ?? 0;
+  let s = inc.scope === "global" ? 3 : inc.scope === "regional" ? 2 : 1;
+
+  s += Math.min(1.5, svc / 6);
+  s += dur >= 1440 ? 1 : dur >= 360 ? 0.5 : 0;
+  s += inc.severityRank === 3 ? 0.5 : 0;
+  const score = Math.max(1, Math.min(5, Math.round(s)));
+
+  let regions: RegionKey[];
+
+  if (inc.scope === "global") regions = ALL_REGIONS;
+  else if (inc.geo && inc.geo.length)
+    regions = [...new Set(inc.geo.map((p) => regionOf(p.lat, p.lng)))];
+  else if (inc.originRegion) regions = [regionOf(inc.originRegion.lat, inc.originRegion.lng)];
+  else regions = ALL_REGIONS;
+
+  const reachWord =
+    inc.scope === "global" ? "Worldwide" : inc.scope === "regional" ? "Regional" : "Local";
+  const durTxt =
+    dur >= 1440
+      ? `~${Math.round(dur / 1440)}-day recovery`
+      : dur >= 60
+        ? `~${Math.round(dur / 60)}h`
+        : dur
+          ? `${dur}m`
+          : "";
+  const text = [`${reachWord} reach`, svc ? `${svc} services` : "", durTxt]
+    .filter(Boolean)
+    .join(" · ");
+
+  return { score, regions: regions.join(" "), text };
+}
+
+// Fan co-located markers (e.g. the AWS us-east-1 stack) onto a small ring so each
+// stays individually hoverable instead of hiding under the top one.
+function declutterMarkers(all: Marker[]): void {
+  const buckets = new Map<string, Marker[]>();
+
+  for (const m of all) {
+    const key = `${Math.round(m.x)},${Math.round(m.y)}`;
+    const arr = buckets.get(key);
+
+    if (arr) arr.push(m);
+    else buckets.set(key, [m]);
+  }
+  for (const group of buckets.values()) {
+    if (group.length < 2) continue;
+    const n = group.length;
+    const radius = 2.6 + n * 0.7;
+
+    group.forEach((m, i) => {
+      const angle = (i / n) * Math.PI * 2 - Math.PI / 2;
+
+      m.x = round(m.x + Math.cos(angle) * radius);
+      m.y = round(m.y + Math.sin(angle) * radius);
+    });
+  }
+}
+declutterMarkers([...impactMarkers, ...originMarkers]);
+
+const reachPips = (score: number) => Array.from({ length: 5 }, (_, i) => i < score);
 ---
 
 <Layout
@@ -87,7 +179,7 @@ const services = (inc: AtlasIncident) =>
   >
     <AtlasPageShell
       currentPage="map"
-      dateline={`Vol. I · Cartography · ${impactMarkers.length + originMarkers.length} located, ${worldwide.length} worldwide`}
+      dateline={`Vol. I · Cartography · ${placed.size} located, ${worldwide.length} worldwide`}
       kicker="Internet Outage Atlas · The Map"
       heading="THE<br>ATLAS MAP"
       subtitle="Press play to watch a quarter-century of outages ripple across the world"
@@ -141,6 +233,35 @@ const services = (inc: AtlasIncident) =>
                 ))
               }
             </g>
+            <defs>
+              <filter
+                id="regionBlur"
+                x="-20%"
+                y="-20%"
+                width="140%"
+                height="140%"
+              >
+                <feGaussianBlur stdDeviation="7"></feGaussianBlur>
+              </filter>
+            </defs>
+            <g
+              class="region-glows"
+              filter="url(#regionBlur)"
+              aria-hidden="true"
+            >
+              {
+                ALL_REGIONS.map((key) => (
+                  <ellipse
+                    class:list={["region-glow", `region-${key}`]}
+                    cx={REGIONS[key].cx}
+                    cy={REGIONS[key].cy}
+                    rx={REGIONS[key].rx}
+                    ry={REGIONS[key].ry}
+                  />
+                ))
+              }
+            </g>
+
             <path
               d={worldLandPath}
               class="map-land"
@@ -151,12 +272,16 @@ const services = (inc: AtlasIncident) =>
               {
                 originMarkers.map((m) => {
                   const r = coreR(m.inc.severityRank);
+                  const reach = reachOf(m.inc);
 
                   return (
                     <a
                       href={`/incident/${m.inc.slug}/`}
                       class="map-marker is-origin"
                       data-slug={m.inc.slug}
+                      data-regions={reach.regions}
+                      data-reach={String(reach.score)}
+                      data-reach-text={reach.text}
                       data-date={m.inc.sortDate}
                       data-title={m.inc.title}
                       data-meta={`Fault origin · ${m.place} · ${m.inc.dateLabel}`}
@@ -199,12 +324,16 @@ const services = (inc: AtlasIncident) =>
                 impactMarkers.map((m) => {
                   const r = coreR(m.inc.severityRank);
                   const rings = ringCount(m.inc.severityRank);
+                  const reach = reachOf(m.inc);
 
                   return (
                     <a
                       href={`/incident/${m.inc.slug}/`}
                       class:list={["map-marker", sevClass(m.inc.severityRank)]}
                       data-slug={m.inc.slug}
+                      data-regions={reach.regions}
+                      data-reach={String(reach.score)}
+                      data-reach-text={reach.text}
                       data-date={m.inc.sortDate}
                       data-title={m.inc.title}
                       data-meta={`${m.place} · ${m.inc.dateLabel}`}
@@ -268,6 +397,22 @@ const services = (inc: AtlasIncident) =>
               class="map-tooltip-meta"
               data-tip-meta
             >
+            </div>
+            <div class="map-tooltip-reach">
+              <span
+                class="reach-meter"
+                data-tip-meter
+              >
+                <span class="reach-pip"></span>
+                <span class="reach-pip"></span>
+                <span class="reach-pip"></span>
+                <span class="reach-pip"></span>
+                <span class="reach-pip"></span>
+              </span>
+              <span
+                class="reach-text"
+                data-tip-reach-text
+              ></span>
             </div>
             <div
               class="map-tooltip-services"
@@ -374,15 +519,38 @@ const services = (inc: AtlasIncident) =>
           </div>
           <ul class="map-ledger-list">
             {
-              worldwide.map((inc) => (
-                <li>
-                  <a href={`/incident/${inc.slug}/`}>
-                    <span class="map-ledger-year">{inc.year}</span>
-                    <span class="map-ledger-name">{inc.title}</span>
-                    <span class="map-ledger-cat">{inc.category}</span>
-                  </a>
-                </li>
-              ))
+              worldwide.map((inc) => {
+                const reach = reachOf(inc);
+
+                return (
+                  <li>
+                    <a
+                      href={`/incident/${inc.slug}/`}
+                      class="map-ledger-link"
+                      data-slug={inc.slug}
+                      data-regions={reach.regions}
+                      data-reach={String(reach.score)}
+                    >
+                      <span class="map-ledger-main">
+                        <span class="map-ledger-year">{inc.year}</span>
+                        <span class="map-ledger-name">{inc.title}</span>
+                        <span class="map-ledger-cat">{inc.category}</span>
+                      </span>
+                      <span class="map-ledger-reach">
+                        <span
+                          class="reach-meter"
+                          aria-hidden="true"
+                        >
+                          {reachPips(reach.score).map((on) => (
+                            <span class:list={["reach-pip", on && "is-on"]} />
+                          ))}
+                        </span>
+                        <span class="reach-text">{reach.text}</span>
+                      </span>
+                    </a>
+                  </li>
+                );
+              })
             }
           </ul>
         </aside>
@@ -392,7 +560,7 @@ const services = (inc: AtlasIncident) =>
           tagline="An engraved chart of where shared-infrastructure failures touched the ground."
           figures={[
             {
-              bold: String(impactMarkers.length + originMarkers.length),
+              bold: String(placed.size),
               text: "Incidents located on the map",
             },
             { bold: String(worldwide.length), text: "Filed in the Worldwide Ledger" },
@@ -451,7 +619,7 @@ const services = (inc: AtlasIncident) =>
       }
 
       function render(t, animate) {
-        yearEl.textContent = new Date(t).getFullYear();
+        yearEl.textContent = new Date(t).getUTCFullYear();
         var latest = null;
         for (var i = 0; i < chrono.length; i++) {
           var inc = chrono[i];
@@ -523,6 +691,7 @@ const services = (inc: AtlasIncident) =>
         playBtn.classList.add("is-playing");
         playIcon.textContent = "❚❚";
         playLabel.textContent = "Pause";
+        dispatchEl.setAttribute("aria-live", "off");
         raf = requestAnimationFrame(step);
       }
 
@@ -532,6 +701,7 @@ const services = (inc: AtlasIncident) =>
         playBtn.classList.remove("is-playing");
         playIcon.textContent = "▶";
         playLabel.textContent = "Play the record";
+        dispatchEl.setAttribute("aria-live", "polite");
       }
 
       playBtn.addEventListener("click", function () {
@@ -539,21 +709,63 @@ const services = (inc: AtlasIncident) =>
         else play();
       });
 
+      // region glow — light up an incident's area of effect
+      var regionEls = {};
+      Array.prototype.forEach.call(map.querySelectorAll(".region-glow"), function (e) {
+        var mtch = (e.getAttribute("class") || "").match(/region-([a-z]{2})\b/);
+        if (mtch) regionEls[mtch[1]] = e;
+      });
+      function clearGlow() {
+        map.removeAttribute("data-glow");
+        for (var k in regionEls) {
+          if (regionEls[k]) regionEls[k].classList.remove("is-glowing");
+        }
+      }
+      function setGlow(el) {
+        clearGlow();
+        if (!el) return;
+        var sev = el.classList.contains("is-critical")
+          ? "critical"
+          : el.classList.contains("is-high")
+            ? "high"
+            : el.classList.contains("is-low")
+              ? "low"
+              : "";
+        if (!sev) {
+          var rc = parseInt(el.getAttribute("data-reach") || "3", 10);
+          sev = rc >= 4 ? "critical" : rc >= 3 ? "high" : "low";
+        }
+        map.setAttribute("data-glow", sev);
+        var regions = (el.getAttribute("data-regions") || "").split(" ");
+        for (var i = 0; i < regions.length; i++) {
+          if (regionEls[regions[i]]) regionEls[regions[i]].classList.add("is-glowing");
+        }
+      }
+
       if (tip && frame) {
         var tTitle = tip.querySelector("[data-tip-title]");
         var tMeta = tip.querySelector("[data-tip-meta]");
         var tServices = tip.querySelector("[data-tip-services]");
+        var tMeter = tip.querySelector("[data-tip-meter]");
+        var tReachText = tip.querySelector("[data-tip-reach-text]");
         var show = function (marker) {
           tTitle.textContent = marker.getAttribute("data-title") || "";
           tMeta.textContent = marker.getAttribute("data-meta") || "";
           var svc = marker.getAttribute("data-services") || "";
           tServices.textContent = svc;
           tServices.style.display = svc ? "block" : "none";
+          var score = parseInt(marker.getAttribute("data-reach") || "0", 10);
+          if (tMeter) {
+            var pips = tMeter.querySelectorAll(".reach-pip");
+            for (var p = 0; p < pips.length; p++) pips[p].classList.toggle("is-on", p < score);
+          }
+          if (tReachText) tReachText.textContent = marker.getAttribute("data-reach-text") || "";
           var r = marker.getBoundingClientRect();
           var fr = frame.getBoundingClientRect();
           tip.style.left = r.left + r.width / 2 - fr.left + "px";
           tip.style.top = r.top - fr.top + "px";
           tip.hidden = false;
+          tip.classList.toggle("is-below", r.top - fr.top < tip.offsetHeight + 16);
         };
         var hide = function () {
           tip.hidden = true;
@@ -561,14 +773,34 @@ const services = (inc: AtlasIncident) =>
         Array.prototype.forEach.call(map.querySelectorAll(".map-marker"), function (marker) {
           marker.addEventListener("mouseenter", function () {
             show(marker);
+            setGlow(marker);
           });
-          marker.addEventListener("mouseleave", hide);
+          marker.addEventListener("mouseleave", function () {
+            hide();
+            clearGlow();
+          });
           marker.addEventListener("focus", function () {
             show(marker);
+            setGlow(marker);
           });
-          marker.addEventListener("blur", hide);
+          marker.addEventListener("blur", function () {
+            hide();
+            clearGlow();
+          });
         });
       }
+
+      // Worldwide Ledger rows light up their area of effect on the map
+      Array.prototype.forEach.call(document.querySelectorAll(".map-ledger-link"), function (row) {
+        row.addEventListener("mouseenter", function () {
+          setGlow(row);
+        });
+        row.addEventListener("mouseleave", clearGlow);
+        row.addEventListener("focus", function () {
+          setGlow(row);
+        });
+        row.addEventListener("blur", clearGlow);
+      });
     }
 
     if (document.readyState === "loading") {
@@ -628,6 +860,46 @@ const services = (inc: AtlasIncident) =>
       stroke: var(--atlas-ink-muted);
       stroke-linejoin: round;
       stroke-width: 0.4;
+    }
+
+    /* area-of-effect region glow */
+    .region-glow {
+      fill: var(--atlas-red);
+      opacity: 0;
+      transition: opacity 0.35s ease;
+    }
+    .region-glow.is-glowing {
+      opacity: 0.18;
+    }
+    .world-map[data-glow="high"] .region-glow {
+      fill: var(--atlas-gold);
+    }
+    .world-map[data-glow="low"] .region-glow {
+      fill: var(--atlas-ink-muted);
+    }
+
+    /* magnitude meter (reach) — used in ledger + tooltip */
+    .reach-meter {
+      display: inline-flex;
+      flex-shrink: 0;
+      gap: 3px;
+    }
+    .reach-pip {
+      border: 1px solid var(--atlas-ink-faint);
+      border-radius: 50%;
+      box-sizing: border-box;
+      height: 7px;
+      width: 7px;
+    }
+    .reach-pip.is-on {
+      background: var(--atlas-red);
+      border-color: var(--atlas-red);
+    }
+    .reach-text {
+      color: var(--atlas-ink-muted);
+      font-size: 11px;
+      font-style: italic;
+      letter-spacing: 0.02em;
     }
 
     .map-marker {
@@ -799,6 +1071,15 @@ const services = (inc: AtlasIncident) =>
       line-height: 1.5;
       margin-top: 0.45rem;
       padding-top: 0.4rem;
+    }
+    .map-tooltip-reach {
+      align-items: center;
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.45rem;
+    }
+    .map-tooltip.is-below {
+      transform: translate(-50%, 16px);
     }
 
     .map-timeline {
@@ -994,14 +1275,25 @@ const services = (inc: AtlasIncident) =>
       margin: 0;
       padding: 0;
     }
-    .map-ledger-list a {
-      align-items: baseline;
+    .map-ledger-link {
       border-bottom: 1px solid color-mix(in srgb, var(--atlas-rule) 55%, transparent);
       color: var(--atlas-ink);
       display: flex;
-      gap: 0.7rem;
-      padding: 0.65rem 0.5rem;
+      flex-direction: column;
+      gap: 0.3rem;
+      padding: 0.7rem 0.5rem;
       text-decoration: none;
+    }
+    .map-ledger-main {
+      align-items: baseline;
+      display: flex;
+      gap: 0.7rem;
+    }
+    .map-ledger-reach {
+      align-items: center;
+      display: flex;
+      gap: 0.55rem;
+      padding-left: 3.3rem;
     }
     .map-ledger-year {
       color: var(--atlas-gold);
