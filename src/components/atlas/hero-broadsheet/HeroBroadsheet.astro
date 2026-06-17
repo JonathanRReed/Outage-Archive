@@ -448,6 +448,7 @@ const {
       font-family: var(--atlas-font-display);
       font-size: 2.5rem;
       font-weight: 900;
+      font-variant-numeric: tabular-nums;
       line-height: 1;
       color: var(--atlas-red);
     }
@@ -581,6 +582,29 @@ const {
       });
     }
 
+    function animateFigure(el) {
+      var raw = el.getAttribute("data-countup") || "";
+      var m = raw.match(/^([^\d]*)([\d.]+)(.*)$/);
+      if (!m) return;
+      var prefix = m[1];
+      var target = parseFloat(m[2]);
+      var suffix = m[3];
+      if (isNaN(target)) return;
+      var decimals = (m[2].split(".")[1] || "").length;
+      var start = null;
+      var dur = 1100;
+      function step(ts) {
+        if (!start) start = ts;
+        var t = Math.min(1, (ts - start) / dur);
+        var eased = 1 - Math.pow(1 - t, 3);
+        var v = target * eased;
+        el.textContent = prefix + (decimals ? v.toFixed(decimals) : Math.round(v)) + suffix;
+        if (t < 1) requestAnimationFrame(step);
+        else el.textContent = raw;
+      }
+      requestAnimationFrame(step);
+    }
+
     function initAtlasInteractions() {
       // Scroll reveal
       if (prefersReducedMotion) {
@@ -601,6 +625,28 @@ const {
         );
         document.querySelectorAll(".reveal").forEach(function (el) {
           observer.observe(el);
+        });
+      }
+
+      // Count-up the Key Figures (the newsroom tote-board waking up)
+      var figs = document.querySelectorAll(".sf-number");
+      figs.forEach(function (el) {
+        el.setAttribute("data-countup", el.textContent.trim());
+      });
+      if (!prefersReducedMotion && "IntersectionObserver" in window) {
+        var countObs = new IntersectionObserver(
+          function (entries) {
+            entries.forEach(function (entry) {
+              if (entry.isIntersecting) {
+                animateFigure(entry.target);
+                countObs.unobserve(entry.target);
+              }
+            });
+          },
+          { threshold: 0.6 }
+        );
+        figs.forEach(function (el) {
+          countObs.observe(el);
         });
       }
 
