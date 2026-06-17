@@ -127,7 +127,7 @@ body:has(.atlas-footer) {
 
 :root[data-theme="dark"] .atlas-page::before {
   mix-blend-mode: screen;
-  opacity: 0.02;
+  opacity: 0.04;
 }
 
 /* ── Art Deco Shared Ornaments ── */
