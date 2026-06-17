@@ -104,7 +104,7 @@ const articleJsonLd = {
               )
             }
 
-            <figure class="incident-lesson">
+            <figure class="incident-lesson reveal">
               <blockquote>{lessonText}</blockquote>
               <figcaption>The lesson on the record</figcaption>
             </figure>
@@ -118,7 +118,10 @@ const articleJsonLd = {
             </a>
           </div>
 
-          <aside class="incident-side">
+          <aside
+            class="incident-side reveal"
+            style="--reveal-delay: 0.08s"
+          >
             <div class="incident-dossier">
               <div class="incident-dossier-label">Case metadata</div>
               <dl class="incident-meta">
@@ -212,7 +215,7 @@ const articleJsonLd = {
         </div>
 
         <nav
-          class="incident-pager"
+          class="incident-pager reveal"
           aria-label="Adjacent incidents"
         >
           {
@@ -245,7 +248,7 @@ const articleJsonLd = {
 
         {
           related.length > 0 && (
-            <section class="incident-related">
+            <section class="incident-related reveal">
               <div class="double-rule" />
               <h2 class="incident-related-h">Related incidents · {group?.label}</h2>
               <ul class="incident-related-list">
@@ -454,9 +457,16 @@ const articleJsonLd = {
       margin: 0;
     }
     .incident-meta div {
+      align-items: baseline;
+      border-bottom: 1px dotted color-mix(in srgb, var(--atlas-rule) 65%, transparent);
       display: flex;
       gap: 0.75rem;
       justify-content: space-between;
+      padding-bottom: 0.6rem;
+    }
+    .incident-meta div:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
     }
     .incident-meta dt {
       color: var(--atlas-ink-muted);
@@ -514,11 +524,15 @@ const articleJsonLd = {
       padding: 0;
     }
     .incident-services li {
+      background: color-mix(in srgb, var(--atlas-deco-border) 14%, transparent);
       border: 1px solid color-mix(in srgb, var(--atlas-rule) 80%, transparent);
-      color: var(--atlas-ink-mid);
-      font-size: 11px;
-      letter-spacing: 0.02em;
-      padding: 0.2rem 0.5rem;
+      color: var(--atlas-ink-muted);
+      font-family: var(--atlas-font-display);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      padding: 0.22rem 0.55rem;
+      text-transform: uppercase;
     }
     .incident-group-heading {
       color: var(--atlas-ink);
@@ -552,13 +566,22 @@ const articleJsonLd = {
       text-decoration: none;
       transition:
         border-color 0.2s,
-        background 0.2s;
+        background 0.2s,
+        transform 0.2s ease;
     }
     .incident-pager-link.is-next {
       text-align: right;
     }
     .incident-pager-link.is-empty {
       border-color: transparent;
+    }
+    a.incident-pager-link.is-prev:hover,
+    a.incident-pager-link.is-prev:focus-visible {
+      transform: translateX(-3px);
+    }
+    a.incident-pager-link.is-next:hover,
+    a.incident-pager-link.is-next:focus-visible {
+      transform: translateX(3px);
     }
     a.incident-pager-link:hover,
     a.incident-pager-link:focus-visible {
@@ -604,8 +627,16 @@ const articleJsonLd = {
       color: var(--atlas-ink);
       display: flex;
       gap: 0.6rem;
-      padding: 0.6rem 0;
+      padding: 0.6rem 0 0.6rem 0;
       text-decoration: none;
+      transition:
+        border-color 0.2s,
+        padding-left 0.2s ease;
+    }
+    .incident-related-list a:hover,
+    .incident-related-list a:focus-visible {
+      border-bottom-color: color-mix(in srgb, var(--atlas-gold) 55%, transparent);
+      padding-left: 0.4rem;
     }
     .incident-related-year {
       color: var(--atlas-gold);

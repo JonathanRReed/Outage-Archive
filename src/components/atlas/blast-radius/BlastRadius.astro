@@ -17,6 +17,8 @@ const {
   _component,
   ...htmlAttributes
 } = Astro.props;
+
+const coreLabels = ["Local", "Regional", "Cross-provider", "Cascade"];
 ---
 
 <div class="double-rule"></div>
@@ -86,7 +88,7 @@ const {
                     level.isRed ? "b-red" : "b-default",
                   ]}
                 >
-                  <span class="blast-core-label">Radius</span>
+                  <span class="blast-core-label">{coreLabels[index] ?? "Radius"}</span>
                   <span class:list={["blast-num", { red: level.isRed }]}>{level.numeral}</span>
                 </div>
               </div>
@@ -233,6 +235,10 @@ const {
     .b-red {
       border: 2px solid var(--atlas-red);
     }
+    .b1::before {
+      border-color: color-mix(in srgb, var(--atlas-rule) 32%, transparent);
+      inset: -6px;
+    }
     .b2::before {
       border-color: color-mix(in srgb, var(--atlas-rule) 45%, transparent);
     }
@@ -351,6 +357,9 @@ const {
     }
     :root[data-theme="dark"] .b-red {
       border-color: #d4af55;
+    }
+    :root[data-theme="dark"] .b1::before {
+      border-color: rgba(212, 175, 85, 0.1);
     }
     :root[data-theme="dark"] .b2::before {
       border-color: rgba(212, 175, 85, 0.16);
