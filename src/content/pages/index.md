@@ -26,9 +26,10 @@ pageSections:
       is more concentrated than it looks.</p>
 
       <p>Read the <a href="#timeline">Featured Timeline</a>, review the <a
-      href="#archive">Incident Archive</a>, and study the <a
-      href="#taxonomy">Failure Taxonomy</a> to see what broke, how it spread,
-      and why the same failures keep returning.</p>
+      href="#archive">Incident Archive</a>, study the <a
+      href="#taxonomy">Failure Taxonomy</a>, or play through a quarter-century of
+      failures on the interactive <a href="/map/">Atlas Map</a> to see what
+      broke, how it spread, and why the same failures keep returning.</p>
     statFigures:
       - number: '50'
         label: Incidents Documented

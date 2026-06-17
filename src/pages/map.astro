@@ -809,7 +809,7 @@ const panelData = Object.fromEntries(
       }
       function showReach(cx, cy, scope, sev) {
         if (!reachZone || zEls.length < 3) return;
-        var r = scope === "global" ? 300 : scope === "regional" ? 86 : 36;
+        var r = scope === "global" ? 240 : scope === "regional" ? 78 : 34;
         zEls[0].setAttribute("cx", cx);
         zEls[0].setAttribute("cy", cy);
         zEls[0].style.r = r + "px";
@@ -1015,19 +1015,16 @@ const panelData = Object.fromEntries(
       opacity: 1;
     }
     .reach-zone circle {
-      transition:
-        r 0.55s cubic-bezier(0.22, 1, 0.36, 1),
-        cx 0.35s ease,
-        cy 0.35s ease;
+      transition: r 0.5s cubic-bezier(0.22, 1, 0.36, 1);
     }
     .reach-zone-fill {
       fill: var(--atlas-red);
-      opacity: 0.07;
+      opacity: 0.1;
     }
     .reach-zone-ring {
       fill: none;
       stroke: var(--atlas-red);
-      stroke-width: 0.8;
+      stroke-width: 0.9;
     }
     .reach-zone-out {
       opacity: 0.55;
@@ -1270,20 +1267,34 @@ const panelData = Object.fromEntries(
       right: 1.1rem;
     }
     .map-panel-close {
+      align-items: center;
       background: none;
       border: 0;
+      border-radius: 50%;
       color: var(--atlas-ink-muted);
       cursor: pointer;
-      font-size: 1.4rem;
+      display: flex;
+      font-size: 1.3rem;
+      height: 28px;
+      justify-content: center;
       line-height: 1;
-      padding: 0.1rem 0.2rem;
+      padding: 0;
       position: absolute;
-      right: 0.6rem;
-      top: 0.4rem;
+      right: 0.5rem;
+      top: 0.5rem;
+      transition:
+        background 0.15s,
+        color 0.15s;
+      width: 28px;
     }
     .map-panel-close:hover,
     .map-panel-close:focus-visible {
+      background: color-mix(in srgb, var(--atlas-red) 12%, transparent);
       color: var(--atlas-red);
+    }
+    .map-panel-close:focus-visible {
+      outline: 2px solid var(--atlas-gold);
+      outline-offset: 1px;
     }
     .map-panel-kicker {
       color: var(--atlas-ink-muted);
