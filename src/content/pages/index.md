@@ -40,8 +40,8 @@ pageSections:
         label: Market cap lost in single outage
         note: Facebook/Meta, October 2021
       - number: 26h
-        label: Longest telecom outage duration
-        note: Rogers Canada, July 2022
+        label: Rogers Canada nationwide outage
+        note: 12 million users offline, including 911 · 2022
       - number: BGP
         label: Dominant failure class
         note: Border Gateway Protocol misconfig
@@ -360,9 +360,8 @@ pageSections:
     rightTitle2: Scope and Coverage
     rightItems2:
       - 50-incident curated atlas, version 1
-      - 13-incident canonical core for the featured timeline
-      - 56-incident watchlist for potential version 2 expansion
-      - 'Temporal scope: year 2000 through March 2026'
+      - 7 featured incidents on the homepage timeline
+      - 'Temporal scope: 1997 through March 2026'
       - 'Geographic focus: incidents with significant U.S. user impact prioritized'
       - 'No real-time monitoring component; this is a historical record'
 
@@ -377,7 +376,7 @@ pageSections:
       - bold: $47B
         text: "Market cap lost \xB7 Facebook 2021"
       - bold: 26h
-        text: "Longest outage \xB7 Rogers 2022"
+        text: "Rogers Canada nationwide \xB7 2022"
     editionText: "Archival Broadsheet Edition<br>Vol. I \xB7 March 2026<br>CloudCannon Astro Challenge"
     copyrightText: "\xA9 2026 Internet Outage Atlas Project. All content for educational purposes."
     typesetText: 'JonathanRReed.com · Original article available'
