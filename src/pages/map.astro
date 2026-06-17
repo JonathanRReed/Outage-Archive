@@ -687,7 +687,15 @@ const panelData = Object.fromEntries(
       var lastLatest = null;
 
       function render(t, animate) {
-        yearEl.textContent = new Date(t).getUTCFullYear();
+        var y = new Date(t).getUTCFullYear();
+        if (String(y) !== yearEl.textContent) {
+          yearEl.textContent = y;
+          if (!reduce) {
+            yearEl.classList.remove("is-ticking");
+            void yearEl.offsetWidth;
+            yearEl.classList.add("is-ticking");
+          }
+        }
         var latest = null;
         for (var i = 0; i < chrono.length; i++) {
           var inc = chrono[i];
@@ -1386,12 +1394,26 @@ const panelData = Object.fromEntries(
     }
     .map-year {
       color: var(--atlas-ink);
+      display: inline-block;
       font-family: var(--atlas-font-display);
       font-size: clamp(2rem, 4vw, 3.2rem);
       font-variant-numeric: tabular-nums;
       font-weight: 900;
       letter-spacing: -0.02em;
       line-height: 1;
+    }
+    .map-year.is-ticking {
+      animation: map-year-tick 0.2s ease-out;
+    }
+    @keyframes map-year-tick {
+      0% {
+        opacity: 0.5;
+        transform: translateY(3px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
     .map-dispatch {
       color: var(--atlas-ink-muted);
@@ -1410,10 +1432,13 @@ const panelData = Object.fromEntries(
       appearance: none;
       -webkit-appearance: none;
       background: transparent;
-      cursor: pointer;
+      cursor: grab;
       display: block;
       margin: 0;
       width: 100%;
+    }
+    .map-scrubber:active {
+      cursor: grabbing;
     }
     .map-scrubber::-webkit-slider-runnable-track {
       background: var(--atlas-rule);
@@ -1431,6 +1456,9 @@ const panelData = Object.fromEntries(
       height: 18px;
       margin-top: -8px;
       transform: rotate(45deg);
+      transition:
+        transform 0.15s ease,
+        box-shadow 0.15s ease;
       width: 18px;
     }
     .map-scrubber::-moz-range-thumb {
@@ -1439,7 +1467,24 @@ const panelData = Object.fromEntries(
       border-radius: 0;
       height: 18px;
       transform: rotate(45deg);
+      transition:
+        transform 0.15s ease,
+        box-shadow 0.15s ease;
       width: 18px;
+    }
+    .map-scrubber:hover::-webkit-slider-thumb,
+    .map-scrubber:active::-webkit-slider-thumb {
+      transform: rotate(45deg) scale(1.15);
+    }
+    .map-scrubber:hover::-moz-range-thumb,
+    .map-scrubber:active::-moz-range-thumb {
+      transform: rotate(45deg) scale(1.15);
+    }
+    .map-scrubber:focus-visible::-webkit-slider-thumb {
+      box-shadow: 0 0 0 4px color-mix(in srgb, var(--atlas-gold) 45%, transparent);
+    }
+    .map-scrubber:focus-visible::-moz-range-thumb {
+      box-shadow: 0 0 0 4px color-mix(in srgb, var(--atlas-gold) 45%, transparent);
     }
     .map-axis {
       height: 1.1rem;

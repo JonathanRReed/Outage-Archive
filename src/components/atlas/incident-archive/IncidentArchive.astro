@@ -20,7 +20,7 @@ const {
 
 <div class="double-rule"></div>
 <div
-  class="sec-masthead"
+  class="sec-masthead reveal"
   id="archive"
   {...htmlAttributes}
 >
@@ -52,8 +52,11 @@ const {
     data-children-prop="clippings"
   >
     {
-      clippings.map((clip: Clipping) => (
-        <details class="clipping">
+      clippings.map((clip: Clipping, index: number) => (
+        <details
+          class="clipping reveal"
+          style={`--reveal-delay: ${Math.min(index * 0.05, 0.4)}s`}
+        >
           <summary class="clp-summary">
             <div class="clp-date">{clip.date}</div>
             <div class="clp-cat">{clip.category}</div>
@@ -87,8 +90,8 @@ const {
       position: relative;
       transition:
         box-shadow 0.25s,
-        opacity 0.6s ease,
-        transform 0.6s ease;
+        opacity 0.6s ease var(--reveal-delay, 0s),
+        transform 0.6s ease var(--reveal-delay, 0s);
     }
     .clipping::before {
       background: var(--atlas-parchment-dark);
