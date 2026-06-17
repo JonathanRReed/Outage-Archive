@@ -167,6 +167,28 @@ function declutterMarkers(all: Marker[]): void {
 declutterMarkers([...impactMarkers, ...originMarkers]);
 
 const reachPips = (score: number) => Array.from({ length: 5 }, (_, i) => i < score);
+
+// Per-incident data for the on-click impact panel + playback glow (looked up by slug).
+const panelData = Object.fromEntries(
+  atlasIncidents.map((inc) => {
+    const r = reachOf(inc);
+
+    return [
+      inc.slug,
+      {
+        title: inc.title,
+        dateLabel: inc.dateLabel,
+        category: inc.category,
+        severity: inc.severity,
+        rank: inc.severityRank ?? 2,
+        reachScore: r.score,
+        reachText: r.text,
+        regions: r.regions,
+        services: (inc.affectedServices ?? []).map((s) => s.name),
+      },
+    ];
+  })
+);
 ---
 
 <Layout
@@ -420,6 +442,63 @@ const reachPips = (score: number) => Array.from({ length: 5 }, (_, i) => i < sco
             >
             </div>
           </div>
+
+          <div
+            class="map-panel"
+            id="mapPanel"
+            hidden
+          >
+            <button
+              type="button"
+              class="map-panel-close"
+              id="mapPanelClose"
+              aria-label="Close impact dispatch"
+              >×</button
+            >
+            <div
+              class="map-panel-kicker"
+              data-panel-kicker
+            >
+            </div>
+            <h3
+              class="map-panel-title"
+              data-panel-title
+            >
+            </h3>
+            <div
+              class="map-panel-meta"
+              data-panel-meta
+            >
+            </div>
+            <div class="map-panel-reach">
+              <span
+                class="reach-meter"
+                data-panel-meter
+              >
+                <span class="reach-pip"></span>
+                <span class="reach-pip"></span>
+                <span class="reach-pip"></span>
+                <span class="reach-pip"></span>
+                <span class="reach-pip"></span>
+              </span>
+              <span
+                class="reach-text"
+                data-panel-reach-text
+              >
+              </span>
+            </div>
+            <div
+              class="map-panel-services"
+              data-panel-services
+            >
+            </div>
+            <a
+              class="map-panel-cta"
+              data-panel-cta
+              href="#"
+              >Read the full case file →</a
+            >
+          </div>
         </div>
 
         <div
@@ -490,6 +569,13 @@ const reachPips = (score: number) => Array.from({ length: 5 }, (_, i) => i < sco
           id="mapChrono"
           is:inline
           set:html={JSON.stringify(chrono)}
+        />
+
+        <script
+          type="application/json"
+          id="mapPanelData"
+          is:inline
+          set:html={JSON.stringify(panelData)}
         />
 
         <div
@@ -618,6 +704,11 @@ const reachPips = (score: number) => Array.from({ length: 5 }, (_, i) => i < sco
         return minT + (v / 1000) * span;
       }
 
+      var panelDataEl = document.getElementById("mapPanelData");
+      var panelData = panelDataEl ? JSON.parse(panelDataEl.textContent || "{}") : {};
+      var selectedSlug = null;
+      var lastLatest = null;
+
       function render(t, animate) {
         yearEl.textContent = new Date(t).getUTCFullYear();
         var latest = null;
@@ -646,6 +737,18 @@ const reachPips = (score: number) => Array.from({ length: 5 }, (_, i) => i < sco
         dispatchEl.textContent = latest
           ? latest.dateLabel + " — " + latest.title
           : "Before the record begins";
+        lastLatest = latest;
+        if (animate && latest && !selectedSlug) {
+          var pd = panelData[latest.slug];
+          if (pd) applyGlow(pd.regions, pd.rank >= 3 ? "critical" : pd.rank === 2 ? "high" : "low");
+        }
+      }
+
+      function glowLatest() {
+        if (selectedSlug) return;
+        var pd = lastLatest ? panelData[lastLatest.slug] : null;
+        if (pd) applyGlow(pd.regions, pd.rank >= 3 ? "critical" : pd.rank === 2 ? "high" : "low");
+        else clearGlow();
       }
 
       render(maxT, false);
@@ -653,6 +756,10 @@ const reachPips = (score: number) => Array.from({ length: 5 }, (_, i) => i < sco
       scrubber.addEventListener("input", function () {
         stop();
         render(timeFromValue(parseInt(scrubber.value, 10)), false);
+        glowLatest();
+      });
+      scrubber.addEventListener("change", function () {
+        if (!selectedSlug) clearGlow();
       });
 
       var raf = null;
@@ -675,6 +782,7 @@ const reachPips = (score: number) => Array.from({ length: 5 }, (_, i) => i < sco
       }
 
       function play() {
+        deselect();
         if (reduce) {
           scrubber.value = "1000";
           render(maxT, false);
@@ -702,6 +810,7 @@ const reachPips = (score: number) => Array.from({ length: 5 }, (_, i) => i < sco
         playIcon.textContent = "▶";
         playLabel.textContent = "Play the record";
         dispatchEl.setAttribute("aria-live", "polite");
+        if (!selectedSlug) clearGlow();
       }
 
       playBtn.addEventListener("click", function () {
@@ -721,25 +830,84 @@ const reachPips = (score: number) => Array.from({ length: 5 }, (_, i) => i < sco
           if (regionEls[k]) regionEls[k].classList.remove("is-glowing");
         }
       }
-      function setGlow(el) {
+      function applyGlow(regionsStr, sev) {
         clearGlow();
-        if (!el) return;
-        var sev = el.classList.contains("is-critical")
-          ? "critical"
-          : el.classList.contains("is-high")
-            ? "high"
-            : el.classList.contains("is-low")
-              ? "low"
-              : "";
-        if (!sev) {
-          var rc = parseInt(el.getAttribute("data-reach") || "3", 10);
-          sev = rc >= 4 ? "critical" : rc >= 3 ? "high" : "low";
-        }
+        if (!regionsStr) return;
         map.setAttribute("data-glow", sev);
-        var regions = (el.getAttribute("data-regions") || "").split(" ");
+        var regions = regionsStr.split(" ");
         for (var i = 0; i < regions.length; i++) {
           if (regionEls[regions[i]]) regionEls[regions[i]].classList.add("is-glowing");
         }
+      }
+      function sevOf(el) {
+        if (el.classList.contains("is-critical")) return "critical";
+        if (el.classList.contains("is-high")) return "high";
+        if (el.classList.contains("is-low")) return "low";
+        var rc = parseInt(el.getAttribute("data-reach") || "3", 10);
+        return rc >= 4 ? "critical" : rc >= 3 ? "high" : "low";
+      }
+      function hoverGlow(el) {
+        if (!selectedSlug) applyGlow(el.getAttribute("data-regions") || "", sevOf(el));
+      }
+      function hoverClear() {
+        if (!selectedSlug) clearGlow();
+      }
+
+      // --- impact panel (click an incident to reveal its area of effect) ---
+      var panel = document.getElementById("mapPanel");
+      var pEls = panel
+        ? {
+            kicker: panel.querySelector("[data-panel-kicker]"),
+            title: panel.querySelector("[data-panel-title]"),
+            meta: panel.querySelector("[data-panel-meta]"),
+            meter: panel.querySelector("[data-panel-meter]"),
+            reachText: panel.querySelector("[data-panel-reach-text]"),
+            services: panel.querySelector("[data-panel-services]"),
+            cta: panel.querySelector("[data-panel-cta]"),
+          }
+        : null;
+      function deselect() {
+        selectedSlug = null;
+        if (panel) panel.hidden = true;
+        map.removeAttribute("data-selected");
+        Array.prototype.forEach.call(map.querySelectorAll(".map-marker.is-selected"), function (m) {
+          m.classList.remove("is-selected");
+        });
+        clearGlow();
+      }
+      function select(slug) {
+        var d = panelData[slug];
+        if (!d || !panel) return;
+        selectedSlug = slug;
+        applyGlow(d.regions, d.rank >= 3 ? "critical" : d.rank === 2 ? "high" : "low");
+        map.setAttribute("data-selected", "1");
+        Array.prototype.forEach.call(map.querySelectorAll(".map-marker.is-selected"), function (m) {
+          m.classList.remove("is-selected");
+        });
+        (markers[slug] || []).forEach(function (m) {
+          m.classList.add("is-selected");
+        });
+        pEls.kicker.textContent = d.category || "";
+        pEls.title.textContent = d.title || "";
+        pEls.meta.textContent = [d.dateLabel, d.severity].filter(Boolean).join(" · ");
+        var pips = pEls.meter ? pEls.meter.querySelectorAll(".reach-pip") : [];
+        for (var p = 0; p < pips.length; p++) pips[p].classList.toggle("is-on", p < d.reachScore);
+        pEls.reachText.textContent = d.reachText || "";
+        if (d.services && d.services.length) {
+          pEls.services.textContent = "Services affected — " + d.services.join(" · ");
+          pEls.services.style.display = "block";
+        } else {
+          pEls.services.style.display = "none";
+        }
+        pEls.cta.setAttribute("href", "/incident/" + slug + "/");
+        panel.hidden = false;
+      }
+      function wireSelect(el) {
+        el.addEventListener("click", function (ev) {
+          if (ev.metaKey || ev.ctrlKey || ev.shiftKey) return; // allow open-in-new-tab
+          ev.preventDefault();
+          select(el.getAttribute("data-slug"));
+        });
       }
 
       if (tip && frame) {
@@ -773,34 +941,47 @@ const reachPips = (score: number) => Array.from({ length: 5 }, (_, i) => i < sco
         Array.prototype.forEach.call(map.querySelectorAll(".map-marker"), function (marker) {
           marker.addEventListener("mouseenter", function () {
             show(marker);
-            setGlow(marker);
+            hoverGlow(marker);
           });
           marker.addEventListener("mouseleave", function () {
             hide();
-            clearGlow();
+            hoverClear();
           });
           marker.addEventListener("focus", function () {
             show(marker);
-            setGlow(marker);
+            hoverGlow(marker);
           });
           marker.addEventListener("blur", function () {
             hide();
-            clearGlow();
+            hoverClear();
           });
+          wireSelect(marker);
         });
       }
 
-      // Worldwide Ledger rows light up their area of effect on the map
+      // Worldwide Ledger rows: hover lights the map, click reveals the panel
       Array.prototype.forEach.call(document.querySelectorAll(".map-ledger-link"), function (row) {
         row.addEventListener("mouseenter", function () {
-          setGlow(row);
+          hoverGlow(row);
         });
-        row.addEventListener("mouseleave", clearGlow);
+        row.addEventListener("mouseleave", hoverClear);
         row.addEventListener("focus", function () {
-          setGlow(row);
+          hoverGlow(row);
         });
-        row.addEventListener("blur", clearGlow);
+        row.addEventListener("blur", hoverClear);
+        wireSelect(row);
       });
+
+      if (panel) {
+        var closeBtn = document.getElementById("mapPanelClose");
+        if (closeBtn) closeBtn.addEventListener("click", deselect);
+        document.addEventListener("keydown", function (ev) {
+          if (ev.key === "Escape" && selectedSlug) deselect();
+        });
+        map.addEventListener("click", function (ev) {
+          if (selectedSlug && ev.target.closest && !ev.target.closest(".map-marker")) deselect();
+        });
+      }
     }
 
     if (document.readyState === "loading") {
@@ -1080,6 +1261,97 @@ const reachPips = (score: number) => Array.from({ length: 5 }, (_, i) => i < sco
     }
     .map-tooltip.is-below {
       transform: translate(-50%, 16px);
+    }
+
+    /* impact panel (click to reveal) */
+    .map-panel {
+      background: var(--atlas-surface);
+      border: 1px solid var(--atlas-deco-border);
+      bottom: 1.1rem;
+      box-shadow: 0 26px 60px -34px rgba(13, 27, 42, 0.75);
+      left: 1.1rem;
+      max-width: min(19rem, calc(100% - 2.2rem));
+      padding: 1rem 1.1rem 1.1rem;
+      position: absolute;
+      z-index: 45;
+    }
+    .map-panel-close {
+      background: none;
+      border: 0;
+      color: var(--atlas-ink-muted);
+      cursor: pointer;
+      font-size: 1.4rem;
+      line-height: 1;
+      padding: 0.1rem 0.2rem;
+      position: absolute;
+      right: 0.6rem;
+      top: 0.4rem;
+    }
+    .map-panel-close:hover,
+    .map-panel-close:focus-visible {
+      color: var(--atlas-red);
+    }
+    .map-panel-kicker {
+      color: var(--atlas-ink-muted);
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+    .map-panel-title {
+      color: var(--atlas-ink);
+      font-family: var(--atlas-font-display);
+      font-size: 1.2rem;
+      font-weight: 800;
+      line-height: 1.15;
+      margin: 0.3rem 0 0.45rem;
+      padding-right: 1rem;
+    }
+    .map-panel-meta {
+      color: var(--atlas-ink-muted);
+      font-size: 11px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .map-panel-reach {
+      align-items: center;
+      display: flex;
+      gap: 0.5rem;
+      margin: 0.7rem 0;
+    }
+    .map-panel-services {
+      border-top: 1px solid color-mix(in srgb, var(--atlas-rule) 60%, transparent);
+      color: var(--atlas-ink-mid);
+      font-size: 12px;
+      font-style: italic;
+      line-height: 1.55;
+      margin-bottom: 0.8rem;
+      padding-top: 0.55rem;
+    }
+    .map-panel-cta {
+      color: var(--atlas-red);
+      font-family: var(--atlas-font-display);
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-decoration: none;
+      text-transform: uppercase;
+    }
+    .map-panel-cta:hover,
+    .map-panel-cta:focus-visible {
+      text-decoration: underline;
+    }
+
+    .map-marker.is-selected .map-core {
+      stroke: var(--atlas-ink);
+      stroke-width: 1.6;
+      transform: scale(1.5);
+    }
+    .map-marker.is-selected .map-ring {
+      opacity: 0.95;
+    }
+
+    :root[data-theme="dark"] .map-panel {
+      background: #1b2d45;
     }
 
     .map-timeline {
