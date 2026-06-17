@@ -77,33 +77,7 @@ const services = (inc: AtlasIncident) =>
     .join(" · ");
 
 // --- Reach / area of effect ---
-// Coarse continent ellipses (equirectangular viewBox coords) that light up to show
-// how far an outage reached. Global incidents light the whole world.
-const REGIONS = {
-  na: { cx: 240, cy: 135, rx: 120, ry: 88 },
-  sa: { cx: 332, cy: 322, rx: 70, ry: 108 },
-  eu: { cx: 542, cy: 112, rx: 78, ry: 56 },
-  me: { cx: 628, cy: 188, rx: 52, ry: 48 },
-  af: { cx: 548, cy: 255, rx: 96, ry: 112 },
-  as: { cx: 770, cy: 158, rx: 162, ry: 110 },
-  oc: { cx: 868, cy: 322, rx: 96, ry: 70 },
-} as const;
-
-type RegionKey = keyof typeof REGIONS;
-const ALL_REGIONS = Object.keys(REGIONS) as RegionKey[];
-
-function regionOf(lat: number, lng: number): RegionKey {
-  if (lng >= -82 && lng <= -34 && lat >= -56 && lat <= 14) return "sa";
-  if (lng >= -170 && lng <= -50 && lat >= 7 && lat <= 75) return "na";
-  if (lng >= 33 && lng <= 63 && lat >= 12 && lat <= 43) return "me";
-  if (lng >= -25 && lng <= 45 && lat >= 34 && lat <= 72) return "eu";
-  if (lng >= -20 && lng <= 52 && lat >= -36 && lat <= 37) return "af";
-  if (lng >= 110 && lng <= 180 && lat >= -50 && lat <= 0) return "oc";
-  if (lng >= 60 && lng <= 180 && lat >= 5 && lat <= 78) return "as";
-  return "na";
-}
-
-type Reach = { score: number; regions: string; text: string };
+type Reach = { score: number; text: string };
 function reachOf(inc: AtlasIncident): Reach {
   const svc = inc.affectedServices?.length ?? 0;
   const dur = inc.durationMinutes ?? 0;
@@ -113,14 +87,6 @@ function reachOf(inc: AtlasIncident): Reach {
   s += dur >= 1440 ? 1 : dur >= 360 ? 0.5 : 0;
   s += inc.severityRank === 3 ? 0.5 : 0;
   const score = Math.max(1, Math.min(5, Math.round(s)));
-
-  let regions: RegionKey[];
-
-  if (inc.scope === "global") regions = ALL_REGIONS;
-  else if (inc.geo && inc.geo.length)
-    regions = [...new Set(inc.geo.map((p) => regionOf(p.lat, p.lng)))];
-  else if (inc.originRegion) regions = [regionOf(inc.originRegion.lat, inc.originRegion.lng)];
-  else regions = ALL_REGIONS;
 
   const reachWord =
     inc.scope === "global" ? "Worldwide" : inc.scope === "regional" ? "Regional" : "Local";
@@ -136,7 +102,7 @@ function reachOf(inc: AtlasIncident): Reach {
     .filter(Boolean)
     .join(" · ");
 
-  return { score, regions: regions.join(" "), text };
+  return { score, text };
 }
 
 // Fan co-located markers (e.g. the AWS us-east-1 stack) onto a small ring so each
@@ -168,10 +134,26 @@ declutterMarkers([...impactMarkers, ...originMarkers]);
 
 const reachPips = (score: number) => Array.from({ length: 5 }, (_, i) => i < score);
 
-// Per-incident data for the on-click impact panel + playback glow (looked up by slug).
+// Map center for an incident's reach zone: its location, fault origin, or map-centre for placeless globals.
+function incidentCenter(inc: AtlasIncident): { cx: number; cy: number } {
+  if (inc.geo && inc.geo.length) {
+    const p = projectEquirectangular(inc.geo[0].lng, inc.geo[0].lat);
+
+    return { cx: round(p.x), cy: round(p.y) };
+  }
+  if (inc.originRegion) {
+    const p = projectEquirectangular(inc.originRegion.lng, inc.originRegion.lat);
+
+    return { cx: round(p.x), cy: round(p.y) };
+  }
+  return { cx: 500, cy: 248 };
+}
+
+// Per-incident data for the on-click impact panel + reach zone (looked up by slug).
 const panelData = Object.fromEntries(
   atlasIncidents.map((inc) => {
     const r = reachOf(inc);
+    const c = incidentCenter(inc);
 
     return [
       inc.slug,
@@ -181,9 +163,11 @@ const panelData = Object.fromEntries(
         category: inc.category,
         severity: inc.severity,
         rank: inc.severityRank ?? 2,
+        scope: inc.scope || "regional",
+        cx: c.cx,
+        cy: c.cy,
         reachScore: r.score,
         reachText: r.text,
-        regions: r.regions,
         services: (inc.affectedServices ?? []).map((s) => s.name),
       },
     ];
@@ -255,40 +239,36 @@ const panelData = Object.fromEntries(
                 ))
               }
             </g>
-            <defs>
-              <filter
-                id="regionBlur"
-                x="-20%"
-                y="-20%"
-                width="140%"
-                height="140%"
-              >
-                <feGaussianBlur stdDeviation="7"></feGaussianBlur>
-              </filter>
-            </defs>
-            <g
-              class="region-glows"
-              filter="url(#regionBlur)"
-              aria-hidden="true"
-            >
-              {
-                ALL_REGIONS.map((key) => (
-                  <ellipse
-                    class:list={["region-glow", `region-${key}`]}
-                    cx={REGIONS[key].cx}
-                    cy={REGIONS[key].cy}
-                    rx={REGIONS[key].rx}
-                    ry={REGIONS[key].ry}
-                  />
-                ))
-              }
-            </g>
-
             <path
               d={worldLandPath}
               class="map-land"
               fill-rule="evenodd"
             ></path>
+
+            <g
+              class="reach-zone"
+              id="reachZone"
+              aria-hidden="true"
+            >
+              <circle
+                class="reach-zone-fill"
+                cx="500"
+                cy="248"
+                r="0"
+              ></circle>
+              <circle
+                class="reach-zone-ring reach-zone-mid"
+                cx="500"
+                cy="248"
+                r="0"
+              ></circle>
+              <circle
+                class="reach-zone-ring reach-zone-out"
+                cx="500"
+                cy="248"
+                r="0"
+              ></circle>
+            </g>
 
             <g class="map-markers">
               {
@@ -301,7 +281,6 @@ const panelData = Object.fromEntries(
                       href={`/incident/${m.inc.slug}/`}
                       class="map-marker is-origin"
                       data-slug={m.inc.slug}
-                      data-regions={reach.regions}
                       data-reach={String(reach.score)}
                       data-reach-text={reach.text}
                       data-date={m.inc.sortDate}
@@ -353,7 +332,6 @@ const panelData = Object.fromEntries(
                       href={`/incident/${m.inc.slug}/`}
                       class:list={["map-marker", sevClass(m.inc.severityRank)]}
                       data-slug={m.inc.slug}
-                      data-regions={reach.regions}
                       data-reach={String(reach.score)}
                       data-reach-text={reach.text}
                       data-date={m.inc.sortDate}
@@ -614,7 +592,6 @@ const panelData = Object.fromEntries(
                       href={`/incident/${inc.slug}/`}
                       class="map-ledger-link"
                       data-slug={inc.slug}
-                      data-regions={reach.regions}
                       data-reach={String(reach.score)}
                     >
                       <span class="map-ledger-main">
@@ -738,17 +715,13 @@ const panelData = Object.fromEntries(
           ? latest.dateLabel + " — " + latest.title
           : "Before the record begins";
         lastLatest = latest;
-        if (animate && latest && !selectedSlug) {
-          var pd = panelData[latest.slug];
-          if (pd) applyGlow(pd.regions, pd.rank >= 3 ? "critical" : pd.rank === 2 ? "high" : "low");
-        }
+        if (animate && latest && !selectedSlug) showReachFor(latest.slug);
       }
 
       function glowLatest() {
         if (selectedSlug) return;
-        var pd = lastLatest ? panelData[lastLatest.slug] : null;
-        if (pd) applyGlow(pd.regions, pd.rank >= 3 ? "critical" : pd.rank === 2 ? "high" : "low");
-        else clearGlow();
+        if (lastLatest) showReachFor(lastLatest.slug);
+        else hideReach();
       }
 
       render(maxT, false);
@@ -759,7 +732,7 @@ const panelData = Object.fromEntries(
         glowLatest();
       });
       scrubber.addEventListener("change", function () {
-        if (!selectedSlug) clearGlow();
+        if (!selectedSlug) hideReach();
       });
 
       var raf = null;
@@ -810,7 +783,7 @@ const panelData = Object.fromEntries(
         playIcon.textContent = "▶";
         playLabel.textContent = "Play the record";
         dispatchEl.setAttribute("aria-live", "polite");
-        if (!selectedSlug) clearGlow();
+        if (!selectedSlug) hideReach();
       }
 
       playBtn.addEventListener("click", function () {
@@ -818,39 +791,36 @@ const panelData = Object.fromEntries(
         else play();
       });
 
-      // region glow — light up an incident's area of effect
-      var regionEls = {};
-      Array.prototype.forEach.call(map.querySelectorAll(".region-glow"), function (e) {
-        var mtch = (e.getAttribute("class") || "").match(/region-([a-z]{2})\b/);
-        if (mtch) regionEls[mtch[1]] = e;
-      });
-      function clearGlow() {
-        map.removeAttribute("data-glow");
-        for (var k in regionEls) {
-          if (regionEls[k]) regionEls[k].classList.remove("is-glowing");
+      // reach zone — a clean engraved range ring showing how far an outage spread
+      var reachZone = document.getElementById("reachZone");
+      var zEls = reachZone ? reachZone.querySelectorAll("circle") : [];
+      function hideReach() {
+        if (!reachZone) return;
+        reachZone.classList.remove("is-active");
+        for (var i = 0; i < zEls.length; i++) zEls[i].style.r = "0px";
+      }
+      function showReach(cx, cy, scope, sev) {
+        if (!reachZone || zEls.length < 3) return;
+        var r = scope === "global" ? 300 : scope === "regional" ? 86 : 36;
+        zEls[0].setAttribute("cx", cx);
+        zEls[0].setAttribute("cy", cy);
+        zEls[0].style.r = r + "px";
+        zEls[1].setAttribute("cx", cx);
+        zEls[1].setAttribute("cy", cy);
+        zEls[1].style.r = r * 0.62 + "px";
+        zEls[2].setAttribute("cx", cx);
+        zEls[2].setAttribute("cy", cy);
+        zEls[2].style.r = r + "px";
+        reachZone.setAttribute("data-sev", sev);
+        reachZone.classList.add("is-active");
+      }
+      function showReachFor(slug) {
+        var d = panelData[slug];
+        if (!d) {
+          hideReach();
+          return;
         }
-      }
-      function applyGlow(regionsStr, sev) {
-        clearGlow();
-        if (!regionsStr) return;
-        map.setAttribute("data-glow", sev);
-        var regions = regionsStr.split(" ");
-        for (var i = 0; i < regions.length; i++) {
-          if (regionEls[regions[i]]) regionEls[regions[i]].classList.add("is-glowing");
-        }
-      }
-      function sevOf(el) {
-        if (el.classList.contains("is-critical")) return "critical";
-        if (el.classList.contains("is-high")) return "high";
-        if (el.classList.contains("is-low")) return "low";
-        var rc = parseInt(el.getAttribute("data-reach") || "3", 10);
-        return rc >= 4 ? "critical" : rc >= 3 ? "high" : "low";
-      }
-      function hoverGlow(el) {
-        if (!selectedSlug) applyGlow(el.getAttribute("data-regions") || "", sevOf(el));
-      }
-      function hoverClear() {
-        if (!selectedSlug) clearGlow();
+        showReach(d.cx, d.cy, d.scope, d.rank >= 3 ? "critical" : d.rank === 2 ? "high" : "low");
       }
 
       // --- impact panel (click an incident to reveal its area of effect) ---
@@ -873,13 +843,13 @@ const panelData = Object.fromEntries(
         Array.prototype.forEach.call(map.querySelectorAll(".map-marker.is-selected"), function (m) {
           m.classList.remove("is-selected");
         });
-        clearGlow();
+        hideReach();
       }
       function select(slug) {
         var d = panelData[slug];
         if (!d || !panel) return;
         selectedSlug = slug;
-        applyGlow(d.regions, d.rank >= 3 ? "critical" : d.rank === 2 ? "high" : "low");
+        showReachFor(slug);
         map.setAttribute("data-selected", "1");
         Array.prototype.forEach.call(map.querySelectorAll(".map-marker.is-selected"), function (m) {
           m.classList.remove("is-selected");
@@ -900,6 +870,7 @@ const panelData = Object.fromEntries(
           pEls.services.style.display = "none";
         }
         pEls.cta.setAttribute("href", "/incident/" + slug + "/");
+        panel.classList.toggle("is-right", d.cx < 500);
         panel.hidden = false;
       }
       function wireSelect(el) {
@@ -941,34 +912,18 @@ const panelData = Object.fromEntries(
         Array.prototype.forEach.call(map.querySelectorAll(".map-marker"), function (marker) {
           marker.addEventListener("mouseenter", function () {
             show(marker);
-            hoverGlow(marker);
           });
-          marker.addEventListener("mouseleave", function () {
-            hide();
-            hoverClear();
-          });
+          marker.addEventListener("mouseleave", hide);
           marker.addEventListener("focus", function () {
             show(marker);
-            hoverGlow(marker);
           });
-          marker.addEventListener("blur", function () {
-            hide();
-            hoverClear();
-          });
+          marker.addEventListener("blur", hide);
           wireSelect(marker);
         });
       }
 
-      // Worldwide Ledger rows: hover lights the map, click reveals the panel
+      // Worldwide Ledger rows: click reveals the impact panel + reach zone
       Array.prototype.forEach.call(document.querySelectorAll(".map-ledger-link"), function (row) {
-        row.addEventListener("mouseenter", function () {
-          hoverGlow(row);
-        });
-        row.addEventListener("mouseleave", hoverClear);
-        row.addEventListener("focus", function () {
-          hoverGlow(row);
-        });
-        row.addEventListener("blur", hoverClear);
         wireSelect(row);
       });
 
@@ -1043,20 +998,47 @@ const panelData = Object.fromEntries(
       stroke-width: 0.4;
     }
 
-    /* area-of-effect region glow */
-    .region-glow {
-      fill: var(--atlas-red);
+    /* reach zone — engraved range ring showing how far an outage spread */
+    .reach-zone {
       opacity: 0;
-      transition: opacity 0.35s ease;
+      transition: opacity 0.4s ease;
     }
-    .region-glow.is-glowing {
-      opacity: 0.18;
+    .reach-zone.is-active {
+      opacity: 1;
     }
-    .world-map[data-glow="high"] .region-glow {
+    .reach-zone circle {
+      transition:
+        r 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+        cx 0.35s ease,
+        cy 0.35s ease;
+    }
+    .reach-zone-fill {
+      fill: var(--atlas-red);
+      opacity: 0.07;
+    }
+    .reach-zone-ring {
+      fill: none;
+      stroke: var(--atlas-red);
+      stroke-width: 0.8;
+    }
+    .reach-zone-out {
+      opacity: 0.55;
+    }
+    .reach-zone-mid {
+      opacity: 0.32;
+      stroke-dasharray: 2.5 2.5;
+    }
+    .reach-zone[data-sev="high"] .reach-zone-fill {
       fill: var(--atlas-gold);
     }
-    .world-map[data-glow="low"] .region-glow {
+    .reach-zone[data-sev="high"] .reach-zone-ring {
+      stroke: var(--atlas-gold);
+    }
+    .reach-zone[data-sev="low"] .reach-zone-fill {
       fill: var(--atlas-ink-muted);
+    }
+    .reach-zone[data-sev="low"] .reach-zone-ring {
+      stroke: var(--atlas-ink-muted);
     }
 
     /* magnitude meter (reach) — used in ledger + tooltip */
@@ -1274,6 +1256,10 @@ const panelData = Object.fromEntries(
       padding: 1rem 1.1rem 1.1rem;
       position: absolute;
       z-index: 45;
+    }
+    .map-panel.is-right {
+      left: auto;
+      right: 1.1rem;
     }
     .map-panel-close {
       background: none;
