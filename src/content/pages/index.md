@@ -1,6 +1,7 @@
 ---
 _schema: default
 title: Internet Outage Atlas
+seoTitle: Landmark Internet Outage Archive
 description: >-
   Internet Outage Atlas is an editorial record of major failures across DNS,
   BGP, CDNs, identity systems, control planes, and telecom networks.

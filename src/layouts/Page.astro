@@ -11,6 +11,7 @@ import type { ContentBlock } from "../types";
 type Props = {
   frontmatter?: {
     title: string;
+    seoTitle?: string;
     description?: string;
     keywords?: string[];
     image?: string;
@@ -41,6 +42,7 @@ const {
 } = Astro.props as Props;
 
 const title = frontmatter?.title ?? titleProp ?? "";
+const seoTitle = frontmatter?.seoTitle ?? title;
 const description = frontmatter?.description ?? descriptionProp;
 const keywords = frontmatter?.keywords ?? keywordsProp;
 const image = frontmatter?.image ?? imageProp;
@@ -53,7 +55,7 @@ const editingEnabled = process.env.DISABLE_COMPONENT_LIBRARY !== "true";
 ---
 
 <Layout
-  title={title}
+  title={seoTitle}
   description={description}
   keywords={keywords}
   image={image}
