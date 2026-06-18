@@ -20,6 +20,14 @@ export function getStaticPaths() {
 }
 
 const { incident } = Astro.props as { incident: AtlasIncident };
+const incidentTitleCounts = atlasIncidents.reduce((counts, entry) => {
+  counts.set(entry.title, (counts.get(entry.title) ?? 0) + 1);
+  return counts;
+}, new Map<string, number>());
+const pageTitle =
+  (incidentTitleCounts.get(incident.title) ?? 0) > 1
+    ? `${incident.title} (${incident.year})`
+    : incident.title;
 
 const [leadSentence] = incident.summary.split(/(?<=\.)\s+/);
 const lead = leadSentence?.trim() || incident.summary;
@@ -48,7 +56,7 @@ const canonical = `${siteUrl}/incident/${incident.slug}/`;
 const articleJsonLd = {
   "@context": "https://schema.org",
   "@type": "NewsArticle",
-  headline: incident.title,
+  headline: pageTitle,
   description: lead,
   datePublished: incident.sortDate,
   articleSection: group?.label ?? incident.category,
@@ -62,7 +70,7 @@ const articleJsonLd = {
 ---
 
 <Layout
-  title={incident.title}
+  title={pageTitle}
   description={lead}
   ogType="article"
 >
