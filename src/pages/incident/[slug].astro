@@ -20,14 +20,23 @@ export function getStaticPaths() {
 }
 
 const { incident } = Astro.props as { incident: AtlasIncident };
+const incidentSeoTitles: Record<string, string> = {
+  "akamai-dns-outage-2021": "Akamai DNS Outage",
+  "aws-ec2-ebs-2011": "AWS EC2 Availability Zone Failure",
+  "google-auth-outage-2020": "Google Auth Outage",
+  "rogers-canada-2022": "Rogers Canada Outage",
+  "telekom-malaysia-level3-route-leak-2015": "Telekom Malaysia Route Leak",
+  "verizon-route-leak-2019": "Verizon Route Leak",
+};
 const incidentTitleCounts = atlasIncidents.reduce((counts, entry) => {
   counts.set(entry.title, (counts.get(entry.title) ?? 0) + 1);
   return counts;
 }, new Map<string, number>());
-const pageTitle =
+const displayTitle =
   (incidentTitleCounts.get(incident.title) ?? 0) > 1
     ? `${incident.title} (${incident.year})`
     : incident.title;
+const pageTitle = incidentSeoTitles[incident.slug] ?? displayTitle;
 
 const [leadSentence] = incident.summary.split(/(?<=\.)\s+/);
 const lead = leadSentence?.trim() || incident.summary;
@@ -56,7 +65,7 @@ const canonical = `${siteUrl}/incident/${incident.slug}/`;
 const articleJsonLd = {
   "@context": "https://schema.org",
   "@type": "NewsArticle",
-  headline: pageTitle,
+  headline: displayTitle,
   description: lead,
   datePublished: incident.sortDate,
   articleSection: group?.label ?? incident.category,
