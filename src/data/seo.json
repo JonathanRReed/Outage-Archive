@@ -4,6 +4,6 @@
   "description": "Internet Outage Atlas is Jonathan R. Reed's editorial archive of landmark internet outages across DNS, BGP, CDN, identity, cloud, and telecom systems: what failed, how it spread, and why the same patterns keep returning.",
   "defaultImage": "/images/outage-image.png",
   "logoSource": "/images/logo.png",
-  "titleFormat": "{title} | Internet Outage Atlas",
+  "titleFormat": "{title} | Outage Atlas",
   "twitterHandle": ""
 }

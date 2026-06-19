@@ -24,7 +24,10 @@ const incidentSeoTitles: Record<string, string> = {
   "akamai-dns-outage-2021": "Akamai DNS Outage",
   "aws-ec2-ebs-2011": "AWS EC2 Availability Zone Failure",
   "google-auth-outage-2020": "Google Auth Outage",
+  "github-outage-2025": "GitHub Platform Outage 2025",
+  "pakistan-youtube-route-hijack": "Pakistan YouTube Route Hijack",
   "rogers-canada-2022": "Rogers Canada Outage",
+  "slack-outage-2022": "Slack Collaboration Outage 2022",
   "telekom-malaysia-level3-route-leak-2015": "Telekom Malaysia Route Leak",
   "verizon-route-leak-2019": "Verizon Route Leak",
 };
@@ -37,9 +40,37 @@ const displayTitle =
     ? `${incident.title} (${incident.year})`
     : incident.title;
 const pageTitle = incidentSeoTitles[incident.slug] ?? displayTitle;
+const normalizeMetaDescription = (incident: AtlasIncident, lead: string) => {
+  const cleanLead = lead.replace(/\s+/g, " ").trim();
+
+  if (cleanLead.length >= 120 && cleanLead.length <= 155) {
+    return cleanLead;
+  }
+
+  const leadWithTitle = `${displayTitle}: ${cleanLead}`;
+
+  if (leadWithTitle.length >= 120 && leadWithTitle.length <= 155) {
+    return leadWithTitle;
+  }
+
+  const fallback = `${displayTitle} case file covering ${incident.category.toLowerCase()}, affected services, source context, timeline, recovery, and outage lessons.`;
+
+  if (fallback.length <= 155) {
+    return fallback;
+  }
+
+  const titledFallback = `${displayTitle} case file covering source context, affected services, timeline, root cause, recovery, and outage lessons.`;
+
+  if (titledFallback.length <= 155) {
+    return titledFallback;
+  }
+
+  return `Internet Outage Atlas case file covering affected services, source context, timeline, root cause, and lessons from ${incident.year}.`;
+};
 
 const [leadSentence] = incident.summary.split(/(?<=\.)\s+/);
 const lead = leadSentence?.trim() || incident.summary;
+const metaDescription = normalizeMetaDescription(incident, lead);
 const secondaryDetail = getIncidentSecondaryDetail(incident);
 const sourceLabels = getIncidentSourceLabels(incident);
 const neighbors = getIncidentNeighbors(incident.slug);
@@ -68,7 +99,7 @@ const articleJsonLd = {
   "@context": "https://schema.org",
   "@type": "NewsArticle",
   headline: displayTitle,
-  description: lead,
+  description: metaDescription,
   datePublished: incident.sortDate,
   author: { "@type": "Person", name: "Jonathan R. Reed", url: "https://jonathanrreed.com/" },
   articleSection: group?.label ?? incident.category,
@@ -92,7 +123,7 @@ const articleJsonLd = {
 
 <Layout
   title={pageTitle}
-  description={lead}
+  description={metaDescription}
   ogType="article"
 >
   <script
