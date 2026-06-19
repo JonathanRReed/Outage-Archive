@@ -177,7 +177,7 @@ const panelData = Object.fromEntries(
 
 <Layout
   title="The Atlas Map"
-  description="An engraved, playable world map of where major internet outages struck — scrub through 1997 to 2026 and watch the failures ripple onto the map."
+  description="An engraved, playable world map of where major internet outages struck. Scrub through 1997 to 2026 and watch the failures ripple onto the map."
 >
   <section
     class="atlas-page-surface"
@@ -315,7 +315,7 @@ const panelData = Object.fromEntries(
                         r={Math.max(r + 9, 12)}
                       />
                       <title>
-                        {m.inc.title} — fault origin: {m.place} ({m.inc.dateLabel})
+                        {m.inc.title}: fault origin: {m.place} ({m.inc.dateLabel})
                       </title>
                     </a>
                   );
@@ -374,7 +374,7 @@ const panelData = Object.fromEntries(
                         r={Math.max(r + 11, 13)}
                       />
                       <title>
-                        {m.inc.title} — {m.place} ({m.inc.dateLabel})
+                        {m.inc.title}: {m.place} ({m.inc.dateLabel})
                       </title>
                     </a>
                   );
@@ -509,7 +509,7 @@ const panelData = Object.fromEntries(
                 class="map-dispatch"
                 id="mapDispatch"
                 aria-live="polite"
-                >All incidents shown — drag the dial or press play</span
+                >All incidents shown. Drag the dial or press play</span
               >
             </div>
           </div>
@@ -576,9 +576,9 @@ const panelData = Object.fromEntries(
             <div class="map-ledger-label">Worldwide Ledger</div>
             <h2 class="map-ledger-title">Incidents without a map</h2>
             <p class="map-ledger-intro">
-              Failures in shared layers — DNS, BGP, CDNs, certificate trust, global control planes —
-              that struck everywhere at once. There is no single place to mark, so they are filed
-              here as dispatches.
+              Failures in shared layers, including DNS, BGP, CDNs, certificate trust, and global
+              control planes, that struck everywhere at once. There is no single place to mark, so
+              they are filed here as dispatches.
             </p>
           </div>
           <ul class="map-ledger-list">
@@ -720,7 +720,7 @@ const panelData = Object.fromEntries(
           }
         }
         dispatchEl.textContent = latest
-          ? latest.dateLabel + " — " + latest.title
+          ? latest.dateLabel + ": " + latest.title
           : "Before the record begins";
         lastLatest = latest;
         if (animate && latest && !selectedSlug) showReachFor(latest.slug);
@@ -872,7 +872,7 @@ const panelData = Object.fromEntries(
         for (var p = 0; p < pips.length; p++) pips[p].classList.toggle("is-on", p < d.reachScore);
         pEls.reachText.textContent = d.reachText || "";
         if (d.services && d.services.length) {
-          pEls.services.textContent = "Services affected — " + d.services.join(" · ");
+          pEls.services.textContent = "Services affected: " + d.services.join(" · ");
           pEls.services.style.display = "block";
         } else {
           pEls.services.style.display = "none";

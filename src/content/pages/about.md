@@ -1,7 +1,7 @@
 ---
 _schema: default
 title: About Internet Outage Atlas
-description: Learn what Internet Outage Atlas covers, how incidents are selected, and how Jonathan R Reed maintains the outage archive.
+description: Learn what Internet Outage Atlas covers, how incidents are selected, and how Jonathan R. Reed maintains the outage archive.
 pageSections:
   - _component: atlas/about-dossier
     dateline: "About File \xB7 Project Record \xB7 Atlas Edition 2026"
@@ -25,14 +25,14 @@ pageSections:
       <p>The project was researched, written, designed, and built by Jonathan R
       Reed.</p>
     profileLabel: Creator
-    profileName: Jonathan R Reed
+    profileName: Jonathan R. Reed
     profileRole: Creator
     profileBody: >-
-      Jonathan R Reed built this atlas as an editorial record of systemic
+      Jonathan R. Reed built this atlas as an editorial record of systemic
       internet failures. The goal was to make outage history readable, visual,
       and specific as a reference work rather than a dashboard.
     profileImage: https://img.jonathanrreed.com/personal/jonathan.avif
-    profileImageAlt: Jonathan R Reed
+    profileImageAlt: Jonathan R. Reed
     websiteUrl: https://JonathanRReed.com
     articleUrl: https://JonathanRReed.com/blog/days-the-internet-dies/
     focusTitle: What the atlas covers
@@ -92,14 +92,14 @@ pageSections:
     tagline: A project, creator, and methodology record for the atlas
     figures:
       - bold: '1'
-        text: 'Creator: Jonathan R Reed'
+        text: 'Creator: Jonathan R. Reed'
       - bold: Atlas
         text: 'Editorial reference on shared infrastructure failure'
       - bold: Method
         text: 'Selection rules and source hierarchy included in this file'
     editionText: 'About Edition<br />Project, creator, and methodology record'
-    copyrightText: '© 2026 Jonathan R Reed'
-    typesetText: 'Creator: Jonathan R Reed'
+    copyrightText: '© 2026 Jonathan R. Reed'
+    typesetText: 'Creator: Jonathan R. Reed'
     websiteUrl: 'https://JonathanRReed.com'
     articleUrl: 'https://JonathanRReed.com/blog/days-the-internet-dies/'
 ---
