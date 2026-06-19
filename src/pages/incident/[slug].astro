@@ -62,18 +62,33 @@ const scopeLabel =
 
 const siteUrl = seoData.url;
 const canonical = `${siteUrl}/incident/${incident.slug}/`;
+const articleImage = new URL(seoData.defaultImage || seoData.logoSource, siteUrl).toString();
+const publisherLogo = new URL(seoData.logoSource, siteUrl).toString();
 const articleJsonLd = {
   "@context": "https://schema.org",
   "@type": "NewsArticle",
   headline: displayTitle,
   description: lead,
   datePublished: incident.sortDate,
+  author: { "@type": "Person", name: "Jonathan R. Reed", url: "https://jonathanrreed.com/" },
   articleSection: group?.label ?? incident.category,
   keywords: [incident.category, incident.severity, group?.label].filter(Boolean).join(", "),
   url: canonical,
   mainEntityOfPage: canonical,
+  image: {
+    "@type": "ImageObject",
+    url: articleImage,
+  },
   isPartOf: { "@type": "WebSite", name: seoData.name, url: siteUrl },
-  publisher: { "@type": "Organization", name: seoData.name, url: siteUrl },
+  publisher: {
+    "@type": "Organization",
+    name: seoData.name,
+    url: siteUrl,
+    logo: {
+      "@type": "ImageObject",
+      url: publisherLogo,
+    },
+  },
   articleBody: incident.summary,
 };
 ---

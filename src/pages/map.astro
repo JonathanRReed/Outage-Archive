@@ -430,7 +430,7 @@ const panelData = Object.fromEntries(
               type="button"
               class="map-panel-close"
               id="mapPanelClose"
-              aria-label="Close impact dispatch"
+              aria-label="Close impact dispatch, ×"
               >×</button
             >
             <div
@@ -438,11 +438,12 @@ const panelData = Object.fromEntries(
               data-panel-kicker
             >
             </div>
-            <h3
+            <h2
               class="map-panel-title"
               data-panel-title
             >
-            </h3>
+              Selected incident
+            </h2>
             <div
               class="map-panel-meta"
               data-panel-meta
@@ -489,7 +490,7 @@ const panelData = Object.fromEntries(
               type="button"
               class="map-play"
               id="mapPlay"
-              aria-label="Play the outage timeline"
+              aria-label="Play the record, play the outage timeline"
             >
               <span
                 class="map-play-icon"
@@ -780,6 +781,7 @@ const panelData = Object.fromEntries(
         playBtn.classList.add("is-playing");
         playIcon.textContent = "❚❚";
         playLabel.textContent = "Pause";
+        playBtn.setAttribute("aria-label", "Pause, pause the outage timeline");
         dispatchEl.setAttribute("aria-live", "off");
         raf = requestAnimationFrame(step);
       }
@@ -790,6 +792,7 @@ const panelData = Object.fromEntries(
         playBtn.classList.remove("is-playing");
         playIcon.textContent = "▶";
         playLabel.textContent = "Play the record";
+        playBtn.setAttribute("aria-label", "Play the record, play the outage timeline");
         dispatchEl.setAttribute("aria-live", "polite");
         if (!selectedSlug) hideReach();
       }
