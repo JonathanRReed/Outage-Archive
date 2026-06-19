@@ -75,10 +75,7 @@ const articleJsonLd = {
   keywords: [incident.category, incident.severity, group?.label].filter(Boolean).join(", "),
   url: canonical,
   mainEntityOfPage: canonical,
-  image: {
-    "@type": "ImageObject",
-    url: articleImage,
-  },
+  image: [articleImage],
   isPartOf: { "@type": "WebSite", name: seoData.name, url: siteUrl },
   publisher: {
     "@type": "Organization",
