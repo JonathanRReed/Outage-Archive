@@ -490,8 +490,8 @@ export const atlasEnrichment: Record<string, Partial<AtlasIncident>> = {
         url: "https://www.internetsociety.org/blog/2018/11/route-leak-caused-a-major-google-outage/",
       },
       {
-        label: "BankInfoSecurity: Who Hijacked Google's Web Traffic?",
-        url: "https://www.bankinfosecurity.com/who-hijacked-googles-web-traffic-a-11699",
+        label: "Cloudflare: How a Nigerian ISP Knocked Google Offline",
+        url: "https://blog.cloudflare.com/how-a-nigerian-isp-knocked-google-offline/",
       },
     ],
   },
