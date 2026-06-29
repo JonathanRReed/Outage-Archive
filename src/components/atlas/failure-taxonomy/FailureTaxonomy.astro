@@ -1,4 +1,6 @@
 ---
+import { sanitizeHtmlFragment } from "../../../lib/safeHtml";
+
 type TaxonEntry = {
   word: string;
   position: string;
@@ -58,7 +60,7 @@ const {
             <p class="txn-def-text">{entry.definition}</p>
             <p
               class="txn-trigger"
-              set:html={entry.triggers}
+              set:html={sanitizeHtmlFragment(entry.triggers)}
             />
             <div class="txn-examples">
               {entry.examples.map((ex: string) => (

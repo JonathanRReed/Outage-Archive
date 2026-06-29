@@ -1,5 +1,6 @@
 ---
 import Icon from "@core-elements/icon/Icon.astro";
+import { sanitizeHtmlFragment } from "../../../../lib/safeHtml";
 import MarkdownIt from "markdown-it";
 
 const {
@@ -22,7 +23,7 @@ const textDataAttributes = effectiveDataProp
   : {};
 
 const md = MarkdownIt({ html: true });
-let MarkdownText = text ? md.renderInline(text) : "";
+let MarkdownText = text ? sanitizeHtmlFragment(md.renderInline(text)) : "";
 
 MarkdownText = MarkdownText.replace(/\n/g, "<br />");
 const Tag = level;

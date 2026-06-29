@@ -1,6 +1,7 @@
 ---
 import AtlasMasthead from "@components/atlas/shared/AtlasMasthead.astro";
 import Image from "@core-elements/image/Image.astro";
+import { sanitizeHtmlFragment } from "../../../lib/safeHtml";
 
 type AboutProps = {
   dateline?: string;
@@ -85,7 +86,7 @@ const {
       <h1
         class="masthead-title"
         data-prop="heading"
-        set:html={heading}
+        set:html={sanitizeHtmlFragment(heading)}
       />
       <p
         class="masthead-subtitle"
@@ -137,7 +138,7 @@ const {
       <div
         class="about-body"
         data-prop="introBody"
-        set:html={introBody}
+        set:html={sanitizeHtmlFragment(introBody)}
       />
       <div class="about-links">
         {

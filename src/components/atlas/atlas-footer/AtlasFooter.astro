@@ -1,4 +1,6 @@
 ---
+import { sanitizeHtmlFragment } from "../../../lib/safeHtml";
+
 type FooterDetail = {
   bold: string;
   text: string;
@@ -31,7 +33,7 @@ const {
       <div
         class="f-title"
         data-prop="publicationTitle"
-        set:html={publicationTitle}
+        set:html={sanitizeHtmlFragment(publicationTitle)}
       />
       <p
         class="f-tagline"
@@ -57,7 +59,7 @@ const {
       <div
         class="f-detail"
         data-prop="editionText"
-        set:html={editionText}
+        set:html={sanitizeHtmlFragment(editionText)}
       />
       <div class="footer-links">
         <a

@@ -1,5 +1,6 @@
 ---
 import Icon from "@core-elements/icon/Icon.astro";
+import { sanitizeHtmlFragment } from "../../../../lib/safeHtml";
 import MarkdownIt from "markdown-it";
 
 const {
@@ -39,7 +40,7 @@ const textDataAttributes = effectiveDataProp
       )
     }
     <p {...textDataAttributes}>
-      {text ? <Fragment set:html={md.renderInline(text)} /> : <slot />}
+      {text ? <Fragment set:html={sanitizeHtmlFragment(md.renderInline(text))} /> : <slot />}
     </p>
   </span>
 </li>

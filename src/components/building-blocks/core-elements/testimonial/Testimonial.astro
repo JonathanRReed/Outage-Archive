@@ -1,5 +1,6 @@
 ---
 import Image from "@core-elements/image/Image.astro";
+import { sanitizeHtmlFragment } from "../../../../lib/safeHtml";
 import MarkdownIt from "markdown-it";
 const {
   text,
@@ -17,7 +18,7 @@ const {
 } = Astro.props;
 
 const md = MarkdownIt({ html: true });
-const MarkdownText = text ? md.render(text) : "";
+const MarkdownText = text ? sanitizeHtmlFragment(md.render(text)) : "";
 
 const effectiveDataProp = customDataProp ?? (useDefaultEditableBinding ? "text" : null);
 const textDataAttributes = effectiveDataProp

@@ -1,4 +1,6 @@
 ---
+import { sanitizeHtmlFragment } from "../../../lib/safeHtml";
+
 const {
   kicker = "",
   heading = "",
@@ -48,7 +50,7 @@ const {
       <h3>{leftTitle}</h3>
       <div
         data-prop="leftBody"
-        set:html={leftBody}
+        set:html={sanitizeHtmlFragment(leftBody)}
       />
     </section>
     {
@@ -58,7 +60,7 @@ const {
           {leftBody2 && (
             <div
               data-prop="leftBody2"
-              set:html={leftBody2}
+              set:html={sanitizeHtmlFragment(leftBody2)}
             />
           )}
         </section>

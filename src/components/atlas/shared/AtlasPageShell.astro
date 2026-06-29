@@ -1,5 +1,6 @@
 ---
 import AtlasMasthead from "@components/atlas/shared/AtlasMasthead.astro";
+import { sanitizeHtmlFragment } from "../../../lib/safeHtml";
 
 type AtlasPageKey = "home" | "timeline" | "archives" | "map" | "methodology" | "about" | "none";
 
@@ -47,7 +48,7 @@ const {
       <h1
         class="masthead-title"
         data-prop="heading"
-        set:html={heading}
+        set:html={sanitizeHtmlFragment(heading)}
       />
       <p
         class="masthead-subtitle"

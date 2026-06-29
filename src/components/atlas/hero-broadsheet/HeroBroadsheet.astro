@@ -1,5 +1,6 @@
 ---
 import AtlasMasthead from "@components/atlas/shared/AtlasMasthead.astro";
+import { sanitizeHtmlFragment } from "../../../lib/safeHtml";
 
 type StatFigure = {
   number: string;
@@ -50,7 +51,7 @@ const {
       <h1
         class="masthead-title"
         data-prop="heading"
-        set:html={heading}
+        set:html={sanitizeHtmlFragment(heading)}
       />
       <p
         class="masthead-subtitle"
@@ -104,7 +105,7 @@ const {
         <div
           class="hero-body"
           data-prop="heroBody"
-          set:html={heroBody}
+          set:html={sanitizeHtmlFragment(heroBody)}
         />
       </section>
       <div class="column-rule"></div>

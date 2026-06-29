@@ -1,5 +1,6 @@
 ---
 import markdownit from "markdown-it";
+import { sanitizeHtmlFragment } from "../../../../lib/safeHtml";
 
 const md = markdownit({ html: true });
 
@@ -13,7 +14,7 @@ const {
   ...htmlAttributes
 } = Astro.props;
 
-const markdownContent = text ? md.render(text) : "";
+const markdownContent = text ? sanitizeHtmlFragment(md.render(text)) : "";
 const editingEnabled = process.env.DISABLE_COMPONENT_LIBRARY !== "true";
 
 const effectiveDataProp = editingEnabled
