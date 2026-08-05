@@ -24,6 +24,12 @@ pageSections:
 
       <p>The project was researched, written, designed, and built by Jonathan R
       Reed.</p>
+
+      <p>The narrative companion to this reference is the essay <a
+      href="https://jonathanrreed.com/blog/days-the-internet-dies/">The Days the
+      Internet Died</a>. It links eighteen of the case files here and reads them
+      as one story rather than separate entries, so start there if you want the
+      argument before the record.</p>
     profileLabel: Creator
     profileName: Jonathan R. Reed
     profileRole: Creator

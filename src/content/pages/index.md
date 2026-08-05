@@ -31,6 +31,12 @@ pageSections:
       href="#taxonomy">Failure Taxonomy</a>, or play through a quarter-century of
       failures on the interactive <a href="/map/">Atlas Map</a> to see what
       broke, how it spread, and why the same failures keep returning.</p>
+
+      <p>The narrative companion to this atlas is <a
+      href="https://jonathanrreed.com/blog/days-the-internet-dies/">The Days the
+      Internet Died</a>, an essay that reads eighteen of these case files as one
+      continuous story instead of separate records. The atlas is the filing
+      cabinet. The essay is the argument about what the files add up to.</p>
     statFigures:
       - number: '50'
         label: Incidents Documented
