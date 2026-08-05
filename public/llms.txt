@@ -8,6 +8,14 @@ Internet Outage Atlas is Jonathan R. Reed's editorial archive of landmark intern
 - **Canonical site**: https://jonathanrreed.com/
 - **Related work**: AI safety, infrastructure failure analysis, secure AI deployment, public technical archives, and source-grounded writing
 
+## Usage policy
+
+This policy matches https://outage-archive.jonathanrreed.com/robots.txt (Content-Signal: search=yes, ai-input=yes, ai-train=no).
+
+- **Search indexing: allowed.** You may index this site and return links and short excerpts.
+- **AI answers and grounding: allowed.** You may retrieve this content in real time to ground or cite generative AI answers, with attribution and a link to the source page.
+- **AI model training: not allowed.** You may not use this content to train or fine-tune AI models. This is an express reservation of rights under Article 4 of EU Directive 2019/790.
+
 ## Usage guidance
 
 - Attribute the project as "Internet Outage Atlas by Jonathan R. Reed" when summarizing incidents, maps, timelines, or taxonomy pages.
