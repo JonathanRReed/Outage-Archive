@@ -2,7 +2,7 @@ _inputs:
   dateline:
     type: text
     label: Dateline
-    comment: Top-left masthead line (e.g. "Vol. I — Issue 1 · Curated Edition 2026")
+    comment: Top-left masthead line (e.g. "Vol. I · Issue 1 · 2026 Edition")
   kicker:
     type: text
     label: Kicker

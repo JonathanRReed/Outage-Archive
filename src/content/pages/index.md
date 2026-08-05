@@ -7,7 +7,7 @@ description: >-
   BGP, CDNs, identity systems, control planes, and telecom networks.
 pageSections:
   - _component: atlas/hero-broadsheet
-    dateline: "Vol. I \xB7 Issue 1 \xB7 Curated Edition 2026 \xB7 50 Incidents Documented"
+    dateline: "Vol. I \xB7 Issue 1 \xB7 2026 Edition \xB7 50 Incidents Documented"
     kicker: 'Internet Outage Atlas · Launch Edition'
     heading: 'INTERNET<br>OUTAGE ATLAS'
     subtitle: A reference to the outages that showed how shared internet systems fail
@@ -40,7 +40,7 @@ pageSections:
     statFigures:
       - number: '50'
         label: Incidents Documented
-        note: Curated atlas, version 1
+        note: Selected record, version 1
       - number: 8.5M
         label: Devices in largest incident
         note: CrowdStrike Falcon, July 2024
@@ -69,9 +69,9 @@ pageSections:
         body: >-
           Mirai used hacked cameras, routers, DVRs, and other junk devices to
           hammer Dyn's DNS infrastructure. Twitter, Spotify, GitHub, Reddit,
-          and much of the East Coast web started failing together. The point was
-          not only the attack. It was how much of the visible web depended on
-          one naming layer.
+          and much of the East Coast web started failing together. What made the
+          day stick was how much of the visible web turned out to sit behind one
+          naming layer.
         duration: "Duration: approximately 8 hours \xB7 October 21, 2016"
       - year: '2017'
         title: AWS S3 US-East-1 Outage
@@ -205,17 +205,18 @@ pageSections:
     kicker: "Chapter Five \xB7 Failure Taxonomy"
     heading: How the Internet Fails
     intro: >-
-      Six recurring failure classes. Different triggers, different spread
-      patterns, same outcome: too much depends on too few shared layers.
+      Six recurring failure classes. The triggers vary and so does the way each
+      one spreads, but the outcome keeps landing in the same place: too much
+      depends on too few shared layers.
     entries:
       - word: DNS
         position: noun, failure class 01
         fullName: Domain Name System
         definition: >-
-          The address book of the internet fails to resolve domain names to IP
-          addresses. Servers remain operational, but users cannot discover their
-          locations. The failure mode is total, invisible, and affects every
-          user simultaneously.
+          The address book of the internet stops resolving domain names to IP
+          addresses. The servers are still running. Nobody can find them. The
+          failure is total, it is invisible from the outside, and it reaches
+          every user at the same moment.
         triggers: >-
           <strong>Common triggers:</strong> Volumetric DDoS attacks against
           resolvers, software defects in DNS server applications activated by
@@ -367,7 +368,7 @@ pageSections:
       - Peer-reviewed research and major conference proceedings (USENIX, SIGCOMM)
     rightTitle2: Scope and Coverage
     rightItems2:
-      - 50-incident curated atlas, version 1
+      - 50 incidents selected for version 1 of the atlas
       - 7 featured incidents on the homepage timeline
       - 'Temporal scope: 1997 through March 2026'
       - 'Geographic focus: incidents with significant U.S. user impact prioritized'

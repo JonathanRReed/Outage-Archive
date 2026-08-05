@@ -6,10 +6,10 @@ tags:
   - Hero
 value:
   _component: atlas/hero-broadsheet
-  dateline: "Vol. I — Issue 1 · Curated Edition 2026 · 52 Incidents Documented"
-  kicker: "A Forensic Editorial Record · Infrastructure Failure Patterns"
+  dateline: "Vol. I · Issue 1 · 2026 Edition · 50 Incidents Documented"
+  kicker: "Internet Outage Atlas · Infrastructure Failure Patterns"
   heading: "INTERNET<br>OUTAGE ATLAS"
-  subtitle: "A comprehensive visual record of the failures that define modern digital infrastructure"
+  subtitle: "A record of the outages that showed how shared internet systems fail"
   byline: "By The Internet Outage Atlas Project · March 2026"
   heroHeading: "The Infrastructure Failures That Reshaped the Internet"
   heroQuote: ""

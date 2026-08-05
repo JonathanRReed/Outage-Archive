@@ -120,7 +120,7 @@ const incidentGroups: AtlasIncidentGroup[] = [
     label: "Cloud and control planes",
     heading: "When recovery tools and platform internals start failing too",
     intro:
-      "The hardest cloud outages are not just service failures. They are outages where the systems needed to understand or recover the outage are also under stress.",
+      "In the hardest cloud outages, the systems you need to understand or recover the failure are failing along with everything else.",
   },
   {
     key: "platform",
@@ -162,7 +162,7 @@ const rawAtlasIncidents: AtlasIncident[] = [
     category: "Telecom infrastructure",
     severity: "Critical",
     summary:
-      "Katrina destroyed fiber paths, towers, power, and fuel logistics together, collapsing multiple redundant systems at once. It remains one of the clearest examples of geography overpowering abstract redundancy claims.",
+      "Katrina destroyed fiber paths, towers, power, and fuel logistics together, collapsing multiple redundant systems at once. Geography beat every redundancy claim on paper, because the same storm hit all of the redundant paths.",
     lesson: "Lesson: Redundancy fails when the same event wipes out every redundant path.",
     groupKey: "physical",
     homePlacement: null,
@@ -218,7 +218,7 @@ const rawAtlasIncidents: AtlasIncident[] = [
     category: "Route hijack",
     severity: "High Severity",
     summary:
-      "An Indonesian provider briefly announced routes for large portions of the internet, diverting traffic that had nothing to do with it. The incident showed how an operational mistake in one network can distort global reachability in minutes.",
+      "An Indonesian provider briefly announced routes for large portions of the internet, diverting traffic that had nothing to do with it. One operational mistake inside one network distorted global reachability in minutes.",
     lesson: "Lesson: A local route leak becomes global if upstream trust is too loose.",
     groupKey: "routing",
     homePlacement: null,
@@ -260,7 +260,7 @@ const rawAtlasIncidents: AtlasIncident[] = [
     category: "DNS / DDoS",
     severity: "Critical",
     summary:
-      "Mirai used hacked cameras, routers, DVRs, and other junk devices to hammer Dyn's DNS infrastructure. Twitter, Spotify, GitHub, Reddit, and much of the East Coast web started failing together. The point was not only the attack. It was how much of the visible web depended on one naming layer.",
+      "Mirai used hacked cameras, routers, DVRs, and other junk devices to hammer Dyn's DNS infrastructure. Twitter, Spotify, GitHub, Reddit, and much of the East Coast web started failing together. What made the day stick was how much of the visible web turned out to sit behind one naming layer.",
     lesson:
       "Lesson: Shared naming layers can fail harder than the applications that depend on them.",
     duration: "Duration: approximately 8 hours · October 21, 2016",
@@ -329,7 +329,7 @@ const rawAtlasIncidents: AtlasIncident[] = [
     category: "Public-safety outage",
     severity: "Critical",
     summary:
-      "A network failure disrupted 911 service across multiple states and affected millions of customers. The incident showed how emergency calling systems could still share failure domains with commercial backbone infrastructure.",
+      "A network failure disrupted 911 service across multiple states and affected millions of customers. Emergency calling turned out to share a failure domain with the commercial backbone underneath it.",
     lesson: "Lesson: Public safety is only as isolated as the infrastructure it actually shares.",
     groupKey: "physical",
     homePlacement: null,
@@ -371,7 +371,7 @@ const rawAtlasIncidents: AtlasIncident[] = [
     category: "Cloud networking",
     severity: "Critical",
     summary:
-      "A routine change cascaded through Google Cloud's networking systems and led to major traffic loss and degraded access across services. The incident showed how internal reliability changes can widen into public unavailability.",
+      "A routine change cascaded through Google Cloud's networking systems and led to major traffic loss and degraded access across services. An internal reliability change widened all the way out to public unavailability.",
     lesson:
       "Lesson: Reliability work can become an outage vector when coordination layers fail with it.",
     groupKey: "cloud",
@@ -387,7 +387,7 @@ const rawAtlasIncidents: AtlasIncident[] = [
     severity: "High Severity",
     summary:
       "The expiration of the AddTrust root certificate triggered trust failures on legacy systems and broke connections that still depended on that chain. A quiet certificate deadline turned into a visible service problem for older clients.",
-    lesson: "Lesson: Trust chains are part of availability, not just security.",
+    lesson: "Lesson: A broken trust chain takes a service down the same way a broken server does.",
     groupKey: "naming",
     homePlacement: null,
   },
@@ -400,7 +400,7 @@ const rawAtlasIncidents: AtlasIncident[] = [
     category: "Video platform",
     severity: "High Severity",
     summary:
-      "Zoom experienced a broad service disruption during the period when remote work had made video infrastructure a daily dependency. The incident showed how a platform that looks optional can become operationally central very quickly.",
+      "Zoom went down broadly during the stretch when remote work had made video a daily dependency. A platform that still looked optional on paper had already become operationally central.",
     lesson:
       "Lesson: Once a platform becomes routine coordination infrastructure, partial outages stop feeling partial.",
     groupKey: "platform",
@@ -460,7 +460,7 @@ const rawAtlasIncidents: AtlasIncident[] = [
     category: "SaaS DNS",
     severity: "High Severity",
     summary:
-      "A DNS-related failure affected Salesforce services and disrupted the large body of business workflows built on top of them. The outage hit as an enterprise dependency problem, not just an app problem.",
+      "A DNS-related failure affected Salesforce services and disrupted the large body of business workflows built on top of them. What stopped was the work those workflows carried, far past the app itself.",
     lesson: "Lesson: SaaS platforms inherit the blast radius of their own shared front doors.",
     groupKey: "front_door",
     homePlacement: null,
@@ -687,7 +687,7 @@ const rawAtlasIncidents: AtlasIncident[] = [
     category: "Platform failure",
     severity: "High Severity",
     summary:
-      "A brief but iconic Google outage took major services offline at the same time and became a durable example of how concentrated platform ecosystems can vanish all at once, even during a short failure.",
+      "A short Google outage took major services offline at the same time. The failure did not last long, and it still showed that a concentrated platform ecosystem can vanish all at once.",
     lesson:
       "Lesson: A short outage at a concentrated platform can still expose outsized systemic dependence.",
     groupKey: "platform",
@@ -702,7 +702,7 @@ const rawAtlasIncidents: AtlasIncident[] = [
     category: "Commerce platform",
     severity: "High Severity",
     summary:
-      "A high-profile Amazon retail outage showed how visible and immediate the impact becomes when a single commerce platform failure blocks browsing, purchasing, and order flow together.",
+      "An Amazon retail outage blocked browsing, purchasing, and order flow together. When one commerce platform carries that much traffic, the impact is immediate and very public.",
     lesson:
       "Lesson: Platform outages feel infrastructural once daily transactions route through one front door.",
     groupKey: "platform",
@@ -747,8 +747,8 @@ const rawAtlasIncidents: AtlasIncident[] = [
     category: "Certificate expiration",
     severity: "High Severity",
     summary:
-      "An expired TLS certificate broke access to Google Voice and showed, again, that trust-chain maintenance is part of availability engineering rather than a side concern reserved for security teams.",
-    lesson: "Lesson: Certificate hygiene is uptime work, not just compliance work.",
+      "An expired TLS certificate broke access to Google Voice. Clients that checked the chain refused the connection, which puts certificate maintenance squarely inside availability engineering.",
+    lesson: "Lesson: Certificate hygiene is uptime work.",
     groupKey: "naming",
     homePlacement: null,
   },
@@ -761,7 +761,7 @@ const rawAtlasIncidents: AtlasIncident[] = [
     category: "Regional cloud networking",
     severity: "High Severity",
     summary:
-      "Traffic loss in Google Cloud's us-east4 region highlighted how regional networking faults can still create large downstream application problems when many services quietly share the same cloud locality.",
+      "Traffic loss in Google Cloud's us-east4 region took down applications that never looked regional. A lot of services quietly share the same cloud locality, and a networking fault there reaches all of them.",
     lesson:
       "Lesson: Regional concentration stays dangerous even when the failure looks narrower than a full cloud outage.",
     groupKey: "cloud",
@@ -776,9 +776,8 @@ const rawAtlasIncidents: AtlasIncident[] = [
     category: "Mobile carrier outage",
     severity: "Critical",
     summary:
-      "A major Verizon mobile outage underscored how quickly carrier failures still spill into daily public life once voice, data, authentication, and payment flows all assume cellular reachability.",
-    lesson:
-      "Lesson: Telecom outages still behave like public-infrastructure outages, not just product outages.",
+      "A major Verizon mobile outage cut voice and data service for customers across the country. Logins and payments went with it, because those flows all assume the phone can still reach the network.",
+    lesson: "Lesson: Telecom outages still behave like public-infrastructure outages.",
     groupKey: "physical",
     homePlacement: null,
   },
@@ -821,7 +820,7 @@ const rawAtlasIncidents: AtlasIncident[] = [
     category: "Azure Front Door configuration",
     severity: "Critical",
     summary:
-      "A global Microsoft 365 and Azure outage tied to Azure Front Door configuration reinforced the atlas theme that the front door often fails harder than the applications behind it.",
+      "A global Microsoft 365 and Azure outage traced back to Azure Front Door configuration. The break was in the shared edge sitting in front of the applications, which is the pattern this atlas keeps running into.",
     lesson:
       "Lesson: Shared edge and routing layers can erase the practical value of otherwise resilient back-end services.",
     groupKey: "front_door",
@@ -836,7 +835,7 @@ const rawAtlasIncidents: AtlasIncident[] = [
     category: "Developer platform outage",
     severity: "High Severity",
     summary:
-      "A GitHub outage disrupted repository operations and development workflows at a layer many teams now treat as critical infrastructure rather than an optional collaboration tool.",
+      "A GitHub outage disrupted repository operations and development workflows at a layer many teams now treat as critical infrastructure.",
     lesson:
       "Lesson: Developer platforms have become operational dependencies with their own public blast radius.",
     groupKey: "platform",
@@ -896,7 +895,7 @@ const rawAtlasIncidents: AtlasIncident[] = [
     category: "Enterprise suite outage",
     severity: "Critical",
     summary:
-      "A long Microsoft 365 outage highlighted how deeply office coordination, messaging, documents, and identity have been consolidated into one operational dependency for many organizations.",
+      "A long Microsoft 365 outage stopped office coordination, messaging, documents, and identity at the same time, because for many organizations all four now sit inside one dependency.",
     lesson:
       "Lesson: Enterprise software suites fail like infrastructure once work is routed through them continuously.",
     groupKey: "cloud",

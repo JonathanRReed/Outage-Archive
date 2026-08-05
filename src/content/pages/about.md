@@ -17,10 +17,10 @@ pageSections:
       causes, and blast radius that can be documented and compared over
       time.</p>
 
-      <p>This is not a live dashboard and not a status page for one company. It
-      is a reference work. The site follows the shared layers that let failures
-      spread, including naming, routing, edge networks, identity, control
-      planes, and the physical systems underneath them.</p>
+      <p>The site is a reference work with no live monitoring behind it. It
+      follows the shared layers that let failures spread, including naming,
+      routing, edge networks, identity, control planes, and the physical
+      systems underneath them.</p>
 
       <p>The project was researched, written, designed, and built by Jonathan R
       Reed.</p>
@@ -35,8 +35,8 @@ pageSections:
     profileRole: Creator
     profileBody: >-
       Jonathan R. Reed built this atlas as an editorial record of systemic
-      internet failures. The goal was to make outage history readable, visual,
-      and specific as a reference work rather than a dashboard.
+      internet failures. The goal was to make outage history readable and
+      specific enough that one failure can be held up against another.
     profileImage: https://img.jonathanrreed.com/personal/jonathan.avif
     profileImageAlt: Jonathan R. Reed
     websiteUrl: https://JonathanRReed.com
@@ -52,12 +52,12 @@ pageSections:
       - The homepage handles the core narrative and the most defining incidents
       - The timeline isolates a smaller canon that best explains shared infrastructure failure
       - The archive and taxonomy expand the record into supporting cases and recurring failure classes
-      - The About file now includes the methodology and source record for the atlas
+      - The About file carries the methodology and the source record for the atlas
     principlesTitle: Editorial approach
     principlesItems:
       - Write clearly and keep the failure mode specific
       - Prefer shared dependency patterns over vendor branding
-      - Treat outages as historical records, not product marketing copy
+      - Keep every entry historical and leave vendor marketing language out of it
       - Keep the design readable in both light and dark theme without losing the atlas character
     linkedinUrl: https://www.linkedin.com/in/jonathanrreed0/
     githubUrl: https://github.com/JonathanRReed
@@ -89,7 +89,7 @@ pageSections:
     rightTitle2: Scope and Coverage
     rightItems2:
       - Launch corpus built around the strongest incidents documented in the merged report
-      - Homepage remains a curated narrative, while timeline and archives broaden coverage
+      - Homepage carries the selected narrative; the timeline and archives carry the full coverage
       - 'Temporal scope: historical incidents through March 2026'
       - 'Geographic focus: incidents with significant U.S. user impact prioritized'
       - 'No real-time monitoring component; this is a historical record'

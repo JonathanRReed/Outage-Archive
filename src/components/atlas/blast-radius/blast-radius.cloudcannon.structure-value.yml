@@ -6,9 +6,9 @@ tags:
   - Blast Radius
 value:
   _component: atlas/blast-radius
-  kicker: "Chapter Six — Blast Radius"
+  kicker: "Chapter Six · Blast Radius"
   heading: "How Failures Spread"
   intro: ""
-  insetTitle: "Failure Propagation Model — Illustrated"
+  insetTitle: "Failure Propagation Model · Illustrated"
   insetSub: ""
   levels: []
