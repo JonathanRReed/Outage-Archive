@@ -68,24 +68,6 @@ const incidentCount = atlasIncidents.length;
             ))
           }
         </ul>
-
-        <div class="finder-note reveal">
-          <div class="double-rule"></div>
-          <h2 class="finder-note-h">A reading path</h2>
-          <p>
-            Start with the homepage for the core story, move to the timeline for sequence, then use
-            the archive to compare similar failures side by side. If you are researching a specific
-            infrastructure layer, scan the archive group headings first. If you are checking whether
-            an incident belongs in the atlas, read the methodology notes on the About page before
-            sending a correction.
-          </p>
-          <p>
-            For source review, the atlas prefers official incident reports, engineering postmortems,
-            regulatory filings, and routing analyses with reproducible evidence. News coverage is
-            useful when it establishes public impact, but technical claims are tied to primary or
-            specialist sources wherever possible.
-          </p>
-        </div>
       </section>
 
       <AtlasFooter
@@ -170,26 +152,6 @@ const incidentCount = atlasIncidents.length;
       letter-spacing: 0.06em;
       margin-top: 0.35rem;
       text-transform: uppercase;
-    }
-    .finder-note {
-      max-width: 64ch;
-    }
-    .finder-note-h {
-      color: var(--atlas-ink);
-      font-family: var(--atlas-font-display);
-      font-size: 1.3rem;
-      font-weight: 900;
-      letter-spacing: -0.01em;
-      margin: 1.2rem 0 0.9rem;
-    }
-    .finder-note p {
-      color: var(--atlas-ink-mid);
-      font-size: 1.02rem;
-      line-height: 1.95;
-      margin: 0 0 1.1rem;
-    }
-    .finder-note p:last-child {
-      margin-bottom: 0;
     }
 
     :root[data-theme="dark"] .finder-card a {

@@ -29,22 +29,11 @@ const incidentCount = groups.reduce((total, group) => total + group.items.length
           <div class="archives-page-byline">Full incident record</div>
           <h2 class="archives-page-title">All incidents in one place</h2>
           <p>
-            This page holds the full atlas record. The homepage is selective. The timeline is for
-            scanning by date. The archive is where every incident stays available in detail.
+            One canonical record per incident, grouped by the layer that amplified the failure. The
+            homepage is selective; this is where every incident stays available in detail.
           </p>
           <p>If you arrive from the timeline, the matching record opens automatically.</p>
         </div>
-        <aside class="archives-page-side">
-          <div class="archives-page-card">
-            <div class="archives-page-card-label">Archive rules</div>
-            <ul>
-              <li>One canonical record per incident</li>
-              <li>Grouped by the layer that amplified the failure</li>
-              <li>Directly addressable by anchored archive link</li>
-              <li>Includes homepage incidents and supporting incidents together</li>
-            </ul>
-          </div>
-        </aside>
       </section>
 
       <ArchiveLedger groups={groups} />
@@ -72,7 +61,6 @@ const incidentCount = groups.reduce((total, group) => total + group.items.length
     .archives-page-lede {
       display: grid;
       gap: 1.5rem;
-      grid-template-columns: minmax(0, 3fr) minmax(280px, 1.4fr);
       padding: 2.2rem 3rem 2rem;
     }
     .archives-page-byline {
@@ -102,53 +90,6 @@ const incidentCount = groups.reduce((total, group) => total + group.items.length
     }
     .archives-page-copy p:last-child {
       margin-bottom: 0;
-    }
-    .archives-page-card {
-      background: linear-gradient(
-        180deg,
-        color-mix(in srgb, var(--atlas-surface) 94%, transparent),
-        transparent 100%
-      );
-      border: 1px solid color-mix(in srgb, var(--atlas-rule) 75%, transparent);
-      box-shadow: 0 24px 60px -48px rgba(13, 27, 42, 0.5);
-      padding: 1.1rem 1rem 1rem;
-    }
-    .archives-page-card-label {
-      color: var(--atlas-ink-muted);
-      font-size: 10px;
-      letter-spacing: 0.2em;
-      margin-bottom: 0.5rem;
-      text-transform: uppercase;
-    }
-    .archives-page-card ul {
-      display: grid;
-      gap: 0.55rem;
-      list-style: none;
-      margin: 0;
-      padding: 0;
-    }
-    .archives-page-card li {
-      color: var(--atlas-ink-mid);
-      font-size: 13px;
-      line-height: 1.7;
-      padding-left: 1rem;
-      position: relative;
-    }
-    .archives-page-card li::before {
-      background: var(--atlas-gold);
-      border-radius: 50%;
-      content: "";
-      height: 5px;
-      left: 0;
-      position: absolute;
-      top: 0.72em;
-      width: 5px;
-    }
-
-    :root[data-theme="dark"] .archives-page-card {
-      background: linear-gradient(180deg, rgba(10, 23, 38, 0.28), rgba(10, 23, 38, 0.12));
-      border-color: rgba(212, 175, 85, 0.14);
-      box-shadow: 0 24px 60px -48px rgba(0, 0, 0, 0.45);
     }
 
     @media (max-width: 1080px) {

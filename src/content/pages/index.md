@@ -25,18 +25,6 @@ pageSections:
       paper. Airlines stopped moving. Banks went dark. Emergency systems
       failed. The same dependency patterns keep showing up because the internet
       is more concentrated than it looks.</p>
-
-      <p>Read the <a href="#timeline">Featured Timeline</a>, review the <a
-      href="#archive">Incident Archive</a>, study the <a
-      href="#taxonomy">Failure Taxonomy</a>, or play through a quarter-century of
-      failures on the interactive <a href="/map/">Atlas Map</a> to see what
-      broke, how it spread, and why the same failures keep returning.</p>
-
-      <p>The narrative companion to this atlas is <a
-      href="https://jonathanrreed.com/blog/days-the-internet-dies/">The Days the
-      Internet Died</a>, an essay that reads eighteen of these case files as one
-      continuous story instead of separate records. The atlas is the filing
-      cabinet. The essay is the argument about what the files add up to.</p>
     statFigures:
       - number: '50'
         label: Incidents Documented
@@ -341,51 +329,16 @@ pageSections:
           routing instability compound into self-reinforcing collapse.
         isRed: true
 
-  - _component: atlas/methodology-section
-    kicker: "Chapter Seven \xB7 Methodology and Sources"
-    heading: How This Atlas Was Built
-    leftTitle: Inclusion Criteria
-    leftBody: >-
-      <p>An incident belongs here if it produced meaningful U.S. user impact,
-      revealed a failure mode worth tracking, or clarified how shared
-      infrastructure actually breaks. "Meaningful" means more than a short
-      wobble and more than one service feeling it.</p>
-
-      <p>Minor degradations stay out. So do incidents that can only be verified
-      through social posts or cases where the sourcing is too thin to trust the
-      key facts.</p>
-    leftTitle2: Handling Disputed Details
-    leftBody2: >-
-      <p>When authoritative sources conflict, this atlas uses the most
-      conservative figure and notes the dispute. Financial loss numbers are used
-      as scale markers, not as precise accounting.</p>
-    rightTitle: Source Hierarchy
-    rightItems:
-      - Company postmortems and official incident reports
-      - Regulatory filings (FCC, CRTC, and equivalent bodies)
-      - Technical analyses by BGP monitoring services (Cloudflare Radar, RIPE NCC, RouteViews)
-      - Investigative journalism with technical depth and primary sources cited
-      - Peer-reviewed research and major conference proceedings (USENIX, SIGCOMM)
-    rightTitle2: Scope and Coverage
-    rightItems2:
-      - 50 incidents selected for version 1 of the atlas
-      - 7 featured incidents on the homepage timeline
-      - 'Temporal scope: 1997 through March 2026'
-      - 'Geographic focus: incidents with significant U.S. user impact prioritized'
-      - 'No real-time monitoring component; this is a historical record'
-
   - _component: atlas/atlas-footer
     publicationTitle: 'INTERNET<br>OUTAGE<br>ATLAS'
     tagline: A record of the failures that exposed how much daily life rests on shared internet infrastructure.
     figures:
-      - bold: '50'
-        text: Incidents documented, v1
-      - bold: 8.5M
-        text: "Devices crashed \xB7 CrowdStrike 2024"
-      - bold: $47B
-        text: "Market cap lost \xB7 Facebook 2021"
-      - bold: 26h
-        text: "Rogers Canada nationwide \xB7 2022"
+      - bold: Timeline
+        text: The record in date order
+      - bold: Archives
+        text: Every incident, grouped by failure mode
+      - bold: Map
+        text: Where the outages landed, playable by year
     editionText: "Archival Broadsheet Edition<br>Vol. I \xB7 March 2026<br>CloudCannon Astro Challenge"
     copyrightText: "\xA9 2026 Internet Outage Atlas Project. All content for educational purposes."
     typesetText: 'JonathanRReed.com · Original article available'

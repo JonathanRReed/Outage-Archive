@@ -17,13 +17,9 @@ pageSections:
       causes, and blast radius that can be documented and compared over
       time.</p>
 
-      <p>The site is a reference work with no live monitoring behind it. It
-      follows the shared layers that let failures spread, including naming,
-      routing, edge networks, identity, control planes, and the physical
-      systems underneath them.</p>
-
-      <p>The project was researched, written, designed, and built by Jonathan R
-      Reed.</p>
+      <p>It follows the shared layers that let failures spread, including
+      naming, routing, edge networks, identity, control planes, and the
+      physical systems underneath them.</p>
 
       <p>The narrative companion to this reference is the essay <a
       href="https://jonathanrreed.com/blog/days-the-internet-dies/">The Days the
@@ -32,11 +28,10 @@ pageSections:
       argument before the record.</p>
     profileLabel: Creator
     profileName: Jonathan R. Reed
-    profileRole: Creator
+    profileRole: Researched, written, designed, and built the atlas
     profileBody: >-
-      Jonathan R. Reed built this atlas as an editorial record of systemic
-      internet failures. The goal was to make outage history readable and
-      specific enough that one failure can be held up against another.
+      The goal was to make outage history readable and specific enough that one
+      failure can be held up against another.
     profileImage: https://img.jonathanrreed.com/personal/jonathan.avif
     profileImageAlt: Jonathan R. Reed
     websiteUrl: https://JonathanRReed.com
@@ -88,24 +83,25 @@ pageSections:
       - Peer-reviewed research and major conference proceedings (USENIX, SIGCOMM)
     rightTitle2: Scope and Coverage
     rightItems2:
-      - Launch corpus built around the strongest incidents documented in the merged report
+      - 50 incidents selected for version 1 of the atlas
+      - 7 featured incidents on the homepage timeline
       - Homepage carries the selected narrative; the timeline and archives carry the full coverage
-      - 'Temporal scope: historical incidents through March 2026'
+      - 'Temporal scope: 1997 through March 2026'
       - 'Geographic focus: incidents with significant U.S. user impact prioritized'
       - 'No real-time monitoring component; this is a historical record'
   - _component: atlas/atlas-footer
     publicationTitle: 'Internet<br>Outage Atlas'
     tagline: A project, creator, and methodology record for the atlas
     figures:
-      - bold: '1'
-        text: 'Creator: Jonathan R. Reed'
-      - bold: Atlas
-        text: 'Editorial reference on shared infrastructure failure'
       - bold: Method
-        text: 'Selection rules and source hierarchy included in this file'
+        text: 'Selection rules and source hierarchy live on this page'
+      - bold: Scope
+        text: '1997 through March 2026, U.S. impact prioritized'
+      - bold: Static
+        text: 'A historical record, not a live monitor'
     editionText: 'About Edition<br />Project, creator, and methodology record'
     copyrightText: '© 2026 Jonathan R. Reed'
-    typesetText: 'Creator: Jonathan R. Reed'
+    typesetText: 'Filed for Internet Outage Atlas'
     websiteUrl: 'https://JonathanRReed.com'
     articleUrl: 'https://JonathanRReed.com/blog/days-the-internet-dies/'
 ---

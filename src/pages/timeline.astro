@@ -28,22 +28,10 @@ const incidents = getAllTimelineIncidents();
           <div class="timeline-page-byline">Timeline view</div>
           <h2 class="timeline-page-title">Incidents over time</h2>
           <p>
-            This page orders the atlas by date so you can scan how outage patterns changed over time
-            and which dependencies kept failing.
+            Everything in the atlas, homepage incidents included, in one sequence. Scan it to see
+            which dependencies kept failing, then open an entry for the full case file.
           </p>
-          <p>Open any incident to read its full case file.</p>
         </div>
-        <aside class="timeline-page-side">
-          <div class="timeline-page-card">
-            <div class="timeline-page-card-label">Reading note</div>
-            <ul>
-              <li>Ordered chronologically across the atlas corpus</li>
-              <li>Designed for fast scanning before deeper archive reading</li>
-              <li>Each incident routes directly to its full case file</li>
-              <li>Homepage incidents are listed here too, in the same sequence</li>
-            </ul>
-          </div>
-        </aside>
       </section>
 
       <TimelineLedger incidents={incidents} />
@@ -53,8 +41,8 @@ const incidents = getAllTimelineIncidents();
         tagline="Chronological index of the atlas corpus with direct links into each case file"
         figures={[
           { bold: String(incidents.length), text: "Incidents indexed in the timeline" },
-          { bold: "1", text: "Canonical case-file destination for each incident" },
-          { bold: "Mode", text: "Timeline view for sequence, archive view for detail" },
+          { bold: "Archives", text: "Same incidents, grouped by failure mode" },
+          { bold: "Map", text: "Same incidents, plotted by where they landed" },
         ]}
         editionText="Timeline Edition<br />Chronological record"
         copyrightText="© 2026 Jonathan R. Reed"
@@ -71,7 +59,6 @@ const incidents = getAllTimelineIncidents();
     .timeline-page-lede {
       display: grid;
       gap: 1.5rem;
-      grid-template-columns: minmax(0, 3fr) minmax(280px, 1.4fr);
       padding: 2.2rem 3rem 2rem;
     }
     .timeline-page-byline {
@@ -101,53 +88,6 @@ const incidents = getAllTimelineIncidents();
     }
     .timeline-page-copy p:last-child {
       margin-bottom: 0;
-    }
-    .timeline-page-card {
-      background: linear-gradient(
-        180deg,
-        color-mix(in srgb, var(--atlas-surface) 94%, transparent),
-        transparent 100%
-      );
-      border: 1px solid color-mix(in srgb, var(--atlas-rule) 75%, transparent);
-      box-shadow: 0 24px 60px -48px rgba(13, 27, 42, 0.5);
-      padding: 1.1rem 1rem 1rem;
-    }
-    .timeline-page-card-label {
-      color: var(--atlas-ink-muted);
-      font-size: 10px;
-      letter-spacing: 0.2em;
-      margin-bottom: 0.5rem;
-      text-transform: uppercase;
-    }
-    .timeline-page-card ul {
-      display: grid;
-      gap: 0.55rem;
-      list-style: none;
-      margin: 0;
-      padding: 0;
-    }
-    .timeline-page-card li {
-      color: var(--atlas-ink-mid);
-      font-size: 13px;
-      line-height: 1.7;
-      padding-left: 1rem;
-      position: relative;
-    }
-    .timeline-page-card li::before {
-      background: var(--atlas-gold);
-      border-radius: 50%;
-      content: "";
-      height: 5px;
-      left: 0;
-      position: absolute;
-      top: 0.72em;
-      width: 5px;
-    }
-
-    :root[data-theme="dark"] .timeline-page-card {
-      background: linear-gradient(180deg, rgba(10, 23, 38, 0.28), rgba(10, 23, 38, 0.12));
-      border-color: rgba(212, 175, 85, 0.14);
-      box-shadow: 0 24px 60px -48px rgba(0, 0, 0, 0.45);
     }
 
     @media (max-width: 1080px) {
