@@ -272,7 +272,7 @@ const rawAtlasIncidents: AtlasIncident[] = [
       blastRadius:
         "Dyn ran authoritative DNS for a long list of large sites, so the failure surfaced everywhere at once. Twitter, Spotify, Reddit, GitHub, Netflix, Amazon, PayPal, Pinterest, Etsy, Shopify, Airbnb, Slack, and The New York Times became unreachable for large numbers of users in North America and Europe. The services themselves were healthy. Users just could not resolve the names.",
       recovery:
-        "Dyn recorded two damaging waves on October 21, roughly 11:10 to 13:20 UTC and 15:50 to 17:00 UTC, and mitigated a third attempt later that day without customer impact. Each wave took about two hours to mitigate, which is why the day reads as a series of failures rather than one continuous outage.",
+        "Dyn recorded two damaging waves on October 21. Mitigation for the first was fully deployed by 13:20 UTC, about two hours after it began, and the company had substantially recovered from the second by 17:00 UTC, roughly seventy minutes in. Residual impact from other sources ran until about 20:30 UTC, and smaller probing attacks over the following hours and days were mitigated without further customer impact. That is why the day reads as a series of failures rather than one continuous outage.",
       primarySource: {
         label: "Dyn — Dyn Analysis Summary of Friday October 21 Attack (archived)",
         url: "https://web.archive.org/web/20161027025156/http://dyn.com/blog/dyn-analysis-summary-of-friday-october-21-attack/",
