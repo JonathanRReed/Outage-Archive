@@ -1941,10 +1941,6 @@ export const atlasEnrichment: Record<string, Partial<AtlasIncident>> = {
         label: "Google Cloud Service Health postmortem (incident gsr6HAk6oCUpNG4CAZ1H)",
         url: "https://status.cloud.google.com/incidents/gsr6HAk6oCUpNG4CAZ1H",
       },
-      {
-        label: "The Register — Google Cloud US-East load balancer incident coverage",
-        url: "https://www.theregister.com/2023/03/20/google_cloud_us_east_incident/",
-      },
     ],
   },
   "verizon-mobile-outage-2024": {
