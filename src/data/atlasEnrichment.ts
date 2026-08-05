@@ -1416,8 +1416,9 @@ export const atlasEnrichment: Record<string, Partial<AtlasIncident>> = {
         url: "https://practical365.com/azure-ad-outage-march-15-2021/",
       },
       {
-        label: "PortSwigger Daily Swig — Microsoft blames crypto key rotation snafu for 365 outage",
-        url: "https://portswigger.net/daily-swig/microsoft-blames-crypto-key-rotation-snafu-for-365-outage",
+        label:
+          "PortSwigger Daily Swig — Microsoft blames crypto key rotation snafu for 365 outage (archived)",
+        url: "https://web.archive.org/web/20210413193338/https://portswigger.net/daily-swig/microsoft-blames-crypto-key-rotation-snafu-for-365-outage",
       },
     ],
   },
@@ -1762,8 +1763,8 @@ export const atlasEnrichment: Record<string, Partial<AtlasIncident>> = {
         url: "https://www.theregister.com/2013/08/17/google_outage/",
       },
       {
-        label: "GoSquared — Google's downtime caused a 40% drop in global traffic",
-        url: "https://www.gosquared.com/blog/googles-downtime-40-drop-in-traffic",
+        label: "GoSquared — Google's downtime caused a 40% drop in global traffic (archived)",
+        url: "https://web.archive.org/web/20200605182250/https://www.gosquared.com/blog/googles-downtime-40-drop-in-traffic",
       },
     ],
   },
