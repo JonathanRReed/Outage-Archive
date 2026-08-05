@@ -28,6 +28,15 @@ export type AtlasSource = {
   url: string;
 };
 
+// Cause, blast radius, and recovery time drawn from the operator's own
+// post-incident report. Only filled in where a primary postmortem exists.
+export type AtlasCaseFindings = {
+  cause: string;
+  blastRadius: string;
+  recovery: string;
+  primarySource: AtlasSource;
+};
+
 export type AtlasIncident = {
   slug: string;
   sortDate: string;
@@ -49,6 +58,7 @@ export type AtlasIncident = {
   durationMinutes?: number;
   severityRank?: 1 | 2 | 3;
   sources?: AtlasSource[];
+  findings?: AtlasCaseFindings;
 };
 
 type AtlasIncidentGroup = {
@@ -256,6 +266,18 @@ const rawAtlasIncidents: AtlasIncident[] = [
     duration: "Duration: approximately 8 hours · October 21, 2016",
     groupKey: "naming",
     homePlacement: "timeline",
+    findings: {
+      cause:
+        "Mirai-infected consumer devices, mostly cameras, DVRs, and home routers, aimed masked TCP and UDP traffic at port 53 on Dyn's Managed DNS platform. Dyn's own analysis named Mirai as the primary source and estimated up to 100,000 malicious endpoints. Recursive retry traffic from legitimate resolvers piled on top of the attack and made the load worse.",
+      blastRadius:
+        "Dyn ran authoritative DNS for a long list of large sites, so the failure surfaced everywhere at once. Twitter, Spotify, Reddit, GitHub, Netflix, Amazon, PayPal, Pinterest, Etsy, Shopify, Airbnb, Slack, and The New York Times became unreachable for large numbers of users in North America and Europe. The services themselves were healthy. Users just could not resolve the names.",
+      recovery:
+        "Dyn recorded two damaging waves on October 21, roughly 11:10 to 13:20 UTC and 15:50 to 17:00 UTC, and mitigated a third attempt later that day without customer impact. Each wave took about two hours to mitigate, which is why the day reads as a series of failures rather than one continuous outage.",
+      primarySource: {
+        label: "Dyn — Dyn Analysis Summary of Friday October 21 Attack (archived)",
+        url: "https://web.archive.org/web/20161027025156/http://dyn.com/blog/dyn-analysis-summary-of-friday-october-21-attack/",
+      },
+    },
   },
   {
     slug: "aws-s3-us-east-1-outage",
@@ -271,6 +293,18 @@ const rawAtlasIncidents: AtlasIncident[] = [
     duration: "Duration: approximately 4 hours · February 28, 2017",
     groupKey: "cloud",
     homePlacement: "timeline",
+    findings: {
+      cause:
+        "An authorized engineer ran an established playbook command to take a small number of servers out of the S3 billing subsystem and mistyped one input. The command removed a much larger set, including servers running the index subsystem that tracks where every object lives and the placement subsystem that allocates storage for new objects. Both needed a full restart, and neither had been restarted at that scale in years.",
+      blastRadius:
+        "GET, LIST, PUT, and DELETE requests failed across US-EAST-1. Anything leaning on S3 in that region went with it, including new EC2 instance launches, EBS snapshot operations, and Lambda. Slack, Trello, Quora, Giphy, Medium, Coursera, Docker Hub, and Business Insider were among the public casualties. The AWS Service Health Dashboard also ran on S3, so Amazon could not update its own status page while the outage was happening.",
+      recovery:
+        "Restart and safety-check work ran through the morning. GET, LIST, and DELETE came back at 12:26 PM PST once the index subsystem was serving, the index subsystem finished recovering at 1:18 PM PST, and PUT requests returned at 1:54 PM PST when the placement subsystem completed. About four hours and seventeen minutes end to end, with dependent services needing extra time to clear their backlogs.",
+      primarySource: {
+        label: "AWS — Summary of the Amazon S3 Service Disruption in the Northern Virginia Region",
+        url: "https://aws.amazon.com/message/41926/",
+      },
+    },
   },
   {
     slug: "mainone-google-route-leak",
@@ -488,6 +522,18 @@ const rawAtlasIncidents: AtlasIncident[] = [
     duration: "Duration: approximately 6 hours · October 4, 2021",
     groupKey: "routing",
     homePlacement: "timeline",
+    findings: {
+      cause:
+        "During routine backbone maintenance an engineer issued a command meant to assess global capacity. A bug in the audit tool that should have blocked it did not, and the command took down every connection on Meta's backbone, disconnecting its data centers from each other. The DNS servers kept running, but they withdrew their BGP advertisements once they saw the backbone was unhealthy. With the routes gone, the rest of the internet had no way left to find Meta's servers.",
+      blastRadius:
+        "Facebook, Instagram, WhatsApp, and Messenger went dark together for billions of users. Internal systems went with them. The tools engineers normally use to reach and repair the backbone lived behind the same routes that had just been withdrawn, so the outage removed the recovery path along with the service.",
+      recovery:
+        "Remote access was gone, so Meta sent engineers to the data centers in person, and the physical security built to make hardware hard to tamper with slowed them down once they got there. Services returned roughly six hours after the routes were withdrawn. Bringing everything back at once risked a second crash from the traffic surge, so the restart was staged.",
+      primarySource: {
+        label: "Meta Engineering — More details about the October 4 outage",
+        url: "https://engineering.fb.com/2021/10/05/networking-traffic/outage-details/",
+      },
+    },
   },
   {
     slug: "lets-encrypt-dst-root-ca-x3-expiration",
@@ -591,6 +637,18 @@ const rawAtlasIncidents: AtlasIncident[] = [
     duration: "Duration: recovery spanning 10 days · July 19, 2024",
     groupKey: "platform",
     homePlacement: "timeline",
+    findings: {
+      cause:
+        "CrowdStrike published a Rapid Response Content update, Channel File 291, at 04:09 UTC. The sensor's Content Interpreter expected 20 input fields and the new template instance supplied 21. A missing runtime array bounds check turned that mismatch into an out-of-bounds memory read inside a kernel-level driver, which crashed Windows outright. A logic error in the Content Validator let the file ship in the first place.",
+      blastRadius:
+        "Roughly 8.5 million Windows devices crashed into boot loops. Delta, United, and American cancelled or delayed flights. Hospitals fell back to paper. Banks, broadcasters, retailers, and airports lost systems in the same window, because the same sensor was running at kernel level on all of them.",
+      recovery:
+        "CrowdStrike reverted the file at 05:27 UTC, 78 minutes after publishing it. That stopped new machines from breaking but repaired none of the ones already down. Each affected host had to be booted into Safe Mode or recovery and have the bad channel file deleted by hand, which is why recovery ran for days instead of hours and stretched longer at organizations with encrypted drives or remote fleets.",
+      primarySource: {
+        label: "CrowdStrike — External Technical Root Cause Analysis, Channel File 291 (PDF)",
+        url: "https://www.crowdstrike.com/wp-content/uploads/2024/08/Channel-File-291-Incident-Root-Cause-Analysis-08.06.2024.pdf",
+      },
+    },
   },
   {
     slug: "aws-dynamodb-dns-failure",
@@ -606,6 +664,19 @@ const rawAtlasIncidents: AtlasIncident[] = [
     duration: "Duration: approximately 15 hours · October 20, 2025",
     groupKey: "naming",
     homePlacement: "timeline",
+    findings: {
+      cause:
+        "DynamoDB manages its endpoint DNS with two automated pieces: a DNS Planner that writes plans and DNS Enactors that apply them in each Availability Zone. One Enactor stalled partway through an older plan. A second Enactor applied a newer plan and started cleanup. The stalled Enactor then finished and overwrote the newer plan with its stale one, and cleanup deleted that plan as obsolete. The delete removed every IP address for the regional DynamoDB endpoint and left the system unable to repair itself without manual work.",
+      blastRadius:
+        "The regional DynamoDB endpoint in us-east-1 stopped resolving, and everything that stores state or authenticates through it followed. EC2 instance launches, Network Load Balancer, Lambda, ECS, EKS, Fargate, STS, IAM, and Redshift were all affected. In public, Disney+, Delta, Reddit, Robinhood, Roblox, Snapchat, Venmo, Coinbase, Ring, Fortnite, and Duolingo went down together.",
+      recovery:
+        "Engineers restored the DNS records by hand at 2:25 AM PDT and customer connectivity to DynamoDB came back at 2:40 AM. The dependent services took far longer. EC2 leases were re-established at 5:28 AM, network propagation normalized at 10:36 AM, EC2 fully recovered at 1:50 PM, and the last services cleared at 2:20 PM on October 20. About fifteen hours from first impact to full recovery.",
+      primarySource: {
+        label:
+          "AWS — Summary of the Amazon DynamoDB Service Disruption in Northern Virginia (US-EAST-1)",
+        url: "https://aws.amazon.com/message/101925/",
+      },
+    },
   },
   {
     slug: "google-global-5-minute-outage-2013",

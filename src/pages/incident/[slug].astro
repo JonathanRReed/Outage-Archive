@@ -79,6 +79,7 @@ const related = (group?.items ?? []).filter((entry) => entry.slug !== incident.s
 
 const lessonText = incident.lesson.replace(/^Lesson:\s*/i, "");
 const durationText = incident.duration?.replace(/^Duration:\s*/i, "");
+const findings = incident.findings;
 
 const realSources = incident.sources ?? [];
 const affectedServices = incident.affectedServices ?? [];
@@ -160,6 +161,38 @@ const articleJsonLd = {
                 <Fragment>
                   <h2 class="incident-h">How it spread</h2>
                   <p class="incident-copy">{secondaryDetail}</p>
+                </Fragment>
+              )
+            }
+
+            {
+              findings && (
+                <Fragment>
+                  <h2 class="incident-h">Case findings</h2>
+                  <dl class="incident-findings">
+                    <div>
+                      <dt>Cause</dt>
+                      <dd>{findings.cause}</dd>
+                    </div>
+                    <div>
+                      <dt>Blast radius</dt>
+                      <dd>{findings.blastRadius}</dd>
+                    </div>
+                    <div>
+                      <dt>Recovery time</dt>
+                      <dd>{findings.recovery}</dd>
+                    </div>
+                  </dl>
+                  <p class="incident-primary-source">
+                    Primary source:{" "}
+                    <a
+                      href={findings.primarySource.url}
+                      rel="noopener"
+                      target="_blank"
+                    >
+                      {findings.primarySource.label}
+                    </a>
+                  </p>
                 </Fragment>
               )
             }
@@ -433,6 +466,49 @@ const articleJsonLd = {
       font-size: 1.02rem;
       line-height: 1.85;
       margin: 0 0 1.8rem;
+    }
+    .incident-findings {
+      display: grid;
+      gap: 1.4rem;
+      margin: 0 0 1.4rem;
+    }
+    .incident-findings dt {
+      color: var(--atlas-ink-muted);
+      font-family: var(--atlas-font-display);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      margin-bottom: 0.4rem;
+      text-transform: uppercase;
+    }
+    .incident-findings dt::before {
+      color: var(--atlas-gold);
+      content: "◆ ";
+      font-size: 8px;
+    }
+    .incident-findings dd {
+      color: var(--atlas-ink-mid);
+      font-size: 1.02rem;
+      line-height: 1.85;
+      margin: 0;
+    }
+    .incident-primary-source {
+      color: var(--atlas-ink-muted);
+      font-size: 12px;
+      letter-spacing: 0.04em;
+      margin: 0 0 2rem;
+      text-transform: uppercase;
+    }
+    .incident-primary-source a {
+      border-bottom: 1px solid color-mix(in srgb, var(--atlas-gold) 45%, transparent);
+      color: var(--atlas-ink);
+      text-decoration: none;
+      text-transform: none;
+      transition: color 0.2s;
+    }
+    .incident-primary-source a:hover,
+    .incident-primary-source a:focus-visible {
+      color: var(--atlas-red);
     }
     .incident-lesson {
       border-left: 3px solid var(--atlas-gold);

@@ -378,6 +378,10 @@ export const atlasEnrichment: Record<string, Partial<AtlasIncident>> = {
     durationMinutes: 480,
     sources: [
       {
+        label: "Dyn — Dyn Analysis Summary of Friday October 21 Attack (official, archived)",
+        url: "https://web.archive.org/web/20161027025156/http://dyn.com/blog/dyn-analysis-summary-of-friday-october-21-attack/",
+      },
+      {
         label: "Wikipedia — DDoS attacks on Dyn",
         url: "https://en.wikipedia.org/wiki/DDoS_attacks_on_Dyn",
       },
