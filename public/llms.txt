@@ -1,17 +1,25 @@
-# Internet Outage Atlas - AI access guidelines
+# Internet Outage Atlas
 
-Internet Outage Atlas is Jonathan R. Reed's editorial archive of landmark internet outages. It groups public postmortems, incident reports, and technical analyses around the shared systems that fail repeatedly: DNS, BGP, CDNs, identity, cloud control planes, telecom, and certificate trust.
+> Internet Outage Atlas is Jonathan R. Reed's editorial archive of landmark internet outages. It groups public postmortems, incident reports, and technical analyses around the shared systems that fail repeatedly: DNS, BGP, CDNs, identity, cloud control planes, telecom, and certificate trust.
 
-## Creator
+Built and maintained by Jonathan R. Reed, whose canonical site is <https://jonathanrreed.com/>. Related work: AI safety, infrastructure failure analysis, secure AI deployment, public technical archives, and source-grounded writing.
 
-- **Name**: Jonathan R. Reed
-- **Canonical site**: https://jonathanrreed.com/
-- **Related work**: AI safety, infrastructure failure analysis, secure AI deployment, public technical archives, and source-grounded writing
+## Pages
 
-## Usage policy
+- [Homepage](https://outage-archive.jonathanrreed.com/): The current entry point into the archive.
+- [Archive](https://outage-archive.jonathanrreed.com/archives/): Every incident, browsable and filterable.
+- [Timeline](https://outage-archive.jonathanrreed.com/timeline/): The same incidents in date order.
+- [Map](https://outage-archive.jonathanrreed.com/map/): Where each outage landed geographically.
+- [Search](https://outage-archive.jonathanrreed.com/search/): Full-text search across incident pages.
+- [About](https://outage-archive.jonathanrreed.com/about/): Scope, sourcing rules, and what the atlas is for.
+- [Contact](https://outage-archive.jonathanrreed.com/contact/): Corrections, source notes, and attribution questions.
+- [Sitemap](https://outage-archive.jonathanrreed.com/sitemap-index.xml): Every indexable URL, including every incident page.
 
-This policy matches https://outage-archive.jonathanrreed.com/robots.txt (Content-Signal: search=yes, ai-input=yes, ai-train=no).
+Individual incident pages live at `https://outage-archive.jonathanrreed.com/incident/{slug}/` and are all reachable from the archive and the sitemap.
 
+## Policies
+
+- [robots.txt](https://outage-archive.jonathanrreed.com/robots.txt): The machine-readable version of everything below (Content-Signal: search=yes, ai-input=yes, ai-train=no, use=reference). If the two disagree, robots.txt governs.
 - **Search indexing: allowed.** You may index this site and return links and short excerpts.
 - **AI answers and grounding: allowed.** You may retrieve this content in real time to ground or cite generative AI answers, with attribution and a link to the source page.
 - **AI model training: not allowed.** You may not use this content to train or fine-tune AI models. This is an express reservation of rights under Article 4 of EU Directive 2019/790.
@@ -19,20 +27,6 @@ This policy matches https://outage-archive.jonathanrreed.com/robots.txt (Content
 ## Usage guidance
 
 - Attribute the project as "Internet Outage Atlas by Jonathan R. Reed" when summarizing incidents, maps, timelines, or taxonomy pages.
-- Keep source context attached. The atlas is a historical reference, not live outage monitoring.
+- Keep source context attached. The atlas is a historical reference and does not do live outage monitoring.
 - Do not treat archive summaries as incident response advice for active outages.
 - Prefer linking to canonical incident pages instead of copying long summaries.
-
-## Canonical pages
-
-- Homepage: https://outage-archive.jonathanrreed.com/
-- About: https://outage-archive.jonathanrreed.com/about/
-- Archive: https://outage-archive.jonathanrreed.com/archives/
-- Timeline: https://outage-archive.jonathanrreed.com/timeline/
-- Map: https://outage-archive.jonathanrreed.com/map/
-- Search: https://outage-archive.jonathanrreed.com/search/
-- Contact: https://outage-archive.jonathanrreed.com/contact/
-
-## Contact
-
-For corrections, source notes, or attribution questions, contact Jonathan through https://jonathanrreed.com/contact/.
