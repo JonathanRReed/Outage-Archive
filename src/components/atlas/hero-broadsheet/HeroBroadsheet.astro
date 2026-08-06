@@ -22,9 +22,18 @@ const latestYear = incidentYears[incidentYears.length - 1];
 const sourcedIncidents = atlasIncidents.filter(
   (incident) => (incident.sources?.length ?? 0) > 0
 ).length;
+// A malformed or relative source URL drops out of the domain count instead of
+// throwing and taking the whole build down with it. The number below is
+// therefore the count of URLs that actually parsed.
 const sourceDomains = new Set(
   atlasIncidents.flatMap((incident) =>
-    (incident.sources ?? []).map((source) => new URL(source.url).hostname.replace(/^www\./, ""))
+    (incident.sources ?? []).flatMap((source) => {
+      try {
+        return [new URL(source.url).hostname.replace(/^www\./, "")];
+      } catch {
+        return [];
+      }
+    })
   )
 ).size;
 const failureClasses = getArchiveGroups().length;

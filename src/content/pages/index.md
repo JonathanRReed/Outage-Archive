@@ -21,9 +21,8 @@ pageSections:
       cloud control planes, software supply chains, and telecom backbones.</p>
 
       <p>The biggest outages are rarely one server going down. They are
-      failures in a few shared layers. DNS. BGP. CDNs. Identity. Control
-      planes. When one of those layers breaks, unrelated services start failing
-      together.</p>
+      failures in a few shared layers, and when one of those layers breaks,
+      unrelated services start failing together.</p>
 
       <p>This atlas tracks fifty incidents where the blast radius escaped
       the original system and spilled into public life. Hospitals switched to
