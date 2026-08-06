@@ -1,5 +1,6 @@
 ---
 import AtlasMasthead from "@components/atlas/shared/AtlasMasthead.astro";
+import { atlasIncidents, getArchiveGroups } from "@data/atlasIncidents";
 import { sanitizeHtmlFragment } from "../../../lib/safeHtml";
 
 type StatFigure = {
@@ -7,6 +8,26 @@ type StatFigure = {
   label: string;
   note: string;
 };
+
+// Scope of the record, counted from the incident data rather than typed into
+// the page content, so the front page cannot claim coverage the archive does
+// not have. The Key Figures sidebar above stays editorial (one number each,
+// chosen for effect); this line is the plain inventory.
+const incidentYears = atlasIncidents
+  .map((incident) => Number(incident.year))
+  .filter((year) => Number.isFinite(year))
+  .sort((a, b) => a - b);
+const earliestYear = incidentYears[0];
+const latestYear = incidentYears[incidentYears.length - 1];
+const sourcedIncidents = atlasIncidents.filter(
+  (incident) => (incident.sources?.length ?? 0) > 0
+).length;
+const sourceDomains = new Set(
+  atlasIncidents.flatMap((incident) =>
+    (incident.sources ?? []).map((source) => new URL(source.url).hostname.replace(/^www\./, ""))
+  )
+).size;
+const failureClasses = getArchiveGroups().length;
 
 const {
   dateline = "",
@@ -107,6 +128,30 @@ const {
           data-prop="heroBody"
           set:html={sanitizeHtmlFragment(heroBody)}
         />
+        <dl
+          class="hero-scope"
+          aria-label="Scope of the record"
+        >
+          <div>
+            <dt>Incidents</dt>
+            <dd>{atlasIncidents.length}</dd>
+          </div>
+          <div>
+            <dt>Years covered</dt>
+            <dd>{earliestYear} to {latestYear}</dd>
+          </div>
+          <div>
+            <dt>Failure classes</dt>
+            <dd>{failureClasses}</dd>
+          </div>
+          <div>
+            <dt>Sourcing</dt>
+            <dd>
+              {sourcedIncidents} of {atlasIncidents.length} incidents cite published sources, drawn from
+              {sourceDomains} domains
+            </dd>
+          </div>
+        </dl>
       </section>
       <div class="column-rule"></div>
       <aside
@@ -258,6 +303,32 @@ const {
     }
     .hero-body :global(a:hover) {
       text-decoration-thickness: 2px;
+    }
+
+    /* ── SCOPE LEDGER ── */
+    .hero-scope {
+      border-top: 1px solid var(--atlas-rule);
+      border-bottom: 1px solid var(--atlas-rule);
+      padding: 1rem 0;
+      margin-top: 0.5rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+      gap: 1rem 2rem;
+    }
+    .hero-scope dt {
+      font-family: var(--atlas-font-body);
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--atlas-ink-muted);
+      margin-bottom: 0.25rem;
+    }
+    .hero-scope dd {
+      font-family: var(--atlas-font-body);
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--atlas-ink);
+      margin: 0;
     }
 
     /* ── SIDEBAR ── */

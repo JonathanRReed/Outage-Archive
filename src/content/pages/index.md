@@ -12,9 +12,14 @@ pageSections:
     heading: 'INTERNET<br>OUTAGE ATLAS'
     subtitle: A reference to the outages that showed how shared internet systems fail
     byline: "By The Internet Outage Atlas Project \xB7 March 2026"
-    heroHeading: How internet failures spread
+    heroHeading: How do internet failures spread?
     heroQuote: ''
     heroBody: >-
+      <p>The Internet Outage Atlas is a reference record of major internet
+      outages: what broke, how far it reached, and what the failure exposed
+      about shared infrastructure. It covers DNS, BGP, CDNs, identity systems,
+      cloud control planes, software supply chains, and telecom backbones.</p>
+
       <p>The biggest outages are rarely one server going down. They are
       failures in a few shared layers. DNS. BGP. CDNs. Identity. Control
       planes. When one of those layers breaks, unrelated services start failing
@@ -191,7 +196,7 @@ pageSections:
 
   - _component: atlas/failure-taxonomy
     kicker: "Chapter Five \xB7 Failure Taxonomy"
-    heading: How the Internet Fails
+    heading: How does the internet fail?
     intro: >-
       Six recurring failure classes. The triggers vary and so does the way each
       one spreads, but the outcome keeps landing in the same place: too much
@@ -296,7 +301,7 @@ pageSections:
 
   - _component: atlas/blast-radius
     kicker: "Chapter Six \xB7 Blast Radius"
-    heading: How Failures Spread
+    heading: How far does an outage spread?
     intro: >-
       Outage scale is mostly a dependency story. The more shared the layer, the
       less local the failure stays.
