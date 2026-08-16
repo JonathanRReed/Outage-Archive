@@ -5,6 +5,15 @@
   "description": "An editorial broadsheet atlas documenting major internet outages, built with Astro and CloudCannon.",
   "keywords": ["astro", "cloudcannon", "editorial-design", "internet-outages", "broadsheet"],
   "license": "MIT",
+  "author": {
+    "name": "Jonathan R. Reed",
+    "url": "https://jonathanrreed.com/about/"
+  },
+  "homepage": "https://outage-archive.jonathanrreed.com/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/JonathanRReed/Outage-Archive.git"
+  },
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
@@ -23,7 +32,8 @@
     "lint:css": "stylelint \"**/*.css\"",
     "lint:css:fix": "stylelint \"**/*.css\" --fix",
     "format": "prettier --check .",
-    "format:fix": "prettier --write ."
+    "format:fix": "prettier --write .",
+    "audit:shadscan:ui": "bunx @shadscan/cli@0.17.0 --check-ui https://outage-archive.jonathanrreed.com --no-interactive --no-roast"
   },
   "dependencies": {
     "@astrojs/mdx": "^5.0.6",

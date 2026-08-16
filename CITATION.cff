@@ -1,0 +1,22 @@
+cff-version: 1.2.0
+message: "Cite the exact Internet Outage Atlas release or Git commit used."
+title: "Internet Outage Atlas: An Editorial Archive of Major Internet Failures"
+type: software
+authors:
+  - family-names: Reed
+    given-names: "Jonathan R."
+repository-code: "https://github.com/JonathanRReed/Outage-Archive"
+url: "https://outage-archive.jonathanrreed.com/"
+version: 1.0.0
+license: MIT
+abstract: >-
+  Internet Outage Atlas is a source-linked editorial archive documenting major
+  internet failures through timelines, incident records, causes, blast radius,
+  recovery details, and supporting references in a broadsheet-inspired Astro
+  publication.
+keywords:
+  - internet outages
+  - infrastructure history
+  - incident archive
+  - network reliability
+  - technology research
