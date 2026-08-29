@@ -197,7 +197,7 @@ export const atlasEnrichment: Record<string, Partial<AtlasIncident>> = {
       },
       {
         label: "The Register: Amazon cloud fell from sky after botched network upgrade",
-        url: "https://www.theregister.com/Print/2011/04/29/amazon_ec2_outage_post_mortem/",
+        url: "https://www.theregister.com/off-prem/2011/04/29/amazon-cloud-fell-from-sky-after-botched-network-upgrade/799135",
       },
     ],
   },
