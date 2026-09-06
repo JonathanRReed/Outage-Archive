@@ -1,138 +1,54 @@
 # Internet Outage Atlas
 
-Internet Outage Atlas is an editorial Astro site documenting landmark internet failures through a broadsheet-inspired visual system, with custom Atlas sections, structured editorial content, dark mode, and production SEO/social metadata.
+An editorial site about major internet failures, with timelines, archives, and incident records. The newspaper-style interface supports light and dark themes. Astro builds the static site; CloudCannon exposes editable content blocks.
 
-## What This Project Includes
-
-- A broadsheet-style homepage experience
-- Dedicated Atlas pages for timeline, archives, and about content
-- Custom section components under `src/components/atlas/`
-- CloudCannon-friendly content structures and editable regions
-- Social preview metadata, structured data, sitemap generation, and robots rules
-
-## Stack
-
-- Astro 6
-- CloudCannon editable regions
-- MDX
-- Lightning CSS
-- Sharp / Astro image pipeline
-- Static sitemap generation
-
-## Project Structure
-
-```text
-.
-├── public/
-│   ├── images/                 # Social preview image, logo, public assets
-│   └── robots.txt              # Crawl policy
-├── src/
-│   ├── components/atlas/       # Custom Atlas sections and shared shells
-│   ├── content/pages/index.md  # Homepage content model
-│   ├── data/seo.json           # Site-wide SEO metadata
-│   ├── layouts/                # Base layout and page shells
-│   ├── styles/atlas/_atlas.css # Shared Atlas styling
-│   └── component-docs/         # Starter library docs and builder assets
-├── astro.config.mjs            # Astro config, site URL, sitemap integration
-├── package.json                # Scripts and dependencies
-└── README.md
-```
-
-## Local Development
-
-Install dependencies and start the dev server:
+## Develop
 
 ```bash
 bun install
 bun run dev
 ```
 
-The site runs locally at `http://localhost:4321`.
+Open `http://localhost:4321`.
 
-## Available Commands
+| Command | Use |
+| --- | --- |
+| `bun run build` | Build without the starter component library |
+| `bun run build:with-library` | Include the component library |
+| `bun run preview` | Preview the build |
+| `bun run lint` | Check JavaScript, CSS, and YAML |
+| `bun run format` | Check Prettier formatting |
+| `bun run check` | Run lint and formatting checks |
+| `bun run check:fix` | Apply available fixes |
 
-| Command                      | Description                                            |
-| ---------------------------- | ------------------------------------------------------ |
-| `bun run dev`                | Start the local Astro development server               |
-| `bun run build`              | Build the production site with component docs disabled |
-| `bun run build:with-library` | Build the site with the component library included     |
-| `bun run preview`            | Preview the production build locally                   |
-| `bun run lint`               | Run JavaScript, CSS, and YAML linting                  |
-| `bun run format`             | Check formatting with Prettier                         |
-| `bun run check`              | Run lint + format checks                               |
-| `bun run check:fix`          | Run autofixable lint and formatting tasks              |
+There is no dedicated `typecheck` script or configured `bun test` suite. The stack uses Astro 6, MDX, Lightning CSS, and Astro's Sharp image pipeline.
 
-## Content Editing Model
+## Edit content
 
-The homepage content is driven by `src/content/pages/index.md`, where Atlas sections are modeled as structured content blocks. That lets editors update headlines, copy, incidents, methodology, and supporting archival material without editing component logic.
+Homepage headlines, incidents, methodology, and archive material live in `src/content/pages/index.md`. Edit these structured blocks rather than component logic.
 
-Each Atlas section follows the starter's component + CloudCannon structure pattern:
+| Path | Contents |
+| --- | --- |
+| `src/components/atlas/` | Atlas sections and shared layouts |
+| `src/data/seo.json` | Site name, description, URL, title format, and preview image |
+| `src/layouts/BaseLayout.astro` | Canonical and social metadata, theme initialization |
+| `src/components/utils/StructuredData.astro` | Organization metadata |
+| `src/styles/atlas/_atlas.css` | Shared Atlas styles |
+| `src/component-docs/` | Starter library documentation and builder assets |
+| `public/images/`, `public/favicon.svg` | Images, logo, and favicon |
+| `public/robots.txt` | Crawler policy |
+| `astro.config.mjs` | Site URL, sitemap, aliases, and build settings |
 
-```text
-src/components/atlas/<section>/
-├── SectionName.astro
-├── <section>.cloudcannon.inputs.yml
-└── <section>.cloudcannon.structure-value.yml
-```
+Each section has an Astro component plus `<section>.cloudcannon.inputs.yml` and `<section>.cloudcannon.structure-value.yml` files.
 
-## Key Files You Will Most Likely Update
+## Deploy or reuse
 
-- `src/content/pages/index.md`
-  - Homepage editorial content and section data
+Set `PUBLIC_SITE_URL` to the production origin. Outside development, the Astro configuration falls back to `https://outage-archive.jonathanrreed.com`, also recorded in `src/data/seo.json`.
 
-- `src/data/seo.json`
-  - Site name, description, production URL, title format, default preview image
+The build generates `sitemap-index.xml`. Keep its URL and the domain in `public/robots.txt` aligned with the deployment.
 
-- `src/layouts/BaseLayout.astro`
-  - Canonical tags, Open Graph tags, Twitter tags, and first-paint theme bootstrap
-
-- `src/components/utils/StructuredData.astro`
-  - Organization structured data output
-
-- `public/images/outage-image.png`
-  - Default social/search preview image
-
-- `public/images/logo.svg`
-  - Organization/site logo used in metadata
-
-- `public/favicon.svg`
-  - Browser/favicon asset
-
-- `public/robots.txt`
-  - Crawl policy for search engines and AI agents
-
-- `astro.config.mjs`
-  - `site` configuration, sitemap integration, aliases, and build settings
-
-## Deployment Notes
-
-- Set `PUBLIC_SITE_URL` to your production domain when building or deploying.
-- This project currently uses `https://outage-archive.jonathanrreed.com` in `src/data/seo.json`.
-- The Astro config falls back to `https://outage-archive.jonathanrreed.com` in non-dev builds if `PUBLIC_SITE_URL` is missing.
-- The production build generates `sitemap-index.xml`.
-- `public/robots.txt` should stay aligned with the live domain and sitemap URL.
-- Social/search preview changes can take time to refresh because platforms cache metadata.
-
-## Reuse or Rebrand Checklist
-
-If you are reusing, forking, or redeploying this site, update these first:
-
-- Site name, description, and title format in `src/data/seo.json`
-- Production URL in `src/data/seo.json`
-- `PUBLIC_SITE_URL` in your hosting/deployment environment
-- Default preview image at `public/images/outage-image.png`
-- Logo and favicon in `public/images/logo.svg` and `public/favicon.svg`
-- Crawl policy and sitemap URL in `public/robots.txt`
-- Homepage editorial content in `src/content/pages/index.md`
-- Any author names, colophon content, credits, or outbound links across the site
-
-## Validation Notes
-
-- Linting is available via `bun run lint`
-- Production build is available via `bun run build`
-- There is currently no dedicated `typecheck` script in `package.json`
-- There are currently no configured automated tests for `bun test`
+For a new site, replace the metadata, homepage content, author credits, outbound links, preview image at `public/images/outage-image.png`, logo, and favicon. Social platforms may cache older previews after deployment.
 
 ## License
 
-MIT
+MIT.
