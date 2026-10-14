@@ -1,0 +1,24 @@
+---
+import Split from "../../src/components/building-blocks/wrappers/split/Split.astro";
+import Heading from "../../src/components/building-blocks/core-elements/heading/Heading.astro";
+---
+
+<Split
+  distributionMode="half"
+  data-probe="forwarded-prop"
+>
+  <Fragment slot="first">
+    <Heading
+      level="h2"
+      text="First named slot"
+    />
+  </Fragment>
+  <Fragment slot="second">
+    <Heading
+      level="h2"
+      text="Second named slot"
+    />
+  </Fragment>
+</Split>
+
+<p data-probe="inline-spacing"><span>First</span> <span>second</span>.</p>

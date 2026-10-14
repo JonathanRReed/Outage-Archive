@@ -158,7 +158,7 @@ if (
           alt={normalizedAlt}
           widths={filteredWidths}
           sizes={sizes}
-          formats={["webp"]}
+          formats={imageSrc.format === "svg" ? [] : ["webp"]}
           width={finalWidth}
           height={finalHeight}
           fit={useFit}

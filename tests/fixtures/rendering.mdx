@@ -1,0 +1,21 @@
+import Heading from "../../src/components/building-blocks/core-elements/heading/Heading.astro";
+
+export const label = "Exported MDX value";
+
+# Markdown fixture
+
+A paragraph with **bold text** and a [working link](https://example.com/).
+
+- First list item
+- Second list item
+
+| Name    | Value |
+| ------- | ----- |
+| Fixture | Seven |
+
+```js
+const value = 7;
+```
+
+<Heading level="h3" text={label} />
+<Heading level="h4" text="Fallback hidden"><strong>Slot wins</strong></Heading>
