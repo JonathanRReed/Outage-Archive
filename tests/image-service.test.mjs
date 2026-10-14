@@ -3,17 +3,29 @@ import { createRequire } from "node:module";
 import test from "node:test";
 import sharp from "sharp";
 import imageService from "astro/assets/services/sharp";
+import { satisfies } from "semver";
 
 const astroRequire = createRequire(import.meta.resolve("astro/assets/services/sharp"));
 const rootRequire = createRequire(import.meta.url);
 const imageConfig = { service: { config: {} } };
 
+const isPatchedDecoder = (versions) =>
+  satisfies(versions.sharp, ">=0.35.5") && satisfies(versions.heif, ">=1.23.2");
+
+test("the decoder version guard requires patched stable releases", () => {
+  assert.equal(isPatchedDecoder({ sharp: "0.35.5-rc.1", heif: "1.23.2" }), false);
+  assert.equal(isPatchedDecoder({ sharp: "0.35.5", heif: "1.23.2-rc.1" }), false);
+  assert.equal(isPatchedDecoder({ sharp: "0.35.6-rc.1", heif: "1.23.2" }), false);
+  assert.equal(isPatchedDecoder({ sharp: "0.35.4", heif: "1.23.2" }), false);
+  assert.equal(isPatchedDecoder({ sharp: "0.35.5", heif: "1.23.1" }), false);
+  assert.equal(isPatchedDecoder({ sharp: "0.35.5", heif: "1.23.2" }), true);
+});
+
 test("Astro resolves the patched Sharp and libheif decoder", () => {
   const astroSharp = astroRequire("sharp");
 
   assert.equal(astroRequire.resolve("sharp"), rootRequire.resolve("sharp"));
-  assert.ok(astroSharp.versions.sharp.localeCompare("0.35.5", "en", { numeric: true }) >= 0);
-  assert.ok(astroSharp.versions.heif.localeCompare("1.23.2", "en", { numeric: true }) >= 0);
+  assert.ok(isPatchedDecoder(astroSharp.versions));
 });
 
 test("Astro preserves cover resizing and WebP output", async () => {
