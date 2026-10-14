@@ -11,15 +11,15 @@ bun run dev
 
 Open `http://localhost:4321`.
 
-| Command | Use |
-| --- | --- |
-| `bun run build` | Build without the starter component library |
-| `bun run build:with-library` | Include the component library |
-| `bun run preview` | Preview the build |
-| `bun run lint` | Check JavaScript, CSS, and YAML |
-| `bun run format` | Check Prettier formatting |
-| `bun run check` | Run lint and formatting checks |
-| `bun run check:fix` | Apply available fixes |
+| Command                      | Use                                         |
+| ---------------------------- | ------------------------------------------- |
+| `bun run build`              | Build without the starter component library |
+| `bun run build:with-library` | Include the component library               |
+| `bun run preview`            | Preview the build                           |
+| `bun run lint`               | Check JavaScript, CSS, and YAML             |
+| `bun run format`             | Check Prettier formatting                   |
+| `bun run check`              | Run lint and formatting checks              |
+| `bun run check:fix`          | Apply available fixes                       |
 
 There is no dedicated `typecheck` script or configured `bun test` suite. The stack uses Astro 6, MDX, Lightning CSS, and Astro's Sharp image pipeline.
 
@@ -27,17 +27,17 @@ There is no dedicated `typecheck` script or configured `bun test` suite. The sta
 
 Homepage headlines, incidents, methodology, and archive material live in `src/content/pages/index.md`. Edit these structured blocks rather than component logic.
 
-| Path | Contents |
-| --- | --- |
-| `src/components/atlas/` | Atlas sections and shared layouts |
-| `src/data/seo.json` | Site name, description, URL, title format, and preview image |
-| `src/layouts/BaseLayout.astro` | Canonical and social metadata, theme initialization |
-| `src/components/utils/StructuredData.astro` | Organization metadata |
-| `src/styles/atlas/_atlas.css` | Shared Atlas styles |
-| `src/component-docs/` | Starter library documentation and builder assets |
-| `public/images/`, `public/favicon.svg` | Images, logo, and favicon |
-| `public/robots.txt` | Crawler policy |
-| `astro.config.mjs` | Site URL, sitemap, aliases, and build settings |
+| Path                                        | Contents                                                     |
+| ------------------------------------------- | ------------------------------------------------------------ |
+| `src/components/atlas/`                     | Atlas sections and shared layouts                            |
+| `src/data/seo.json`                         | Site name, description, URL, title format, and preview image |
+| `src/layouts/BaseLayout.astro`              | Canonical and social metadata, theme initialization          |
+| `src/components/utils/StructuredData.astro` | Organization metadata                                        |
+| `src/styles/atlas/_atlas.css`               | Shared Atlas styles                                          |
+| `src/component-docs/`                       | Starter library documentation and builder assets             |
+| `public/images/`, `public/favicon.svg`      | Images, logo, and favicon                                    |
+| `public/robots.txt`                         | Crawler policy                                               |
+| `astro.config.mjs`                          | Site URL, sitemap, aliases, and build settings               |
 
 Each section has an Astro component plus `<section>.cloudcannon.inputs.yml` and `<section>.cloudcannon.structure-value.yml` files.
 
