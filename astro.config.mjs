@@ -12,6 +12,7 @@ const sitemapExcludedPaths = new Set(["/methodology/", "/search/"]);
 
 // https://astro.build/config
 export default defineConfig({
+  compressHTML: true,
   site:
     process.env.PUBLIC_SITE_URL ||
     (process.env.NODE_ENV === "development"
@@ -88,6 +89,7 @@ export default defineConfig({
     },
     build: {
       cssMinify: "lightningcss",
+      target: ["chrome107", "edge107", "firefox104", "safari16"],
     },
     resolve: {
       alias: {

@@ -21,16 +21,18 @@ export type ComponentMetadata = {
   slots?: SlotInfo[];
 };
 
-let metadataCache: Map<string, ComponentMetadata> | null = null;
-let nestedBlockPropertiesCache: Set<string> | null = null;
+let metadataCache: Promise<Map<string, ComponentMetadata>> | null = null;
+let nestedBlockPropertiesCache: Promise<Set<string>> | null = null;
 
 /** Loads and caches component metadata from the docs-components collection. */
 export async function getComponentMetadataMap(): Promise<Map<string, ComponentMetadata>> {
-  if (metadataCache) {
-    return metadataCache;
-  }
+  metadataCache ??= loadComponentMetadataMap();
 
-  metadataCache = new Map();
+  return metadataCache;
+}
+
+async function loadComponentMetadataMap(): Promise<Map<string, ComponentMetadata>> {
+  const metadataMap = new Map<string, ComponentMetadata>();
 
   try {
     const components = await getCollection("docs-components");
@@ -65,7 +67,7 @@ export async function getComponentMetadataMap(): Promise<Map<string, ComponentMe
         }
       }
 
-      metadataCache.set(slug, {
+      metadataMap.set(slug, {
         childComponent,
         fallbackFor,
         supportsSlots,
@@ -76,16 +78,18 @@ export async function getComponentMetadataMap(): Promise<Map<string, ComponentMe
     console.error("Error loading component metadata:", error);
   }
 
-  return metadataCache;
+  return metadataMap;
 }
 
 /** Scans structure-value files to find properties that can contain nested blocks. */
 export async function getNestedBlockProperties(): Promise<Set<string>> {
-  if (nestedBlockPropertiesCache) {
-    return nestedBlockPropertiesCache;
-  }
+  nestedBlockPropertiesCache ??= loadNestedBlockProperties();
 
-  nestedBlockPropertiesCache = new Set<string>();
+  return nestedBlockPropertiesCache;
+}
+
+async function loadNestedBlockProperties(): Promise<Set<string>> {
+  const nestedBlockProperties = new Set<string>();
 
   try {
     const componentsDir = "src/components";
@@ -106,7 +110,7 @@ export async function getNestedBlockProperties(): Promise<Set<string>> {
               if (typeof structures === "string" && structures.startsWith("_structures.")) {
                 const structureName = structures.replace("_structures.", "");
 
-                nestedBlockPropertiesCache.add(structureName);
+                nestedBlockProperties.add(structureName);
               }
             }
           }
@@ -120,20 +124,20 @@ export async function getNestedBlockProperties(): Promise<Set<string>> {
 
     for (const metadata of metadataMap.values()) {
       if (metadata.fallbackFor) {
-        nestedBlockPropertiesCache.add(metadata.fallbackFor);
+        nestedBlockProperties.add(metadata.fallbackFor);
       }
 
       if (metadata.slots) {
         for (const slot of metadata.slots) {
-          nestedBlockPropertiesCache.add(slot.fallbackFor);
+          nestedBlockProperties.add(slot.fallbackFor);
         }
       }
     }
 
-    nestedBlockPropertiesCache.add("formBlocks");
+    nestedBlockProperties.add("formBlocks");
   } catch (error) {
     console.error("Error loading structure-value files for block properties:", error);
   }
 
-  return nestedBlockPropertiesCache;
+  return nestedBlockProperties;
 }

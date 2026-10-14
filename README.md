@@ -21,7 +21,7 @@ Open `http://localhost:4321`.
 | `bun run check`              | Run lint and formatting checks              |
 | `bun run check:fix`          | Apply available fixes                       |
 
-There is no dedicated `typecheck` script or configured `bun test` suite. The stack uses Astro 6, MDX, Lightning CSS, and Astro's Sharp image pipeline.
+There is no dedicated `typecheck` script or configured `bun test` suite. The stack uses Astro 7, MDX, Lightning CSS, and Astro's Sharp image pipeline.
 
 ## Edit content
 
