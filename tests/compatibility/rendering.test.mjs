@@ -1,13 +1,16 @@
 import assert from "node:assert/strict";
-import { mkdtemp, readFile, rm } from "node:fs/promises";
-import { tmpdir } from "node:os";
+import { mkdir, mkdtemp, readFile, rm } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
 import { build } from "astro";
 
 test("Markdown, MDX, named slots and forwarded props retain their rendered behavior", async () => {
-  const output = await mkdtemp(path.join(tmpdir(), "outage-rendering-"));
+  // Astro moves prerendered assets into outDir with rename, so keep both on one filesystem.
+  const tempRoot = fileURLToPath(new URL("../../node_modules/.cache/", import.meta.url));
+
+  await mkdir(tempRoot, { recursive: true });
+  const output = await mkdtemp(path.join(tempRoot, "outage-rendering-"));
   const previous = process.env.DISABLE_COMPONENT_LIBRARY;
 
   process.env.DISABLE_COMPONENT_LIBRARY = "true";

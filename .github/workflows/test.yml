@@ -7,19 +7,21 @@ on:
   pull_request:
     branches:
       - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   lint:
     name: Lint
-    runs-on: ${{matrix.os}}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
     defaults:
       run:
         shell: bash
-    strategy:
-      matrix:
-        include:
-          - build: linux
-            os: ubuntu-24.04
+    env:
+      ASTRO_TELEMETRY_DISABLED: "1"
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -30,8 +32,29 @@ jobs:
           cache: npm
           node-version-file: .nvmrc
 
-      - name: Install
+      - name: Install locked dependencies
         run: npm ci
 
-      - name: Check
+      - name: Check lint and formatting
         run: npm run check
+
+      - name: Test image pipeline and maintenance contracts
+        run: npm test
+
+      - name: Test Markdown, MDX, slots and props
+        run: npm run test:rendering
+
+      - name: Build production site
+        run: npm run build
+
+      - name: Verify production routes and metadata
+        run: npm run test:production
+
+      - name: Build and test component library
+        run: npm run test:library
+
+      - name: Audit complete dependency tree
+        run: npm audit
+
+      - name: Audit production dependency tree
+        run: npm audit --omit=dev
