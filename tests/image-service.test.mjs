@@ -10,15 +10,16 @@ const rootRequire = createRequire(import.meta.url);
 const imageConfig = { service: { config: {} } };
 
 const isPatchedDecoder = (versions) =>
-  satisfies(versions.sharp, ">=0.35.5") && satisfies(versions.heif, ">=1.23.2");
+  satisfies(versions.sharp, ">=0.35.5") && satisfies(versions.heif, ">=1.23.3");
 
 test("the decoder version guard requires patched stable releases", () => {
-  assert.equal(isPatchedDecoder({ sharp: "0.35.5-rc.1", heif: "1.23.2" }), false);
-  assert.equal(isPatchedDecoder({ sharp: "0.35.5", heif: "1.23.2-rc.1" }), false);
-  assert.equal(isPatchedDecoder({ sharp: "0.35.6-rc.1", heif: "1.23.2" }), false);
-  assert.equal(isPatchedDecoder({ sharp: "0.35.4", heif: "1.23.2" }), false);
+  assert.equal(isPatchedDecoder({ sharp: "0.35.5-rc.1", heif: "1.23.3" }), false);
+  assert.equal(isPatchedDecoder({ sharp: "0.35.5", heif: "1.23.3-rc.1" }), false);
+  assert.equal(isPatchedDecoder({ sharp: "0.35.6-rc.1", heif: "1.23.3" }), false);
+  assert.equal(isPatchedDecoder({ sharp: "0.35.4", heif: "1.23.3" }), false);
+  assert.equal(isPatchedDecoder({ sharp: "0.35.5", heif: "1.23.2" }), false);
   assert.equal(isPatchedDecoder({ sharp: "0.35.5", heif: "1.23.1" }), false);
-  assert.equal(isPatchedDecoder({ sharp: "0.35.5", heif: "1.23.2" }), true);
+  assert.equal(isPatchedDecoder({ sharp: "0.35.5", heif: "1.23.3" }), true);
 });
 
 test("Astro resolves the patched Sharp and libheif decoder", () => {
